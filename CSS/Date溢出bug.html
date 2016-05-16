@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>日期bug</title>
+	<script type="text/javascript">
+window.onload=function(){
+	var date=new Date();
+	date.setFullYear(2015);
+
+	date.setMonth(8);
+	date.setDate(16);
+	
+	console.log(date.toLocaleString());
+	//输出结果为：2015/10/16 原因是今天是31号, 而9月并没有31号,  date对象自动做溢出处理,  即10月 所以输出了10月 
+	//解决办法：将date.setMonth(8);date.setDate(16);换下顺序。
+	//本人不是很明白，以后研究吧
+
+}
+</script>
+</head>
+<body>
+	
+</body>
+</html>

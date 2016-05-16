@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HTML新标签-功能标签</title>
+</head>
+<body>
+<!-- datalist 选项列表 与input配合使用；输入时有下拉列表，匹配输入。 IE10以下不支持 兼容选用select-->
+<input type="text" list="ValList">
+    <datalist id="ValList">
+    <option>HTML</option>
+    <option>CSS</option>
+    <option>javascript</option>
+    </datalist>
+<!-- details 描述细节，与summary配合使用-->
+<details>
+   <summary>点我显示内容</summary>
+   <p>我是内容</p>
+</details> 
+
+<!-- progress，定义进度条-->
+<progress max="100" value="76">
+</progress> 
+
+<!-- <address> 标签定义文档或文章的作者/拥有者的联系信息。
+如果 <address> 元素位于 <body> 元素内，则它表示文档联系信息。
+如果 <address> 元素位于 <article> 元素内，则它表示文章的联系信息。
+<address> 元素中的文本通常呈现为斜体。大多数浏览器会在 address 元素前后添加折行 -->
+<address>58同城版权所有@copyright</address>
+
+
+<!-- mark标签 黄色高亮内容-->
+<mark>高亮内容</mark>
+
+<!-- 新型表单类型 -->
+
+mail<!-- 与普通输入框无区别，输入非邮箱格式会有提示-->
+<form>
+  <input type="email" />
+  <input type="submit" />
+</form>
+
+tel <!-- 与普通输入框无区别，移动端会直接切换到数字键盘-->
+<form>
+  <input type="tel" />
+  <input type="submit" />
+</form>
+
+url <!-- 与普通输入框无区别，输入非网址会提示-->
+<form>
+  <input type="url" />
+  <input type="submit" />
+</form>
+
+search <!-- chrome下输入内容后会出现"x"-->
+<form>
+  <input type="search" />
+  <input type="submit" />
+</form>
+
+range <!--特定范围内的数值选择器 属性有min; max; step-->
+<form>
+  <input type="range"  step="2" min="0" max="100"/>
+</form>
+
+number<!--只能包含数字，chrome下输入框会出现上三角与下三角按钮 ie不支持-->
+<form>
+  <input type="number" />
+  <input type="submit" />
+</form>
+
+color<!--chrome下输颜色拾取框 ie不支持-->
+<form>
+  <input type="color" />
+  <input type="submit" />
+</form>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>图片动态切换</title>
+	<style type="text/css">
+   #flashimg{position: relative;}
+   #flashimg img{position: absolute;}
+	</style>
+</head>
+<body>
+	<div id="flashimg">
+		<img src="http://pic2.58.com/ui6/www/city_2.gif">
+		<img src="http://pic2.58.com/ui6/www/city_1.gif">
+	</div>
+	<script  type="text/javascript">
+	var oImg=document.getElementById('flashimg');
+var oarray = oImg.getElementsByTagName('img');
+function fout(){
+	var o = oarray[1];
+		if(o.style.opacity == null || o.style.opacity == ""){
+			o.style.opacity =1;
+		}
+		var opacitynum = o.style.opacity;
+		if(opacitynum < 0.11)
+		{
+			o.style.display='none';
+			//在节点oarray[0]的前面插入o;
+			o.parentNode.insertBefore(o, oarray[0]);
+			o.style.display = '';
+			o.style.filter = '';
+			o.style.opacity = 1;
+			setTimeout("fout()",3000);
+			return;
+		}
+		else
+		{
+			o.style.filter='alpha(opacity:'+(opacitynum*100-10)+')';
+			o.style.opacity = opacitynum-0.1;
+			setTimeout("fout()",50);
+		}
+	
+}
+fout();
+</script>
+</body>
+</html>

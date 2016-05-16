@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>css_hack</title>
+	<style type="text/css">
+      .hack{	       
+ /* CSS hack方式二：类内属性前缀
+    _background-color:green;   IE5, IE6 
+    *background-color:black;   IE5, IE6, IE7 
+    +background-color:yellow;  IE5, IE6, IE7 
+    background-color:blue !important; 
+                   ------------------- 除了IE6(5)外，其他都识别，但是IE6(5)只是在某些情况不识别
+                                      例如background-color:red在前; background-color:blue !important 在后，IE6和其他浏览器显示一直，必须将background-color:blue !important放在前面，才可以与IE7-10区别开来
+ */
+
+/* CSS hack方式二：类内属性后缀
+    background-color:gray\9;      IE6, IE7, IE8, IE9, IE10    
+    background-color:purple\0;              IE8, IE9, IE10
+    background-color:orange\9\0;                 IE9, IE10
+
+*/} 
+
+/*CSS hack方式三：选择器前缀法
+@media screen\9 { .hack {background-color:black;} }          IE5, IE6, IE7 
+
+@media \0screen { .hack {background-color:black;} }          Only IE8
+
+@media screen\9,\0screen { .hack {background-color:black;} } 测试得到只有IE6/7识别，IE8不识别 
+ 
+@media screen\0 {.hack{ background: black; }}                IE8, IE9, IE10  
+
+@media screen and (min-width:0\0) {.hack { background: black; }} IE9、IE10
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {.hack{ background: black; }}                                                           Only IE10
+
+*html .hack{ background-color:black; }                       Only IE6(5)
+
+*+html .hack{ background-color:black; }                      Only IE7
+
+*/
+</style>
+</head>
+<body>
+  <!-- 
+  CSS hack方式一：条件注释法:
+   [if IE]>
+  	这段文字只在IE浏览器显示
+  	<![endif]
+  	
+  	
+  	[if IE 6]>
+  	这段文字只在IE6浏览器显示
+  	<![endif]
+  	
+  	
+  	[if gte IE 6]>
+  	这段文字只在IE6以上(包括)版本IE浏览器显示
+  	<![endif]
+  	
+  	
+  	[if ! IE 8]>
+  	这段文字在非IE8浏览器显示
+  	<![endif]
+  	
+  	
+  	[if !IE]>
+  	这段文字只在非IE浏览器显示
+  	<![endif] 
+
+  	-->
+	<div class="hack" style="width:200px;height:200px;">div1</div>
+</body>
+</html>
