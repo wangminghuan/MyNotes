@@ -85,42 +85,133 @@ transfer   :  转移
 
 **<font size="4" color="red" >四. UI交互</font>**  
 
-**<font size="3" color="blue">4.1 交互结构的三部分</font>**   
-**A)** **配置参数（初始化时使用）**  
+分为三部分  
+
+**<font size="3" color="blue">4.1 配置参数（初始化时使用）</font>**   
+
 
 	$('#div1').draggable({axis:'x',handle:'p'})   
 JQUI中插件有特定的其他方式，称为：**有状态的插件**  ，
 在初始化后，可获取和设置配置  
-**设置**(必须初始化后才能执行，否则报错)  
+**A)** **设置**(必须初始化后才能执行，否则报错)  
 
     //Setter
 	$('#div1').draggable('option','axis','y')  
 
-**获取**  
+**B)** **获取**  
 
     //Getter
-	$('#div1').draggable('option','axis') //值为x
-**B)** **方法（初始化后使用）**
+	$('#div1').draggable('option','axis') //值为x  
 
-**A)** **自定义事件（普通事件之上的封装）**
+**<font size="3" color="blue">4.2 方法（初始化后使用）</font>**   
 
-**<font size="3" color="blue">4.1 交互类型</font>** 
+ **A)**方法有两种调用方式：  
+     
+        //1.jq链式调用
+		$('#div1').draggable('disable')
+        
+        //2.面向对象的调用方法（instance方法返回调用对象的本身）
+		var obj = $('#div1').draggable('instance');
+		obj.disable();
 
-**A)** draggable( )
+**<font size="3" color="blue">4.3 自定义事件（普通事件之上的封装）</font>**  
 
-**B)**  droppable( ) 
+ **A)**自定义事件有两种调用方式：  
+	
+	 //1.配置参数中调用
+     $('#div1').draggable({axis : 'x',create:function(){
+			alert(1);
+		},start:function(){
+			alert(2);
+		}});
+     
+    //2.事件绑定的方式调用(自定义事件名发生了变化注意，API文档都有说明)
+     $('#div1').on('dragstart',function(){
+		alert(2);
+	});
+    //ps:绑定事件写法不适用于creat事件
 
-**C)**  resizable( ) 
+ **B)**UI交互中各项交互效果的配置，方法，事件，选用统一化的命名方式，如，axis，不管在哪个交互中出现均表示限制x,y轴的相关操作，这样很好的降低了JQUI的学习成本
 
-**D)**  selectable( )  
+**<font size="4" color="red" >五. UI控件</font>**   
 
-**E)**  sortable()  
+**<font size="3" color="blue">5.1 与UI交互的区别与联系</font>**   
+**A)** 相同：其方法，事件有许多相似之处
 
-**<font size="4" color="red" >四. 标题4</font>**  
-**<font size="3" color="blue">4.. 二级标题</font>**   
-**A)** 
+**B)** 不同：UI控件需要特定布局的HTML，每个布局的DOM结构可以参照所下载压缩包文件中的index.html  
 
-**B)**   
+**<font size="3" color="blue">5.2 特点</font>**   
+**A)** 键盘控制：控件一般都包含键盘操作  
+
+**B)** css样式框架：  可以通过index.html实例 或者 官方[CSS框架API文档](http://api.jqueryui.com/theming/css-framework/)学习
+
+
+**C)** refresh方法  
+动态刷新dom元素的高度。譬如导航效果中，动态添加导航内容，导航的高度不会改变，需要添加refresh方法（依赖配置参数`heightStyle`）   
+
+		  $( "#div1" ).accordion({ heightStyle : 'auto' });
+		
+			$('input').click(function(){
+			
+				var html = $('#div1 div').eq(0).html();
+		
+				$('#div1 div').eq(0).append(html);
+			
+				$( "#div1" ).accordion('refresh');
+			});
+
+**<font size="4" color="red" >六. UI核心</font>**  
+
+**<font size="3" color="blue">6.1 选择器</font>**   
+
+**A)** :data()  
+选择含有特定data值的元素 
+
+	$('div:data(name)').css('background','red');
+**B)** :focusable()  
+选择可以获取鼠标聚焦的元素  
+
+	$('body').children(':focusable()').css('background','red');
+**C)** :tabbable()  
+选择可以接受TAB键的元素  
+
+	$('body').children(':tabbable()').css('background','red')
+**<font size="3" color="blue">6.2 方法</font>**   
+
+**A)** disableSelection()   
+禁止可选择  
+
+	$('div').disableSelection()
+**B)** enableSelection()    
+启用可选择  
+
+	$('div').enableSelection()
+**C)**focus([定时时间]，[回调函数])         
+聚焦功能    
+
+	$('input').focus(1000,function(){
+		this.style.background = 'red';
+	});
+**D)**scrollParent() 
+获得具有滚动功能的父级节点	  
+
+**E)**jQuery.ui.keyCode  
+代替键盘键值，如：ENTER,CTRL等，用途不大  
+
+**<font size="3" color="blue">6.3 实用工具</font>**   
+ 
+**A)** position()  
+
+	$('#div2').position({
+			my : 'right top',  //操作对象内的参考点，默认为center
+			at : 'right top', //位于参考对象的位置
+			of : '#div1' //位置参考对象
+		});
+
+**B)**Widget Factory  
+http://api.jqueryui.com/jQuery.widget/
+
+
 </font>  
 ******
 
