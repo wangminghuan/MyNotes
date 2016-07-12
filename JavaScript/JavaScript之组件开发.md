@@ -105,7 +105,27 @@
 		 obj.listeners[events][i]();
 	}
     } 
+**<font size="4" color="red" >三. 组件的通用写法</font>**    
 
+	function Dialog(){
+
+		this.settings = {   //默认参数
+
+		};	
+	}
+
+	Dialog.prototype.init = function( opt ){ //初始化
+		
+		extend( this.settings , opt );
+	};
+    
+    
+	function extend(obj1,obj2){ //extend 赋值函数
+
+		for(var attr in obj2){
+			obj1[attr] = obj2[attr];
+		}
+	}
 </font>  
 ******
 

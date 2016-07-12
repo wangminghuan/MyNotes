@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>扇形导航</title>
+	<style type="text/css">
+#menu{width:50px;height:50px; position:fixed;right:20px; bottom:20px; }
+#menu_list{height:42px;width:42px; position:relative;margin:4px;}
+#menu_list img{ border-radius:21px;position:absolute;left:0;top:0;border-radius:21px;}
+#home{width:50px;height:50px;background:url(img/home.png) no-repeat; border-radius:25px; position:absolute; left:0;top:0; transition:1s;}
+
+	</style>
+</head>
+<body>
+	<div id="menu">
+	<div id="menu_list">
+    	<img src="img/prev.png" alt="">
+        <img src="img/open.png" alt="">
+        <img src="img/clos.png" alt="">
+        <img src="img/full.png" alt="">
+        <img src="img/refresh.png" alt="">
+    </div>
+	<div id="home"></div>
+</div>
+<script type="text/javascript">
+var oHome=document.getElementById('home');
+var oImg=document.getElementById("menu_list").getElementsByTagName("img");
+var flag=true;
+var R=-150;
+for(var i=0;i<oImg.length;i++){
+   oImg[i].onclick=function(){
+   	 this.style.transform="scale(2) rotate(-720deg)";
+   	 this.style.opacity=0.1;
+   	 addEnd(this,end);
+   }
+}
+function end(){
+	this.style.transition="0.1s";
+	this.style.WebkitTransform="scale(1) rotate(-720deg)";
+	this.style.opacity=1;
+	removeEnd(this,end);
+	}
+
+oHome.onclick=function(){
+	if(flag){
+	this.style.transform="rotate(-360deg)";
+	for(var i=0;i<oImg.length;i++){
+		var lftp=toLfTp((90*i)/4,R);
+     oImg[i].style.transition="0.3s "+i*100+"ms ease-in-out";
+     oImg[i].style.left=lftp.l+"px";
+     oImg[i].style.top=lftp.t+"px";
+     oImg[i].style.transform="rotate(-720deg)";
+	}
+	}else{
+    this.style.transform="rotate(360deg)";
+    for(var i=0;i<oImg.length;i++){
+		var lftp=toLfTp((90*i)/4,R);
+     oImg[i].style.transition="0.3s "+(oImg.length-i)*100+"ms ease-in-out";
+     oImg[i].style.left=0+"px";
+     oImg[i].style.top=0+"px";
+     oImg[i].style.transform="rotate(0deg)";
+	}
+	}
+	flag=!flag;
+}
+
+function toLfTp(deg,R){
+	return{
+		l:Math.round(Math.sin(deg*Math.PI/180)*R),
+		t:Math.round(Math.cos(deg*Math.PI/180)*R)
+	}
+}
+//过渡完成后执行函数
+function addEnd(obj,fn)
+{
+	obj.addEventListener('WebkitTransitionEnd',fn,false);
+	obj.addEventListener('transitionend',fn,false);
+}
+function removeEnd(obj,fn)
+{
+	obj.removeEventListener('WebkitTransitionEnd',fn,false);
+	obj.removeEventListener('transitionend',fn,false);
+}
+</script>
+</body>
+</html>

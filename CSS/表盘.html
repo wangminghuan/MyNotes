@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>表盘</title>
+	<style type="text/css">
+#wrap{height: 200px;width: 200px;border-radius: 50%;border: 1px solid black;margin: 50px auto;position: relative;}
+#wrap ul{margin:0;padding:0;height:200px; position:relative; list-style:none;
+}
+#wrap ul li{width: 2px;height: 6px;background-color: #000; 
+	transform-origin:center 100px;position:absolute;left: 99px;
+}
+
+#wrap ul li:nth-of-type(5n+1){height: 12px}
+
+#hour{width:6px;height:45px;background:#000; position:absolute;left:97px;top:55px;transform-origin:bottom;}
+#min{width:4px;height:65px;background:#999; position:absolute;left:98px;top:35px;transform-origin:bottom;}
+#sec{width:2px;height:80px;background:red; position:absolute;left:99px;top:20px;transform-origin:bottom;}
+.ico{width:20px;height:20px;background:#000; border-radius:50%; position:absolute;left:90px;top:90px;}
+
+	</style>
+
+</head>
+<body>
+<div id="wrap">
+	<ul id="list"></ul>
+	<div id="hour"></div>
+	<div id="min"></div>
+	<div id="sec"></div>
+	<div class="ico"></div>
+</div> 
+<script type="text/javascript">
+	var oUl=document.getElementById('list');
+	var oCss=document.getElementsByTagName('style')[0];
+	var oHour=document.getElementById("hour");
+	var oMin=document.getElementById("min");
+	var oSec=document.getElementById("sec");
+	var strCss="";
+	var strLi="";
+	var timer=null;
+	for (var i = 0; i < 60; i++) {
+		strCss+="#wrap ul li:nth-of-type("+(i+1)+"){transform:rotate("+(i*6)+"deg)}";
+		strLi+="<li></li>";
+	};
+	oCss.innerHTML+=strCss;
+	oUl.innerHTML=strLi;
+    fnTime();
+    clearInterval(timer);
+    timer=setInterval(fnTime,1000);
+	function fnTime(){
+		var today=new Date();
+		var s=today.getSeconds();
+		var m=today.getMinutes()+s/60;
+		var h=today.getHours()+m/60;
+        oSec.style.transform="rotate("+(s*6)+"deg)";
+        oMin.style.transform="rotate("+(m*6)+"deg)";
+        oHour.style.transform="rotate("+(h*30)+"deg)";
+		
+	}
+</script>
+</body>
+</html>
