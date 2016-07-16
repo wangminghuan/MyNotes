@@ -89,7 +89,7 @@ git是分布式，svn是集成式。链接更多区别点击 [Git和SVN之间的
 </font>
 **<font size="4" color="red" >四. 分支操作</font>**  
 <font size="3"> **<font size="3" color="blue">1.Git分支:</font>**  
-**git branch**     &emsp;  &emsp; 查看当前分支，*表示当前选中分支  
+**git branch**     &emsp;  &emsp; 查看当前分支，'\*'表示当前选中分支  
 **git branch <branch_name>**  &emsp; &emsp;创建新分支    
 **git branch checkout <branch_name>**  &emsp; &emsp; 切换到指定分支  
 **git checkout -b <branch_name>**  &emsp; &emsp; 创建新分支并切换到该分支  
