@@ -371,7 +371,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 
 **<font color="blue">3.1 Object类型</font>**   
 我们看到的大多数引用类型值都是 Object 类型的实例，是ECMA中用的最多的一个类型，Object实例本身不具备多少功能。  
-**A)** Object 的每个实例都具有下列属性和方法。  
+**A)Object 的每个实例都具有下列属性和方法** 。  
 
 	1. constructor：保存着用于创建当前对象的函数。对于前面的例子而言，构造函数（constructor）就是 Object()。
 	2. hasOwnProperty(propertyName)：用于检查给定的属性在当前对象实例中（而不是在实例的原型中）是否存在。其中，作为参数的属性名（propertyName）必须以字符串形式指定（例如： o.hasOwnProperty("name")）。
@@ -380,7 +380,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 	5. toLocaleString()：返回对象的字符串表示，该字符串与执行环境的地区对应。
 	6. toString()：返回对象的字符串表示。
 	7. valueOf()：返回对象的字符串、数值或布尔值表示。通常与 toString()方法的返回值相同。  
-**B)** 创建Object对象  
+**B)创建Object对象**   
 方法1:
 
 	var person = new Object();
@@ -393,7 +393,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 	name : "Nicholas",
 	age : 29
 	}; 
-**C)** 使用对象字面量语法时，属性名也可以使用字符串   
+**C)使用对象字面量语法时，属性名也可以使用字符串**    
 
 	var person = {
 	"name" : "Nicholas",
@@ -403,12 +403,12 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 日常使用中，更推荐字面量表示法，因为这种语法要求的代码量少，而且能够给人封装数据的感觉。  
 
 **<font color="blue">3.2 Array类型</font>**   
-**A)**ECMAScript 数组的自有特点：  
+**A)ECMAScript 数组的自有特点**：  
 1. 每一项可以保存任何类型的数据。也就是说，可以用数组的第一个位置来保存字符串，用第二位置来保存数值，用第三个位置来保存对象。  
 2. ECMAScript 数组的大小是可以动态调整的，即可以随着数据的添加自动增长以容纳新增数据。  
 
 
-**B)** 创建Array对象  
+**B)创建Array对象**   
 方法1:
 
 	var colors = new Array();  //创建一个数组对象，长度不定
@@ -429,7 +429,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 	var colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
 	colors.length = 2;
 	alert(colors[2]); //undefined  
-**D)** 检测数组: ECMAScript 5 新增了 Array.isArray()方法。  
+**D)检测数组:**  ECMAScript 5 新增了 Array.isArray()方法。  
 
 	var value=[];
 	if (Array.isArray(value)){
@@ -476,7 +476,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 	alert(item); //"green"
 	alert(colors.length); //2  
 
-**G)** 重排序方法  
+**G)重排序方法**   
 <font color="red">1. sort()</font>：按升序排列数组项，但该方法会调用每个数组项的 toString()转型方法，然后比较得到的字符串，以确定如何排序。  
 
 	var values = [0, 1, 5, 10, 15];
@@ -507,7 +507,7 @@ sort()和reverse()方法显然不能够满足多数需求。两个方法可以�
 	console.log(values); //[0, 2, 3, 5, 9]
 同样，上述方法同样适用于reverse();  
 
-**H)** 操作方法  
+**H)操作方法**   
 <font color="red">1. concat(拼接元素，拼接元素，拼接元素，...)</font>：拼接数组，接受的参数为要拼接到对象数组中的元素；  
   
 	var colors = ["red", "green", "blue"];
@@ -522,14 +522,14 @@ sort()和reverse()方法显然不能够满足多数需求。两个方法可以�
 splice()方法始终都会返回一个数组，该数组中包含从原始数组中删除的项（如果没有删除任何项，则返回一个空数组）。  
 
 
-**I)** 位置方法 （ECMA5）  
+**I)位置方法**  （ECMA5）  
 <font color="red">1. indexOf(查找元素 [,起始点索引])</font>：从开头向末尾查询  
 
 <font color="red">2. lastIndexOf(查找元素 [,起始点索引]</font>：从末尾向开头查询  
 
 这两个方法都返回要查找的项在数组中的位置，或者在没找到的情况下返回-1。在比较第一个参数与数组中的每一项时，会使用全等操作符；  
 
-**I)** 迭代方法 （ECMA5）  
+**I)迭代方法**  （ECMA5）  
 共有5个方法： 每个方法都接收两个参数：要在每一项上运行的函数和（可选的）运行该函数的作用域对象——影响 this 的值。  
 
 运行的函数会接收三个参数：function（数组项的值，该项在数组中的位置， 数组对象本身）。   
@@ -578,7 +578,7 @@ splice()方法始终都会返回一个数组，该数组中包含从原始数组
 	});
 	//该方法没有返回值，本质上与使用 for 循环迭代数组一样  
 
-**I)** 归并方法 （ECMA5）  
+**I)归并方法**  （ECMA5）  
 共2个方法，这两个方法都接收两个参数：一个在每一项上调用的函数和（可选的）作为归并基础的初始值；
 
 调用函数接收四个参数: function(前一个值，当前值， 项的索引， 数组对象)  
@@ -593,11 +593,11 @@ splice()方法始终都会返回一个数组，该数组中包含从原始数组
 <font color="red">2. reduceRight()</font>，同上，只是顺序为反向：从后向前；  
 
 **<font color="blue">3.3 Date类型</font>**   
-**A)** 创建日期对象： 
+**A)创建日期对象** ： 
 
 	var now = new Date();
 
-**B)**  常用方法：  
+**B)常用方法**：  
 
 	getTime()     返回表示日期的毫秒数；与valueOf()方法返回的值相同
 	getFullYear() 取得4位数的年份（如2007而非仅07）
@@ -612,7 +612,7 @@ splice()方法始终都会返回一个数组，该数组中包含从原始数组
 
 **<font color="blue">3.4 RegExp类型</font>**    
 ECMAScript 通过 RegExp 类型来支持正则表达式。  
-**A)** 创建正则表达式：<font color="red">通过使用字面量形式</font> 
+**A)创建正则表达式** ：<font color="red">通过使用字面量形式</font> 
 
 	var expression = / pattern / flags   
 一个正则表达式就是一个模式与上述 3 个标志的组合体。每个正则表达式都可带有一或多个标志（flags）：  
@@ -625,7 +625,7 @@ ECMAScript 通过 RegExp 类型来支持正则表达式。
 
 	( [ { \ ^ $ | ) ? * + .]}
 
-**B)** 创建正则表达式：<font color="red">通过使用RegExp构造函数</font>    
+**B)创建正则表达式** ：<font color="red">通过使用RegExp构造函数</font>    
 它接收两个参数：一个是要匹配的字符串模式，另一个是可选的标志字符串。使用字面量定义的任何表达式，都可以使用构造函数来定义：
 
 	//匹配第一个"bat"或"cat"，不区分大小写
@@ -652,14 +652,14 @@ ECMAScript 通过 RegExp 类型来支持正则表达式。
 	}
 ECMA5已经重新进行了修正，两种方式下均每次都创建新的实例；
 
-**C)** RegExp实例属性（用处不大）  
+**C)RegExp实例属性（用处不大）**   
 1. global：布尔值，表示是否设置了 g 标志。  
 2. ignoreCase：布尔值，表示是否设置了 i 标志。  
 3. lastIndex：整数，表示开始搜索下一个匹配项的字符位置，从 0 算起。  
 4. multiline：布尔值，表示是否设置了 m 标志。  
 5. source：正则表达式的字符串表示，按照字面量形式而非传入构造函数中的字符串模式返回  
 
-**D)** RegExp实例方法：  
+**D)RegExp实例方法** ：  
 <font color="red">1.exec()</font>   
 **参数**：即要应用正则匹配的字符串；   
 **返回值**： 包含第一个匹配项信息的数组（为空返回null）  
@@ -726,7 +726,7 @@ ECMA5已经重新进行了修正，两种方式下均每次都创建新的实例
 	rightContext $'  Input字符串中lastMatch之后的文本
   
 **<font color="blue">3.5 Function类型</font>**   
-**A)** 函数的创建  
+**A) 函数的创建**   
 
 	//方式1：
 	function sum (num1, num2) {
@@ -742,7 +742,7 @@ ECMA5已经重新进行了修正，两种方式下均每次都创建新的实例
 	var sum = new Function("num1", "num2", "return num1 + num2"); // 不推荐
 Function构造函数可以接收任意数量的参数，最后一个参数始终都被看成是函数体，而前面的参数则枚举出了新函数的参数。   
 
-**B)** 函数不会重载的原因：
+**B) 函数不会重载的原因** ：
 
 	function fn(num){
 	  return num + 100;
@@ -763,10 +763,10 @@ Function构造函数可以接收任意数量的参数，最后一个参数始终
 	var result = fn(100); //300  
 我们创建第二个函数时，实际上覆盖了引用第一个函数的变量fn。所以，JS中函数不会重载
 
-**C)** 函数声明和函数表达式：  
+**C)** **函数声明和函数表达式**：  
 解析器会率先读取函数声明，并使其在执行任何代码之前可用（可以访问）；至于函数表达式，则必须等到解析器执行到它所在的代码行，才会真正被解释执行。
 
-**D)** 作为值的函数  
+**D)** **作为值的函数**  
 函数名本身就是变量，所以函数也可以作为值来使用，可以将函数按参数进行传递，同时将一个函数作为另一个函数的值来返回：
 
 	function callSomeFunction(someFunction, someArgument){
@@ -778,10 +778,59 @@ Function构造函数可以接收任意数量的参数，最后一个参数始终
 	var result1 = callSomeFunction(add10, 10);
 	alert(result1); //20
 
-<font color="red" size="2">注：访问函数的指针而不执行函数的话，必须去掉函数名后面的那对圆括号</font>
+<font color="red" size="2">注：访问函数的指针而不执行函数的话，必须去掉函数名后面的那对圆括号</font>  
+
+**E)** **函数内部属性**  
+在函数内部，有两个特殊的对象：arguments 和this，还有一个ECMA5规范的属性caller。  
+<font color="red">1.arguments</font>  
+其主要用途是保存函数参数(前面已经介绍)，但这个对象还有一个名叫callee的属性，该属性是一个指针，指向拥有这个arguments 对象的函数。  
+
+	function factorial(num){
+		if (num <=1) {
+			return 1;
+		} else {
+			return num * factorial(num-1)
+		}
+	}
+对于上述递归调用的函数，函数的执行与函数名factorial紧紧耦合在了一起，为了解决这种耦合，就用到了callee属性：
+
+	function factorial(num){
+		if (num <=1) {
+			return 1;
+		} else {
+			return num * arguements.callee(num-1)//消除递归调用函数名的耦合关系
+		}
+	}
+<font color="red">2.this</font>    
+引用的是函数据以执行的环境对象——或者也可以说是this值  
+
+<font color="red">3.caller</font>（Opera 9.6以下不支持）    
+这个属性中保存着调用当前函数的函数的引用，如果是在全局作用域中调用当前函数，它的值为null。
+
+	function outer(){
+		inner();
+	}
+	function inner(){
+		console.log(inner.caller);
+      //console.log(arguements.callee.caller); 解决函数名的耦合
+	}
+	outer(); //输出function outer(){inner();}
+ 
+
+**F)** **函数的属性和方法**  
+每个函数都包含两个属性：length 和prototype。  
+<font color="red">1.length属性 </font>：表示函数希望接收的命名参数的个数。  
+
+<font color="red">2.prototype属性（重点） </font>：保存了ECMAScript 中引用类型的所有实例方法（诸如toString()和valueOf()等方法实际上都保存在prototype 名下）。  
+
+ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现。
 
 
 **<font color="blue">3.6 基本包装类型</font>**   
+>为了便于操作基本类型值，ECMAScript 还提供了3 个特殊的引用类型：Boolean、Number 和
+String。 
+
+s  
 **A)** 
 
 **B)** 
