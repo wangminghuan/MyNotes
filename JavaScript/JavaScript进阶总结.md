@@ -57,14 +57,14 @@
 **B)** **立即调用的函数表达式**（也称函数自执行）  
 方式一：
  
-     （function(){
+     (function(){
        console.log("Hello World!")
-	}()）;//推荐，一个括号内就是一个整体
+	}());//推荐，一个括号内就是一个整体
 方式二：
  
-     （function(){
+     (function(){
        console.log("Hello World!")
-	}）();   
+	})();   
 原因：  
 JavaScript里括弧()里面不能包含语句，所以在这一点上，解析器在解析function关键字的时候，会将相应的代码解析成function表达式，而不是function声明。   
 
