@@ -49,9 +49,68 @@ BOM是指浏览器对象模型。BOM 提供了很多对象，用于访问浏览�
 		alert(window.age); //29
 		alert(window.color); //undefined  
 
-**C)** 
+**C) 窗口位置**   
+screenLeft 和 screenTop 属性：IE、 Safari、 Opera 和 Chrome支持  
 
-**D)**  
+screenX 和 screenY 属性： Firefox，Safari、和 Chrome支持
+
+兼容处理的例子：  
+
+		var leftPos = (typeof window.screenLeft == "number") ?
+		window.screenLeft : window.screenX;
+		var topPos = (typeof window.screenTop == "number") ?
+		window.screenTop : window.screenY;
+获得浏览器相对于显示器屏幕左上角的x,y方向距离；但这个值每个浏览器下的值不一致，不建议使用；        
+
+**D) 窗口大小**  
+
+1. 浏览器窗口大小  
+outerWidth、 outerHeight：浏览器窗口大小  
+innerWidth、 innerHeight：浏览器窗口大小（不含边框）  
+区别：outerWidth和innerWidth在浏览器全屏模式下相等，非全屏模式：innerWidth+边框（十几px）=outerWidth。  
+兼容：IE8以下不支持，用途不大；
+
+2. 页面视口大小（viewPort）  
+`document.documentElement.clientWidth` ，` document.documentElement.clientHeight` ：IE（IE6必须在标准模式下）、 Firefox、 Safari、 Opera 和 Chrome 支持；  
+`document.body.clientWidth` ， `document.body.clientHeight`：IE6混杂模式支持；
+
+3. 将上述两条针对各个浏览器做一个兼容处理，来获取视口（viewPort）的大小：（浏览器窗口各个浏览器差异较大，无法兼容处理）  
+
+		var pageWidth = window.innerWidth,
+			pageHeight = window.innerHeight;
+		if (typeof pageWidth != "number"){
+			if (document.compatMode == "CSS1Compat"){
+				pageWidth = document.documentElement.clientWidth;
+				pageHeight = document.documentElement.clientHeight;
+				} else {
+					pageWidth = document.body.clientWidth;
+		k			pageHeight = document.body.clientHeight;
+				}
+		}
+
+<font size="3">  
+对于移动设备情况的补充：<a href="./其他/移动端viewPort.md">移动端viewPort</a>  
+</font>
+**<font color="blue">3.2 二级标题</font>**   
+**A)** 
+
+**B)**  
+
+**<font color="blue">3.3 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font color="blue">3.4 二级标题</font>**   
+**A)** 
+
+**B)**  
+
+**<font color="blue">3.5 二级标题</font>**   
+**A)** 
+
+**B)**   
+
 **<font size="5" color="red" >四. DOM</font>**  
 **<font color="blue">4.. 二级标题</font>**   
 **A)** 
