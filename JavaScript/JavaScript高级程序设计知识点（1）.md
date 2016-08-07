@@ -892,7 +892,7 @@ ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现�
 		objectSayColor(); //blue
 
 **<font color="blue">3.6 基本包装类型</font>**   
-为了便于操作基本类型值，ECMAScript还提供了3个特殊的引用类型：Boolean、Number 和String。 
+为了便于操作基本类型值，ECMAScript还提供了3个特殊的引用类型：Boolean、Number 和String。每当读取一个基本类型值的时候，后台就会创建一个对应的基本包装类型的对象。 
 
 	var s1 = "some text";
 	var s2 = s1.substring(2); 
@@ -939,7 +939,7 @@ length 属性，表示字符串中包含多个字符；
 **C) String类型下的方法**   
   
 1. 字符方法：  
-<font color="red">charAt(索引值)</font>；以字符串形式，返回索引位置的字符；
+<font color="red">charAt(索引值)</font>；以字符串形式，返回索引位置的字符；  
 <font color="red">charCodeAt(索引值)</font>；以字符编码形式，返回索引位置的字符。  
 
 2. 字符串操作方法：    
