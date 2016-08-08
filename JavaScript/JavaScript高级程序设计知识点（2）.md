@@ -50,7 +50,11 @@ DOM（文档对象模型）是针对HTML 和XML 文档的一个API（应用程�
 		console.log(ohed.nodeName)//DIV
 		console.log(ohed.nodeValue)//Null
 
-5. childNodes 属性 : 表明节点元素中的所有兄弟节点（会把回车也算进去），每个节点均有，其中保存着一个NodeList 对象和length属性；childNodes 列表中的每个节点相互之间都是同胞节点。通过使用列表中每个节点的previousSibling和nextSibling 属性，可以访问同一列表中的其他节点。
+5. childNodes 属性 : 表明节点元素中的所有兄弟节点（会把回车也算进去），每个节点均有，其中保存着一个NodeList 对象和length属性；childNodes 列表中的每个节点相互之间都是同胞节点。通过使用列表中每个节点的previousSibling和nextSibling 属性，可以访问同一列表中的其他节点。我们可以通过方括号或者item()来访问保存在 NodeList 中的节点：
+
+		var firstChild = someNode.childNodes[0];
+		var secondChild = someNode.childNodes.item(1);
+		var count = someNode.childNodes.length;
 6. parentNode 属性 ： 指向文档树中的父节点。
 
 		var oul=document.getElementById('ul1');//一个包含4个li的ul标签
@@ -343,20 +347,158 @@ DocumentFragment 在文档中没有对应的标记。通常把它作为一个“
 NodeList 对象都是“动态的”，这就意味着每次访问NodeList 对象，都会运行一次查询。有鉴于此，最好的办法就是尽量减少DOM操作。同时可以考虑将从NodeList 中取得的值缓存起来。
 
 
-**<font color="blue">3.1 二级标题</font>**   
-**A)** 
+**<font color="blue">3.3 DOM扩展之新增选择符</font>**    
+Selectors API（www.w3.org/TR/selectors-api/）是由 W3C 发起制定的一个标准，致力于让浏览器原生支持 CSS 查询。目前已完全支持 Selectors API Level 1
+的浏览器有 IE 8+、 Firefox 3.5+、 Safari 3.1+、 Chrome 和 Opera 10+。  
+**A) querySelector()方法**：选择某个元素 
 
-**B)**   
+	//取得 body 元素
+	var body = document.querySelector("body");
+	//取得 ID 为"myDiv"的元素
+	var myDiv = document.querySelector("#myDiv");
+	//取得类为"selected"的第一个元素
+	var selected = document.querySelector(".selected");
+	//取得类为"button"的第一个图像元素
+	var img = document.body.querySelector("img.button");
+**B) querySelectorAll()方法**：选择一组元素   
 
-**<font color="blue">3.1 二级标题</font>**   
-**A)** 
+	//取得某<div>中的所有<em>元素（类似于 getElementsByTagName("em")）
+	var ems = document.getElementById("myDiv").querySelectorAll("em");
+	//取得类为"selected"的所有元素
+	var selecteds = document.querySelectorAll(".selected");
+	//取得所有<p>元素中的所有<strong>元素
+	var strongs = document.querySelectorAll("p strong");
 
-**B)**   
 
-**<font color="blue">3.1 二级标题</font>**   
-**A)** 
+**C）matchesSelector()方法**  
+Level 2 规范为 Element 类型新增的一个方法，目前支持的浏览器不是很多，参见 [Can I Use:matchesSelector](http://caniuse.com/#search=matchesSelector)。
 
-**B)**   
+接收一个参数，即 CSS 选择符，如果调用元素与该选择符匹配，返回 true；否则，返回 false。
+
+	if (document.body.matchesSelector("body.page1")){
+	//true
+	}
+**<font color="blue">3.4 DOM扩展之元素遍历</font>**     
+对于元素间的空格， IE9 及之前版本不会返回文本节点，而其他所有浏览器都会返回文本节点。这就导致了在使用 childNodes 和 firstChild 等属性时的行为不一致。Element Traversal 规范（www.w3.org/TR/ElementTraversal/）新定义了一组属性。 
+
+Element Traversal API 为 DOM 元素添加了以下 5 个属性。  
+
+		childElementCount：返回子元素（不包括文本节点和注释）的个数。
+		firstElementChild：指向第一个子元素； firstChild 的元素版。
+		lastElementChild：指向最后一个子元素； lastChild 的元素版。
+		previousElementSibling：指向前一个同辈元素； previousSibling 的元素版。
+		nextElementSibling：指向后一个同辈元素； nextSibling 的元素版。
+通过新增的 DOM 属性，可以不必担心空白文本节点，从而可以更方便的查找元素了。  
+支持 Element Traversal 规范的浏览器有 IE 9+、 Firefox 3.5+、 Safari 4+、 Chrome 和 Opera 10+。
+
+**<font color="blue">3.5 DOM扩展之H5规范新增</font>**   
+**A) getElementsByClassName()方法**：返回一组特定class的元素；支持的浏览器有 IE 9+、 Firefox 3+、 Safari 3.1+、 Chrome 和Opera 9.5+。 
+
+**B) classList 属性**   
+
+1. className 中是一个字符串，如果只修改字符串一部分，也必须设置整个字符串的值，譬如：  
+
+		<div class="bd user disabled">...</div>
+div元素一共有三个类名。要从中删除一个类名，需要将三个类名拆开，删除，然后再拼接。classList 属性可以很好的解决这个问题。 
+2. 可以通过 length 属性获取classList的长度，获取得每个元素可以使用 item()方
+法，或方括号语法。  
+3. classList获取到的对象拥有的方法：
+
+		add(value)：将给定的字符串值添加到列表中。如果值已经存在，就不添加了。
+		contains(value)：表示列表中是否存在给定的值，如果存在则返回 true，否则返回 false。
+		remove(value)：从列表中删除给定的字符串。
+		toggle(value)：如果列表中已经存在给定的值，删除它；如果列表中没有给定的值，添加它。
+4. 支持 classList 属性的浏览器有 Firefox 3.6+和 Chrome  
+
+
+**C) 焦点管理**   
+
+1. document.activeElement 属性：该属性始终会引用 DOM 中当前获得了焦点的元素。
+
+2. 元素获得焦点的方式有：页面加载、用户输入（通常是通过按 Tab 键）和在代码中调用 focus()方法。  
+
+3. document.hasFocus()方法：用于检测文档是否获得了焦点。
+
+		var button = document.getElementById("myButton");
+		button.focus();
+		alert(document.activeElement === button); //true
+		alert(document.hasFocus(); //true  
+4. 实现了这两个属性的浏览器的包括 IE 4+、 Firefox 3+、 Safari 4+、 Chrome 和 Opera 8+。  
+
+
+**D) HTMLDocument的变化** 
+
+1. readyState 属性 :
+Document 的 readyState 属性有两个可能的值：
+
+		loading，正在加载文档；
+		complete，已经加载完文档 
+指示文档是否已经加载完成：  
+
+		if (document.readyState == "complete"){
+		//执行操作
+		}
+支持 readyState 属性的浏览器有 IE4+、 Firefox 3.6+、 Safari、 Chrome 和 Opera 9+。  
+
+2. compatMode属性: 检测渲染页面的模式是标准的还是混杂的。在标准模式下， document.compatMode 的值等于"CSS1Compat"，而在混杂模式下， document.compatMode 的值等于"BackCompat"。支持浏览器：IE6+, Firefox、 Safari 3.1+、 Opera 和 Chrome。 
+
+
+3. head属性：作为document.body 引用文档的<body>元素的补充，H5新增了 document.head 属性，用来引用文档的<head>元素。  
+支持的浏览器仅有 Chrome 和 Safari 5，下面为兼容写法：  
+
+		var head = document.head || document.getElementsByTagName("head")[0];
+
+**E) 字符集属性**：   
+
+1. charset 属性:表示文档中实际使用的字符集,默认情况下，这个属性的值为"UTF-16"，但可以通过<meta>元素、响应头部或直接设置 charset 属性修改这个值（支持浏览器有IE、 Firefox、 Safari、 Opera 和 Chrome）：
+
+		alert(document.charset); //"UTF-16"
+		document.charset = "UTF-8";
+2. defaultCharset属性:根据默认浏览器及操作系统的设置，当前文档默认的字符集应该是什么。如果文档没有使用默认的字符集，那 charset 和 defaultCharset 属性的值可能会不一样。支持浏览器：IE、 Safari 和 Chrome。
+
+**F) 自定义数据属性**  
+HTML5 规定可以为元素添加非标准的属性，但要添加前缀 data-。添加了自定义属性之后，可以通过元素的 dataset 属性来访问自定义属性的值：
+
+		<div id="myDiv" data-appId="12345" data-myname="Nicholas"></div>
+		
+		var div = document.getElementById("myDiv");
+		//取得自定义属性的值
+		var appId = div.dataset.appId;
+		var myName = div.dataset.myname;
+		//设置值
+		div.dataset.appId = 23456;
+		div.dataset.myname = "Michael";
+目前主流浏览器均支持；
+
+**F) 插入标记**   
+
+1. innerHTML 属性：读取/写入HTML节点。所有浏览器返回的 innerHTML 值并不完全相同。  
+
+	兼容性：在大多数浏览器中，通过 innerHTML 插入<script\>元素并不会执行其中的脚本。但大多数浏览器（除了IE8及其以下版本）都支持以直观的方式通过 innerHTML 插入<style\>元素。  
+
+	并不是所有元素都支持 innerHTML 属性。不支持的元素有： <col\>、 <colgroup\>、<frameset\>、 <head\>、 <html\>、 <style\>、 <table\>、 <tbody\>、 <thead\>、 <tfoot\>和<tr\>。  
+
+	IE8下有一个window.toStaticHTML()方法，用于处理HTML字符串，将其处理为"无害"版本，再放入DOM树中。 
+
+2. outerHTML 属性：读模式下，返回调用它的元素及所有子节点的HTM标签（包含其自身，注意与innerHTML区别开）；写模式下，根据指定的HTML字符串创建新的DOM子树（会将调用元素自身也覆盖掉，注意与innerHTML区别开）。   
+支持 的浏览器有：IE4+、 Safari 4+、 Chrome 和 Opera 8+。 Firefox 7+ 
+
+3. insertAdjacentHTML()方法：    
+它接收两个参数：(插入位置, 要插入的HTML文本):
+
+		第一个参数必须是下列值之一：(小写)	
+		"beforebegin"，在当前元素之前插入一个紧邻的同辈元素；
+		"afterbegin"，在当前元素之下插入一个新的子元素或在第一个子元素之前再插入新的子元素；
+		"beforeend"，在当前元素之下插入一个新的子元素或在最后一个子元素之后再插入新的子元素；
+		"afterend"，在当前元素之后插入一个紧邻的同辈元素。
+		
+		第二个参数是一个 HTML 字符串（与 innerHTML 和 outerHTML的值相同）
+支持浏览器有 IE、 Firefox 8+、 Safari、 Opera 和 Chrome。
+
+使用上述方法时候注意性能问题。  
+
+**G) scrollIntoView()方法**   
+；
 
 **<font color="blue">3.1 二级标题</font>**   
 **A)** 
