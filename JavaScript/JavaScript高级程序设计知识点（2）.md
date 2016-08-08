@@ -497,22 +497,80 @@ HTML5 规定可以为元素添加非标准的属性，但要添加前缀 data-�
 
 使用上述方法时候注意性能问题。  
 
-**G) scrollIntoView()方法**   
-；
+**G) scrollIntoView()方法** : 支持性较差。忽略；  
 
-**<font color="blue">3.1 二级标题</font>**   
+**<font color="blue">3.6 DOM扩展之专有扩展</font>**   
+**A) 文档模式** ：  
+IE8 引入了一个新的概念叫“文档模式”（document mode）。
+要强制浏览器以某种模式渲染页面，可以使用HTTP 头部信息X-UA-Compatible，或通过等价的
+<meta>标签来设置：
+
+	<meta http-equiv="X-UA-Compatible" content="IE=IEVersion">
+IE 的版本（IEVersion）有以下一些不同的值：  
+
+	Edge：始终以最新的文档模式来渲染页面。忽略文档类型声明。对于IE8，始终保持以IE8 标准模式渲染页面。对于IE9，则以IE9 标准模式渲染页面。
+	EmulateIE9：如果有文档类型声明，则以IE9 标准模式渲染页面，否则将文档模式设置为IE5。
+	EmulateIE8：如果有文档类型声明，则以IE8 标准模式渲染页面，否则将文档模式设置为IE5。
+	EmulateIE7：如果有文档类型声明，则以IE7 标准模式渲染页面，否则将文档模式设置为IE5。
+	9：强制以IE9 标准模式渲染页面，忽略文档类型声明。
+	8：强制以IE8 标准模式渲染页面，忽略文档类型声明。
+	7：强制以IE7 标准模式渲染页面，忽略文档类型声明。
+	5：强制将文档模式设置为IE5，忽略文档类型声明。
+**B)children属性**   
+由于IE9 之前的版本与其他浏览器在处理文本节点中的空白符时有差异。在元素只包含元素子节点时，children 属性与childNodes 没有什么区别。
+
+**E）contains()方法**  
+该方法接收一个参数，即要检测的后代节点。调用contains()方法的应该是祖先节点，方法返回true表示后代节点是父节点的子节点；否则，返回false；
+
+	alert(document.documentElement.contains(document.body)); //true
+支持contains()方法的浏览器有IE、Firefox 9+、Safari、Opera 和Chrome。  
+
+DOM Level 3 的 `compareDocumentPosition()`也能够确定节点间的关系；  
+
+**F）插入文本**   
+ 
+1. innerText  
+innerText属性会过滤掉子节点中所有的HTML标签，只会生成一个子文本节点。  
+支持浏览器包括IE4+、Safari 3+、Opera 8+和Chrome。Firefox 虽然不支持innerText，但支持作用类似的textContent 属性。
+
+2. outerText  
+除了作用范围扩大到了包含调用它的节点之外，与innerText 基本上没有多大区别。
+
+**<font size="5" color="red" >四. DOM2和DOM3</font>**  
+
+**<font color="blue">4.1 二级标题</font>**   
+**A)** 
+
+**B)**     
+
+**<font color="blue">4.2 二级标题</font>**   
 **A)** 
 
 **B)**   
 
-**<font color="blue">3.1 二级标题</font>**   
+**<font color="blue">4.3 二级标题</font>**   
 **A)** 
 
 **B)**   
-**<font size="5" color="red" >四. BOM</font>**  
+
+**<font color="blue">4.4 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font color="blue">4.5 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font color="blue">4.5 二级标题</font>**   
+**A)** 
+
+**B)**   
+**<font size="5" color="red" >五. BOM</font>**  
 BOM是指浏览器对象模型。描述了与浏览器进行交互的方法和接口。BOM 提供了很多对象，用于访问浏览器的功能。H5中已经规范了BOM的主要内容。  
 
-**<font color="blue">3.1 window对象</font>**  
+**<font color="blue">5.1 window对象</font>**  
   
 **A)** BOM 的核心对象是 window，在浏览器中， window 对象有双重角色，它既是通过 JavaScript 访问浏览器窗口的一个接口，又是 ECMAScript 规定的 Global 对象。
 
@@ -622,7 +680,7 @@ resizeTo()和resizeBy()：调整浏览器窗口的大小，接受两个参数：
 		window.resizeTo(300, 300);  
 但在高版本浏览器中，两个方法基本都已经无效；
 
-**<font color="blue">3.2 location 对象</font>**   
+**<font color="blue">5.2 location 对象</font>**   
 location 是最有用的BOM对象之一。location 对象既是window对象的属性，也是document对象的属性。  
 **A) 属性** 
 
@@ -665,13 +723,13 @@ location 是最有用的BOM对象之一。location 对象既是window对象的�
 		location.reload(); //重新加载（有可能从缓存中加载）
 		location.reload(true); //重新加载（从服务器重新加载）
 
-**<font color="blue">3.3 navigator 对象</font>**   
+**<font color="blue">5.3 navigator 对象</font>**   
 navigator 对象的属性通常用于检测显示网页的浏览器类型
 
-**<font color="blue">3.4 screen 对象</font>**  
+**<font color="blue">5.4 screen 对象</font>**  
 该对象在编程中用处不大； 
 
-**<font color="blue">3.5 history 对象</font>**    
+**<font color="blue">5.5 history 对象</font>**    
 history 对象保存着用户上网的历史记录。     
 **A) 属性**   
 length 属性：保存着历史记录的数量
@@ -696,17 +754,17 @@ length 属性：保存着历史记录的数量
 		//前进一页
 		history.forward();
 
-**<font size="5" color="red" >五. 浏览器检测</font>**
+**<font size="5" color="red" >六. 浏览器检测</font>**
 
  
-**<font color="blue">5.1 能力检测</font>**  
+**<font color="blue">6.1 能力检测</font>**  
 通过确定浏览器支持特定的能力，来给出解决方案，推荐！。   
 在可能的情况下，要尽量使用typeof 进行能力检测。 
 
-**<font color="blue">5.2 怪癖检测</font>**  
+**<font color="blue">6.2 怪癖检测</font>**  
 怪癖检测（quirks detection）的目标是识别浏览器的特殊行为（bug）,它无法怪癖检测无法精确地检测特定的浏览器和版本。  
 
-**<font color="blue">5.3 用户代理检测</font>**  
+**<font color="blue">6.3 用户代理检测</font>**  
 通过检测用户代理字符串（navigator.userAgent）来识别浏览器，但这最好作为第三个选择，因为一些历史原因浏览器厂商会在用户代理字符串中添加一些欺骗性信息，导致该字符串信息不一定准确。   
 
 </font>  
