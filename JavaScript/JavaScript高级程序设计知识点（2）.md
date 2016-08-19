@@ -537,16 +537,101 @@ innerText属性会过滤掉子节点中所有的HTML标签，只会生成一个�
 除了作用范围扩大到了包含调用它的节点之外，与innerText 基本上没有多大区别。
 
 **<font size="5" color="red" >四. DOM2和DOM3</font>**  
+DOM1 级主要定义的是 HTML 和 XML 文档的底层结构。 DOM2 和 DOM3 级则在这个结构
+的基础上引入了更多的交互能力，也支持了更高级的 XML 特性。  
 
-**<font color="blue">4.1 二级标题</font>**   
-**A)** 
+DOM2 和 DOM3级分为许多模块（模块之间具有某种关联），分别描述了 DOM 的某个非常具体的子集。这些模块如下。
 
-**B)**     
+- DOM2 级核心（DOM Level 2 Core）：在 1 级核心基础上构建，为节点添加了更多方法和属性。
+- DOM2 级视图（DOM Level 2 Views）：为文档定义了基于样式信息的不同视图。
+- DOM2 级事件（DOM Level 2 Events）：说明了如何使用事件与 DOM 文档交互。
+- DOM2 级样式（DOM Level 2 Style）：定义了如何以编程方式来访问和改变 CSS 样式信息。
+- DOM2 级遍历和范围（DOM Level 2 Traversal and Range）：引入了遍历 DOM 文档和选择其特定部分的新接口。
+- DOM2 级 HTML（DOM Level 2 HTML）：在 1 级 HTML 基础上构建，添加了更多属性、方法和新接口。    
 
-**<font color="blue">4.2 二级标题</font>**   
-**A)** 
+**<font color="blue">4.1 DOM 变化</font>**   
+**A)** 有了 XML 命名空间，不同 XML 文档的元素就可以混合在一起，共同构成格式良好的文档，而不必担心发生命名冲突。HTML 不支持 XML 命名空间，但 XHTML 支持 XML 命名空间。
 
-**B)**   
+**B)** DOM2中增加了许多针对命名空间的属性和方法，用途不大，此处不再详细介绍；  
+
+**C)** 其他方面的变化（框架变化）  
+其他变化这里不再介绍，重点讲一下框架的变化：   
+DOM1级中，框架和内嵌框架分别用 HTMLFrameElement 和 HTMLIFrameElement 表示，它们在 DOM2 级中都有了一个新属性，名叫 contentDocument。这个属性包含一个指针，指向表示框架内容的文档对象：  
+
+	var iframe = document.getElementById("myIframe");
+	var iframeDoc = iframe.contentDocument; //在 IE8 以前的版本中无效
+
+对于IE8以前的版本虽然不支持 contentDocument 属性，但支持一个名叫 contentWindow 的属性，该属性返回框架的 window 对象，该 window 对象又有一个 document 属性。可以做如下兼容：  
+
+	var iframe = document.getElementById("myIframe");
+	var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+**<font color="blue">4.2 样式</font>**   
+
+**A) 访问元素样式**   
+任何支持 style 特性的 HTML 元素在 JavaScript 中都有一个对应的 style 属性，该属性包含着通过 HTML 的 style 特性指定的所有样式信息，但不包含与外部样式表或嵌入样式表经层叠而来的样式。  
+
+对于使用短划线（分隔不同的词汇，例如 background-image）的 CSS 属性名，必须将其转换成驼峰大小写形式，才能通过 JavaScript 来访问。  
+
+		CSS属性 					JavaScript属性
+		background-image 		style.backgroundImage
+		color 					style.color
+		display 				style.display
+		font-family 			style.fontFamily
+        float(特殊)             style.cssFloat/style.styleFloat(IE)
+
+1. DOM 样式属性和方法  
+
+		cssText：如前所述，通过它能够访问到 style 特性中的 CSS 代码。
+		length：应用给元素的 CSS 属性的数量。
+		parentRule：表示 CSS 信息的 CSSRule 对象。后面将讨论 CSSRule 类型。
+		getPropertyCSSValue(propertyName)：返回包含给定属性值的 CSSValue 对象。该对象有两个属性： cssText 和 cssValueType。
+		getPropertyPriority(propertyName)：如果给定的属性使用了!important 设置，则返回"important"；否则，返回空字符串。
+		getPropertyValue(propertyName)：返回给定属性的字符串值(css字符串，如background-image)。
+		item(index)：返回给定位置的 CSS 属性的名称。
+		removeProperty(propertyName)：从样式中删除给定属性。
+		setProperty(propertyName,value,priority)：将给定属性设置为相应的值，并加上优先权标志（"important"或者一个空字符串）  
+2. 计算的样式  
+getComputedStyle()方法。接受两个参数：要取得计算样式的元素和一个伪元素字符串（例如":after"，如不需要可以为nunll）。
+
+		var myDiv = document.getElementById("myDiv");
+		var computedStyle = document.defaultView.getComputedStyle(myDiv, null);
+		alert(computedStyle.backgroundColor); 
+		alert(computedStyle.width); 
+		alert(computedStyle.height); 
+		alert(computedStyle.border); // 在某些浏览器中会有返回值，因为这是一个综合属性
+IE不支持getComputedStyle()方法，但它有一种类似的概念。在 IE 中，每个具有 style 属性的元素还有一个 currentStyle 属性。  
+
+		var myDiv = document.getElementById("myDiv");
+		var computedStyle = myDiv.currentStyle; //是属性不是方法，注意！！
+		alert(computedStyle.backgroundColor); 
+		alert(computedStyle.width);
+		alert(computedStyle.height); 
+		alert(computedStyle.border); //undefined，IE 也没有返回 border 样式，因为这是一个综合属性。
+无论在哪个浏览器中，最重要的一条是要记住所有计算的样式都是只读的；不能修改计算后样式对象中的 CSS 属性！！！
+
+**B) 操作样式表**   
+
+1. CSSStyleSheet对象：表示的是样式表，包括通过<link\>元素包含的样式表和在<style\>元素中定义的样式表。 该对象下还有许多属性，如href,disabled,media等等。
+
+		var sheet = null;
+		for (var i=0, len=document.styleSheets.length; i < len; i++){
+			sheet = document.styleSheets[i];
+			alert(sheet.href);
+		}
+不同浏览器的 document.styleSheets 返回的样式表也不同。也可以直接通过<link\>或<style\>元素取得 CSSStyleSheet 对象。其有一个sheet属性（IE为
+styleSheet 属性）；不同浏览器中都能取得样式表对象，也可以使用下列代码：  
+
+		function getStyleSheet(element){
+		return element.sheet || element.styleSheet;
+		}
+		//取得第一个<link/>元素引入的样式表
+		var link = document.getElementsByTagName("link")[0];
+		var sheet = getStylesheet(link);
+		//这里的 getStyleSheet()返回的样式表对象与document.styleSheets 集合中的样式表对象相同。       
+
+
+**C) 元素大小**  
 
 **<font color="blue">4.3 二级标题</font>**   
 **A)** 
@@ -754,7 +839,7 @@ length 属性：保存着历史记录的数量
 		//前进一页
 		history.forward();
 
-**<font size="5" color="red" >六. 浏览器检测</font>**
+**<font size="5" color="red" >六. 客户端（浏览器）检测</font>**
 
  
 **<font color="blue">6.1 能力检测</font>**  
@@ -767,6 +852,82 @@ length 属性：保存着历史记录的数量
 **<font color="blue">6.3 用户代理检测</font>**  
 通过检测用户代理字符串（navigator.userAgent）来识别浏览器，但这最好作为第三个选择，因为一些历史原因浏览器厂商会在用户代理字符串中添加一些欺骗性信息，导致该字符串信息不一定准确。   
 
+**<font size="5" color="red" >七. 事件</font>**  
+
+**<font color="blue">7.1 事件流</font>**   
+
+事件流描述的是从页面中接收事件的顺序。但有意思的是， IE 和 Netscape 开发团队居然提出了差不多是完全相反的事件流的概念。 IE 的事件流是事件冒泡流，而 Netscape Communicator 的事件流是事件捕获流。  
+
+**A)事件冒泡**    
+
+IE 的事件流叫做事件冒泡（event bubbling），即事件开始时由最具体的元素（文档中嵌套层次最深的那个节点）接收，然后逐级向上传播到较为不具体的节点（文档）。譬如点击事件click，点击事件会沿 DOM 树向上传播，在每一级节点上都会发生，直至传播到 document 对象。  
+
+所有现代浏览器都支持事件冒泡，但在具体实现上还是有一些差别。
+
+**B)事件捕获**  
+
+事件捕获的思想是不太具体的节点应该更早接收到事件，而最具体的节点应该最后接收到事件。事件捕获的用意在于在事件到达预定目标之前捕获它。同样对于点击事件，document 对象首先接收到 click 事件，然后事件沿 DOM 树依次向下，一直传播到事件的实际目标。  
+
+事件捕获是 Netscape Communicator 唯一支持的事件流模型，但 IE9、 Safari、 Chrome、 Opera和 Firefox 目前也都支持这种事件流模型。
+
+**C)DOM事件流**   
+
+"DOM2级事件" 规定的事件流包括三个阶段：事件捕获阶段、处于目标阶段和事件冒泡阶段。首先发生的是事件捕获，为截获事件提供了机会。然后是实际的目标接收到事件。最后一个阶段是冒泡阶段，可以在这个阶段对事件做出响应。   
+
+IE9、 Opera、 Firefox、 Chrome 和 Safari 都支持 DOM 事件流； IE8 及更早版本不支持 DOM 事件流。  
+
+**<font color="blue">7.2 事件处理程序</font>**
+
+**<font color="blue">7.3 事件对象</font>**
+
+**<font color="blue">7.4 事件类型</font>**
+
+**<font color="blue">7.5 事件流</font>**  
+
+
+**<font size="5" color="red" >八. 表单</font>**  
+
+**<font color="blue">8.1 基础知识</font>**     
+
+**A) 属性和方法**   
+<form\>表单元素属于HTMLFormElement类型，它有自己独有的属性和方法：  
+
+- acceptCharset：服务器能够处理的字符集；等价于 HTML 中的 accept-charset 特性。
+- action：接受请求的 URL；等价于 HTML 中的 action 特性。
+- elements：表单中所有控件的集合（HTMLCollection）。
+- enctype：请求的编码类型；等价于 HTML 中的 enctype 特性。
+- length：表单中控件的数量。
+- method：要发送的 HTTP 请求类型，通常是"get"或"post"；等价于 HTML 的 method 特性。
+- name：表单的名称；等价于 HTML 的 name 特性。
+- reset()：将所有表单域重置为默认值。
+- submit()：提交表单。
+- target：用于发送请求和接收响应的窗口名称；等价于 HTML 的 target 特性。
+
+**B) 获取表单元素**  
+
+1. 通过getElementById()方法获取：
+
+		var form = document.getElementById("form1");
+
+2. 其次，通过 document.forms 可以取得页面中所有的表单。在这个集合中，可以通过数值索引或name值来取得特定的表单：
+
+		var firstForm = document.forms[0]; //取得页面中的第一个表单
+		var myForm = document.forms["form2"]; //取得页面中名称为"form2"的表单
+
+**C) 提交表单** 
+
+**D) 重置表单** 
+
+**E) 表单字段** 
+
+**B)** 
+**<font color="blue">8.2 文本框脚本</font>**  
+
+**<font color="blue">8.3 选择框脚本</font>**  
+
+**<font color="blue">8.4 表单序列化</font>**  
+
+**<font color="blue">8.5 富文本</font>**  
 </font>  
 ******
 
