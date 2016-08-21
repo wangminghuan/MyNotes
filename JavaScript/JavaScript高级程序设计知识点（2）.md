@@ -914,20 +914,348 @@ IE9、 Opera、 Firefox、 Chrome 和 Safari 都支持 DOM 事件流； IE8 及�
 		var firstForm = document.forms[0]; //取得页面中的第一个表单
 		var myForm = document.forms["form2"]; //取得页面中名称为"form2"的表单
 
-**C) 提交表单** 
+**C) 提交表单**   
 
-**D) 重置表单** 
+1. 使用<input\>或<button\>都可以定义提交按钮，只要将其type 特性的值设置为 `submit` 即可：  
 
-**E) 表单字段** 
+		<!-- 通用提交按钮 -->
+		<input type="submit" value="Submit Form">
+		<!-- 自定义提交按钮 -->
+		<button type="submit">Submit Form</button>
+		<!-- 图像按钮 -->
+		<input type="image" src="graphic.gif">  
+只要表单中存在上面列出的任何一种按钮，那么在相应表单控件拥有焦点的情况下，按回车键就可
+以提交该表单。（textarea 例外，回车会换行）。  
 
-**B)** 
-**<font color="blue">8.2 文本框脚本</font>**  
+2. 以上述方式提交表单时，浏览器会在将请求发送给服务器之前触发`submit事件`，这样我们就有机会进行表单校验，并决定是否提交表单：  
+
+		var form = document.getElementById("myForm");
+		EventUtil.addHandler(form, "submit", function(event){
+			//取得事件对象
+			event = EventUtil.getEvent(event);
+			//阻止默认事件
+			EventUtil.preventDefault(event);
+		});
+
+3. 调用`submit()方法`也可以提交表单，且无需表单包含提交按钮，任何时候都可以正常提交表单：
+
+		var form = document.getElementById("myForm");
+		//提交表单
+		form.submit();
+注意：此情况下不会触发submit 事件，因此要记得在调用此方法之前先验证表单数据。  
+
+**D) 重置表单**   
+
+1. 使用type 特性值为 `reset` 的<input\>或<button\>都可以创建重置按钮，如下面的例子所示。
+
+		<!-- 通用重置按钮 -->
+		<input type="reset" value="Reset Form">
+		<!-- 自定义重置按钮 -->
+		<button type="reset">Reset Form</button>
+
+2. 用户单击重置按钮重置表单时，会触发`reset事件`。因此我们可以在必要时取消重置操作：
+
+		var form = document.getElementById("myForm");
+		EventUtil.addHandler(form, "reset", function(event){
+		//取得事件对象
+		event = EventUtil.getEvent(event);
+		//阻止表单重置
+		EventUtil.preventDefault(event);
+		});
+3. 调用`reset()方法`会像单击重置按钮一样触发reset 事件（同提交）。
+
+		var form = document.getElementById("myForm");
+		//重置表单
+		form.reset();
+
+**E) 表单字段**   
+
+1.elements 属性 ：该属性是表单中所有表单元素（字段）的集合：  
+
+		var form = document.getElementById("form1");
+		//取得表单中的第一个字段
+		var field1 = form.elements[0];
+		//取得名为"textbox1"的字段
+		var field2 = form.elements["textbox1"];
+		//取得表单中包含的字段的数量
+		var fieldCount = form.elements.length;
+		//取得表单中name为color的所有元素
+		var colorFields = form.elements["color"];
+2. 共有的表单字段属性：  
+ - disabled：布尔值，表示当前字段是否被禁用。  
+	- form：指向当前字段所属表单的指针；只读。
+	- name：当前字段的名称。
+	- readOnly：布尔值，表示当前字段是否只读。
+	- tabIndex：表示当前字段的切换（tab）序号。
+	- type：当前字段的类型，如"checkbox"、"radio"，等等。
+	- value：当前字段将被提交给服务器的值。对文件字段来说，这个属性是只读的，包含着文件
+	在计算机中的路径。
+
+3. 共有的表单字段方法  
+每个表单字段都有两个方法：得到焦点`focus()`和 失去焦点`blur()`。HTML5 为表单字段新增了一个autofocus 属性。只要设置这个属性，不用JavaScript 就能自动把焦点移动到相应字段：
+
+		<input type="text" autofocus>
+3. 共有的表单字段事件  
+	- blur：当前字段失去焦点时触发。
+	- change：对于<input\>和<textarea\>元素，在它们失去焦点且value 值改变时触发；对于
+	<select\>元素，在其选项改变时触发。
+	- focus：当前字段获得焦点时触发。
+当用户改变了当前字段的焦点，或者我们调用了blur()或focus()方法时，都可以触发blur 和
+focus 事件。
+
+**<font color="blue">8.2 文本框脚本</font>**    
+
+**A) 两种文本框**    
+在HTML 中，有两种方式来表现文本框：一种是使用<input\>元素的单行文本框，另一种是使用
+<textarea\>的多行文本框。两个控件虽然非常相似，但仍存在一些重要的区别。
+
+1. 须将<input\>元素的`type` 特性设置为"text"。通过设置`size`特性，可以指定文本框中能够显示的字符数。通过`value` 特性，可以设置文本框的初始值，而`maxlength` 特性则用于指定文本框可以接受的最大字符数。例如：
+
+		<input type="text" size="25" maxlength="50" value="initial value">
+
+2. <textarea\>元素则始终会呈现为一个多行文本框。使用`rows` 和`cols` 特性指定文本框的大小。其中，rows 特性指定的是文本框的字符行数，而cols 特性指定的是文本框的字符列数
+而初始值必须要放在标签之间：
+
+		<textarea rows="25" cols="5">initial value</textarea>
+注意：不能在HTML 中给<textarea\>指定最大字符数。
+
+3. 无论这两种文本框在标记中有什么区别，但它们都会将用户输入的内容保存在value 属性中。我们可以通过value 属性读取或设置文本框的值，并且不建议使用标准的DOM方法。
+
+**B) 选择文本**  
+
+1. `select()`方法：用于选择文本框中的所有文本。在文本框获得焦点时选择其所有文本，这是一种非常常见的做法：  
+
+		var opt=document.getElementById('inpt1');
+		opt.onfocus=function(){
+				opt.select();
+			}  
+2. 选择（select）事件    
+与select()方法对应的，是一个select 事件。在选择了文本框中的文本时，就会触发select事件
+
+3. 取得选择的文本  
+HTML5 通过一些扩展方案用来更顺利地取得选择的文本。该规范采取的办法是添加两个属性：`selectionStart` 和`selectionEnd`。配合字符串的substring方法即可获得用户选择的字符：  
+
+		var opt=document.getElementById('inpt1');
+		opt.onselect=function(){
+			console.log(opt.value.substring(opt.selectionStart, opt.selectionEnd));
+		}
+上述方法不适用用IE8以前版本；IE8 及更早的版本中有一个document.selection 对象，其中保存着用户在整个文档范围内选择的文本信息（详见书籍）；    
+
+4. 选择部分文本  
+`setSelectionRange()`方法。接收两个参数：要选择的第一个字符的索引和要选择的最后一个字符之后的字符的索引（类似substring）;  
+
+		textbox.value = "Hello world!"
+		//选择所有文本
+		textbox.setSelectionRange(0, textbox.value.length); //"Hello world!"
+		//选择前3 个字符
+		textbox.setSelectionRange(0, 3); //"Hel"
+IE8 及更早版本不支持
+
+C)自动切换焦点  
+为了增强表单字段的易用性。其中，最常见的一种方式就是在用户填写完当前字段时，自动将焦点切换到下一个字段。这需要我们提前设置好input标签的 `maxlength` 属性：  
+
+	opt1.onkeyup=function(){
+      	if(opt1.value.length==opt1.maxLength){
+      		opt2.focus();
+      	}
+      }  
+D) HTML5 约束验证API  
+
+1. 必填字段   
+第一种情况是在表单字段中指定了`required` 属性，如下面的例子所示：
+
+		<input type="text" name="username" required>
+
+2. 其他输入类型  
+HTML5 为<input\>元素的type 属性又增加了几个值。这些新的类型不仅能反映数据类型的信息，
+而且还能提供一些默认的验证功能。其中，"email"和"url"是两个得到支持最多的类型：
+
+		<input type="email" name ="email">
+		<input type="url" name="homepage">
+3. 数值范围
+除了email和ul，还有几个元素都要求填写某种基于数字的值："number"、"range"、"datetime"、"datetime-local"、"date"、"month"、"week"，
+还有"time"。
+		
+		<input type="number" min="0" max="100" step="5" name="count">  
+4. 输入模式
+HTML5 为文本字段新增了pattern 属性。这个属性的值是一个正则表达式，用于匹配文本框中的
+值：
+
+		<input type="text" pattern="\d+" name="count">
+		//如果输入非数字浏览器不会任何提示，但在checkValidity()方法检测下会返回false
+5. 检测有效性  
+`checkValidity()`方法可以检测表单中的某个字段是否有效，有效返回true，否则返回false：  
+
+		document.forms[0].elements[0].checkValidity()
+也可以对整个form表单进行检测，如果所有表单字段都有效，这个方法返回true；即使有一个字段无效也会返回false。
+		document.forms[0].checkValidity()
+如果要想得到更具体的信息，就应该使用 `validity` 来检测表单的有效性，该属性对象下包含如下属性：  
+
+		customError ：如果设置了setCustomValidity()，则为true，否则返回false。
+		patternMismatch：如果值与指定的pattern 属性不匹配，返回true。
+		rangeOverflow：如果值比max 值大，返回true。
+		rangeUnderflow：如果值比min 值小，返回true。
+		stepMisMatch：如果min 和max 之间的步长值不合理，返回true。
+		tooLong：如果值的长度超过了maxlength 属性指定的长度，返回true。有的浏览器（如Firefox 4）
+		会自动约束字符数量，因此这个值可能永远都返回false。
+		typeMismatch：如果值不是"mail"或"url"要求的格式，返回true。
+		valid：如果这里的其他属性都是false，返回true。checkValidity()也要求相同的值。
+		valueMissing：如果标注为required 的字段中没有值，返回true。
+
+6. 禁用验证  
+通过设置`novalidate` 属性，可以告诉表单不进行验证。
+
+		<form method="post" action="signup.php" novalidate>
+		<!--这里插入表单元素-->
+		</form>
+在js中使用noValidate 属性也可以取得或设置这个值:  
+
+		document.forms[0].noValidate = true; //禁用验证
+如果一个表单中有多个提交按钮，为了指定点击某个提交按钮不必验证表单，可以在相应的按钮上
+添加 `formnovalidate` 属性：  
+
+		<form method="post" action="foo.php">
+		<!--这里插入表单元素-->
+		<input type="submit" value="Regular Submit">  
+同样，也可以利用js设置这个属性。  
+
+		//禁用验证
+		document.forms[0].elements["btnNoValidate"].formNoValidate = true;
 
 **<font color="blue">8.3 选择框脚本</font>**  
+选择框是通过<select\>和<option\>元素创建的。该HTML除了继承所有表单字段共有的属性和方法外，还有许多特有的属性和方法：  
+
+- add(newOption, relOption)：向控件中插入新<option>元素，其位置在相关项（relOption）
+之前。
+- multiple：布尔值，表示是否允许多项选择；等价于HTML 中的multiple 特性。
+- options：控件中所有<option\>元素的HTMLCollection。
+- remove(index)：移除给定位置的选项。
+- selectedIndex：基于0 的选中项的索引，如果没有选中项，则值为-1。对于支持多选的控件，
+只保存选中项中第一项的索引。
+- size：选择框中可见的行数；等价于HTML 中的size 特性  
+
+其中options属性对象下，还有一些特殊属性，可以很方便的读取和操作选择框元素（不推荐采用公有的DOM属性和方法）
+
+- index：当前选项在options 集合中的索引。
+- label：当前选项的标签；等价于HTML 中的label 特性。
+- selected：布尔值，表示当前选项是否被选中。将这个属性设置为true 可以选中当前选项。
+- text：选项的文本。
+- value：选项的值（等价于HTML 中的value 特性）。
+
+例如:
+	
+	var selectbox = document.forms[0]. elements["location"];
+	//推荐
+	var text = selectbox.options[0].text; //选项的文本
+	var value = selectbox.options[0].value; //选项的值
+
+对于选择框中每个option的value值：  
+
+	<select name="location" id="selLocation">
+	<!-- <select name="location" id="selLocation" multiple="multiple"> 多选-->
+		<option value="Sunnyvale, CA">Sunnyvale</option>
+		<option value="Los Angeles, CA">Los Angeles</option>
+		<option value="Mountain View, CA">Mountain View</option>
+		<option value="">China</option>
+		<option>Australia</option>
+	</select>
+`value`值的获取遵循以下规则：  
+  
+- 如果没有选中的项，则选择框的value 属性保存空字符串。
+- 如果有一个选中项，而且该项的value 特性已经在HTML 中指定，则选择框的value 属性等
+于选中项的value 特性。即使value 特性的值是空字符串，也同样遵循此条规则。
+- 如果有一个选中项，但该项的value 特性在HTML 中未指定，则选择框的value 属性等于该
+项的文本。
+- 如果有多个选中项，则选择框的value 属性将依据前两条规则取得第一个选中项的值。  
+
+设置`multiple`属性后，单选框就会变化**多选框**  
+
+		<select name="location" id="selLocation" multiple="multiple">
+			<option value="Sunnyvale, CA">Sunnyvale</option>
+			<option value="Los Angeles, CA">Los Angeles</option>
+			<option value="Mountain View, CA">Mountain View</option>
+			<option value="">China</option>
+			<option>Australia</option>
+		</select>  
+**A) 选择选项**  
+
+1. 单选框  
+使用选择框的 `selectedIndex` 属性，即可获得用户选择的选项：
+
+		var selectedOption = selectbox.options[selectbox.selectedIndex];
+
+
+
+2. 多选框  
+对于可以选择多项的选择框，selectedfIndex 属性就好像只允许选择一项一样。设置selectedIndex 会导致取消以前的所有选项并选择指定的那一项，而读取selectedIndex 则只会返回选中项中第一项的索引值。此时我们通过设置选项 `selected` 的属性来获取用户选择的选项：
+
+		for(var i=0,len=selt.options.length;i<len;i++){
+	     		console.log(selt.options[i].selected);
+                //遍历选项的seltcted属性
+	     	}
+
+**B) 添加选项**  
+
+1. 通用的DOM方法：createElement("option");
+
+2. Option 构造函数，接受两个参数：文本（text）和值（value）；第二个参数可选。
+
+		var newOption = new Option("Option text", "Option value");
+		selectbox.appendChild(newOption); //在IE8 及之前版本中有问题
+3. 选择框的add()方法： 接受两个参数：要添加的新选项和将位于新选项之后的选项，第二个参数在IE中是可选的。为null或undefined表示插入到最后。 
+
+		var newOption = new Option("Option text", "Option value");
+		selectbox.add(newOption, undefined); //插入到最后（最佳方案）
+
+**C) 移除选项**  
+
+1. 使用DOM 的removeChild()方法：
+
+		selectbox.removeChild(selectbox.options[0]); //移除第一个选项
+2. 使用选择框的remove()方法。这个方法接受一个参数，即要移除选项的索引：
+
+		selectbox.remove(0); //移除第一个选项
+3. 将相应选项设置为null。这种方式也是DOM 出现之前浏览器的遗留机制。
+
+		selectbox.options[0] = null; //移除第一个选项
+
+**D) 移动和重排选项**  
+
+1. 移动：使用 `appendChild()` 方法：
+
+		var selectbox1 = document.getElementById("selLocations1");
+		var selectbox2 = document.getElementById("selLocations2");
+		selectbox2.appendChild(selectbox1.options[0]);  
+移动选项与移除选项有一个共同之处，即会重置每一个选项的index 属性
+
+2. 重排： 使用 `insertBefore()` 方法（appendChild()方法只适用于将选项添加
+到选择框的最后）：  
+
+		var optionToMove = selectbox.options[1];
+		selectbox.insertBefore(optionToMove, selectbox.options[optionToMove.index-1]);  
 
 **<font color="blue">8.4 表单序列化</font>**  
+表单提交期间，浏览器是通过下面步奏将数据发送给服务器的：  
 
-**<font color="blue">8.5 富文本</font>**  
+- 对表单字段的名称和值进行URL 编码，使用和号（&）分隔。
+- 不发送禁用的表单字段。
+- 只发送勾选的复选框和单选按钮。
+- 不发送type 为"reset"和"button"的按钮。
+- 多选选择框中的每个选中的值单独一个条目。
+- 在单击提交按钮提交表单的情况下，也会发送提交按钮；否则，不发送提交按钮。也包括type
+为"image"的<input\>元素。
+- <select\>元素的值，就是选中的<option\>元素的value 特性的值。如果<option\>元素没有
+value 特性，则是<option\>元素的文本值。
+
+**<font color="blue">8.5 富文本</font>**   
+
+1. 富文本编辑功能是通过一个包含空HTML 文档的iframe 元素来实现的。通过将空文档的
+designMode 属性设置为"on"，就可以将该页面转换为可编辑状态，此时其表现如同字处理软件。另外，也可以将某个元素设置为 `contenteditable`。将该属性应用给页面中的任何元素，然后用户立即就可以编辑该元素。
+
+		<div class="editable" id="richedit" contenteditable></div>
+该属性有三个值：："true"表示打开、"false"表示关闭，"inherit"表示从父元素那里继承；
+
+2. 富文本编辑器并不属于表单。不会被自动提交到服务器
 </font>  
 ******
 
