@@ -159,7 +159,160 @@ finally 子句
 		encodeURIComponent(msg);
 	}
 
-**<font size="5" color="red" >四. 标题4</font>**  
+**<font size="5" color="red" >四. 离线应用与客户端存储</font>**  
+**<font color="blue">4.1 离线检测</font>**   
+**A) navigator.onLine**   
+支持的浏览器不多，而且存在一定兼容性问题；
+
+**B) online/offline事件**   
+这两个事件不会在页面刷新的时候执行，只有在计算机网络发生变化：如掉线，重新上线的时候才会执行！ 这两个事件在 window 对象上触发 
+
+	//写法1：  
+	window.ononline=function(){
+		alert("上线了！！");
+	}
+	window.onoffline=function(){
+		alert("掉线了！！");
+	}
+也可以通过事件绑定方式应用  
+
+	var el = document.body;  
+	if (el.addEventListener) {
+	   window.addEventListener("online", function () {  
+	     alert("online");}, true);  
+	   window.addEventListener("offline", function () {  
+	     alert("offline");}, true);  
+	}else if (el.attachEvent) {
+	   window.attachEvent("ononline", function () {  
+	     alert("online");});  
+	   window.attachEvent("onoffline", function () {  
+	     alert("offline");});  
+	}else {
+	   window.ononline = function () {  
+	     alert("online");};  
+	   window.onoffline = function () {  
+	     alert("offline");};  
+	} 
+**<font color="blue">4.2 应用缓存</font>**    
+HTML5 的应用缓存（application cache），或者简称为 appcache，是专门为开发离线 Web 应用而设计的。 Appcache 就是从浏览器的缓存中分出来的一块缓存区。要想在这个缓存中保存数据，可以使用一个描述文件（manifest file），列出要下载和缓存的资源。    
+**A) 使用**  
+对HTML标签作如下设置：  
+
+	<html manifest="demo.appcache"> 
+    <!--旧版用的是 demo.manifest,不推荐-->  
+
+manifest 文件可分为三个部分：  
+
+- CACHE MANIFEST - 在此标题下列出的文件将在首次下载后进行缓存
+- NETWORK - 在此标题下列出的文件需要与服务器的连接，且不会被缓存
+- FALLBACK - 在此标题下列出的文件规定当页面无法访问时的回退页面（比如 404 页面）  
+
+例如：  
+
+		CACHE MANIFEST
+		# 2012-02-21 v1.0.0
+		/theme.css
+		/logo.gif
+		/main.js
+		
+		NETWORK:
+		login.asp
+		
+		FALLBACK:
+		/html5/ /404.html
+ 
+
+**B) applicationCache 对象**   
+
+- 属性：status.用来判断缓存对象的状态，详见书籍  
+- 方法：update()方法 & swapCache()方法
+
+**<font color="blue">4.3 数据存储</font>**    
+
+**<font>4.3.1 cookie</font>**  
+
+**A) 关于cookie**   
+
+1. HTTP请求时，会发送 Set-Cookie HTTP 头作为响应的一部分，其中包含会话信息。会话信息是以 name 为名称、以 value 为值的一个 cookie，且都经过URL编码的。  
+2. cookie 在性质上是绑定在特定的域名下的。当设定了一个 cookie 后，再给创建它的域名发送请求时，都会包含这个 cookie。
+3. 每个域的 cookie 总数是有限的，不过浏览器之间各有不同。
+4. cookie 的构成：  
+	- 名称：一个唯一确定 cookie 的名称。最好区分大小写。
+	- 值：储存在 cookie 中的字符串值。值必须被 URL 编码。
+	- 域：cookie 对于哪个域是有效的。如：http://www.58.com/cuzu/,只会在该域名下有效；
+	- 路径：对于指定域中的路径向服务器才会发送cookie。
+	- 失效时间：表示 cookie 何时应该被删除的时间戳，GMT格式（Wdy, DD-Mon-YYYY HH:MM:SS ）
+	- 安全标志：指定后cookie只有在使用 SSL 连接的时候才发送到服务器。secure 标志是 cookie 中唯一一个非名值对儿的部分，只包含一个 secure 单词。
+5. 获取cookie的js方法: document.cookie。该方法会返回该域名下所有cookie通过分号拼接在一起的长字符串。  
+6. cookie可以被覆盖，但不能被删除，譬如：可以通过如下方法设置；   
+ 
+			document.cookie = encodeURIComponent("name") + "=" +encodeURIComponent("Nicholas") + "; domain=.wrox.com; path=/";  
+7. js直接处理cookie很不直观，介绍一个**操作cookie的函数**，其拥有读取、写入和删除cookie的功能：  
+
+		var CookieUtil = {
+			get: function (name){
+				var cookieName = encodeURIComponent(name) + "=",
+					cookieStart = document.cookie.indexOf(cookieName),
+					cookieValue = null;
+				if (cookieStart > -1){
+					var cookieEnd = document.cookie.indexOf(";", cookieStart);
+				if (cookieEnd == -1){
+					cookieEnd = document.cookie.length;
+				}
+				cookieValue = unescape(document.cookie.substring(cookieStart
+				+ cookieName.length, cookieEnd));
+				}
+				return cookieValue;
+			},
+			set: function (name, value, expires, path, domain, secure) {
+				var cookieText = encodeURIComponent(name) + "=" +
+				encodeURIComponent(value);
+				if (expires instanceof Date) {
+					cookieText += "; expires=" + expires.toGMTString();
+				}
+				if (path) {
+					cookieText += "; path=" + path;
+				}
+				if (domain) {
+					cookieText += "; domain=" + domain;
+				}
+				if (secure) {
+					cookieText += "; secure";
+				}
+					document.cookie = cookieText;
+				},
+			unset: function (name, path, domain, secure){
+					this.set(name, "", new Date(0), path, domain, secure);
+					//new Date(0)为Thu Jan 01 1970
+				}
+		};
+
+**B) 关于子cookie**  
+为了绕开浏览器的单域名下的 cookie 数限制，一些开发人员使用了一种称为子 cookie（subcookie）的概念。即：使用 cookie 值来存储多个名称值对儿：
+
+	name=name1=value1&name2=value2&name3=value3&name4=value4&name5=value5  
+
+**<font>4.3.2 Storage</font>**  
+
+**<font size="5" color="red" >五. 标题4</font>**  
+**<font color="blue">4.. 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font size="5" color="red" >六. 标题4</font>**  
+**<font color="blue">4.. 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font size="5" color="red" >七. 标题4</font>**  
+**<font color="blue">4.. 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font size="5" color="red" >八. 标题4</font>**  
 **<font color="blue">4.. 二级标题</font>**   
 **A)** 
 

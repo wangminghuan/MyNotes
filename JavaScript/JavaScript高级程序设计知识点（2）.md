@@ -1253,9 +1253,10 @@ value 特性，则是<option\>元素的文本值。
 designMode 属性设置为"on"，就可以将该页面转换为可编辑状态，此时其表现如同字处理软件。另外，也可以将某个元素设置为 `contenteditable`。将该属性应用给页面中的任何元素，然后用户立即就可以编辑该元素。
 
 		<div class="editable" id="richedit" contenteditable></div>
-该属性有三个值：："true"表示打开、"false"表示关闭，"inherit"表示从父元素那里继承；
+该属性有三个值：："true"表示打开、"false"表示关闭，"inherit"表示从父元素那里继承。 
+2. 富文本编辑器并不属于表单。不会被自动提交到服务器。
 
-2. 富文本编辑器并不属于表单。不会被自动提交到服务器
+<font size="2">第二部分 end</font>
 </font>  
 ******
 
