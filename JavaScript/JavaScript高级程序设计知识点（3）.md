@@ -227,9 +227,7 @@ manifest 文件可分为三个部分：
 - 属性：status.用来判断缓存对象的状态，详见书籍  
 - 方法：update()方法 & swapCache()方法
 
-**<font color="blue">4.3 数据存储</font>**    
-
-**<font>4.3.1 cookie</font>**  
+**<font color="blue">4.3 数据存储之cookie</font>**    
 
 **A) 关于cookie**   
 
@@ -256,20 +254,25 @@ manifest 文件可分为三个部分：
 					cookieValue = null;
 				if (cookieStart > -1){
 					var cookieEnd = document.cookie.indexOf(";", cookieStart);
+					//从cookie起始位置算起，找到结束标志';'的索引
 				if (cookieEnd == -1){
 					cookieEnd = document.cookie.length;
+					//若无找到结束标志';'的索引，则说明到达cookie的尾部
 				}
-				cookieValue = unescape(document.cookie.substring(cookieStart
+				cookieValue = decodeURIComponent(document.cookie.substring(cookieStart
 				+ cookieName.length, cookieEnd));
+				//截取'='和';'之前的cookie值
 				}
 				return cookieValue;
 			},
 			set: function (name, value, expires, path, domain, secure) {
 				var cookieText = encodeURIComponent(name) + "=" +
 				encodeURIComponent(value);
+				//上述参数除name和value外，均可选；
 				if (expires instanceof Date) {
 					cookieText += "; expires=" + expires.toGMTString();
 				}
+				//expires参数格式：new Date(2016,07,30)
 				if (path) {
 					cookieText += "; path=" + path;
 				}
@@ -283,17 +286,152 @@ manifest 文件可分为三个部分：
 				},
 			unset: function (name, path, domain, secure){
 					this.set(name, "", new Date(0), path, domain, secure);
-					//new Date(0)为Thu Jan 01 1970
+					//cookie不能直接被删除，只能通过设置失效时间来"删除"
+					//new Date(0)为1970-01-01，标准时间的初始时间
 				}
 		};
 
 **B) 关于子cookie**  
-为了绕开浏览器的单域名下的 cookie 数限制，一些开发人员使用了一种称为子 cookie（subcookie）的概念。即：使用 cookie 值来存储多个名称值对儿：
 
-	name=name1=value1&name2=value2&name3=value3&name4=value4&name5=value5  
+1. 为了绕开浏览器的单域名下的 cookie 数限制，一些开发人员使用了一种称为子 cookie（subcookie）的概念。即：使用 cookie 值来存储多个名称值对儿：
 
-**<font>4.3.2 Storage</font>**  
+		name=name1=value1&name2=value2&name3=value3&name4=value4&name5=value5  
+2. 获取子cookie的方法:  
 
+		var SubCookieUtil = {
+			get: function (name, subName){
+					var subCookies = this.getAll(name);
+					 //getAll方法将cookie值以json的方式全部取出来
+					if (subCookies){
+						return subCookies[subName];
+					} else {
+						return null;
+					}
+				},
+			getAll: function(name){
+				var cookieName = encodeURIComponent(name) + "=",
+				cookieStart = document.cookie.indexOf(cookieName),
+				cookieValue = null,
+				cookieEnd,
+				subCookies,
+				i,
+				parts,
+				result = {};
+				return null;
+				if (cookieStart > -1){
+					cookieEnd = document.cookie.indexOf(";", cookieStart);
+					if (cookieEnd == -1){
+						cookieEnd = document.cookie.length;
+					}
+					cookieValue = document.cookie.substring(cookieStart +cookieName.length, cookieEnd);
+					//取cookie值的方法与单个cookie一样，只是针对子cookie取到的值多了一层处理；
+					if (cookieValue.length > 0){
+						subCookies = cookieValue.split("&");
+						//通过'&'分割成一个数组；
+						for (i=0, len=subCookies.length; i < len; i++){
+							parts = subCookies[i].split("=");
+							//将取到的name=value对儿，再通过'='分割
+							result[decodeURIComponent(parts[0])]= decodeURIComponent(parts[1]);
+							//以json方式存到result中
+						}
+					return result;
+					}
+				}
+			return null;
+			},
+		}
+
+
+3. 设置子cookie的方法:   
+ 
+		var SubCookieUtil = {
+			set: function (name, subName, value, expires, path, domain, secure) {
+				var subcookies = this.getAll(name) || {};
+				//获取json形式的cookie值，若没有则创建一个空值
+					subcookies[subName] = value;
+				//修改子cookie的值
+				this.setAll(name, subcookies, expires, path, domain, secure);
+				//setAll方法将修改好的子cookie拼接后重新塞入浏览器中
+			},
+			setAll: function(name, subcookies, expires, path, domain, secure){
+				var cookieText = encodeURIComponent(name) + "=",
+					subcookieParts = new Array(),
+					subName;
+				for (subName in subcookies){
+					//subName作为变量遍历json形式的cookie值
+					if (subName.length > 0 && subcookies.hasOwnProperty(subName)){
+						subcookieParts.push(encodeURIComponent(subName) + "=" + encodeURIComponent(subcookies[subName]));
+						//将每个子cookie的名值对儿'='拼接都存入subcookieParts数组中
+					}
+				}
+				if (subcookieParts.length > 0){
+					cookieText += subcookieParts.join("&");
+					//将数组中数据通过'&'拼接成字符串,其他参数同单个cookie设置
+					if (expires instanceof Date) {
+						cookieText += "; expires=" + expires.toGMTString();
+					}
+					if (path) {
+						cookieText += "; path=" + path;
+					}
+					if (domain) {
+						cookieText += "; domain=" + domain;
+					}
+					if (secure) {
+						cookieText += "; secure";
+					}
+				}else{
+					//数组长度为0则说明无子cookie,直接拼接即可；
+					cookieText += "; expires=" + (new Date(0)).toGMTString();
+				}
+					document.cookie = cookieText;
+			},
+		}
+4. 删除子cookie的方法:   
+
+		var SubCookieUtil = {
+			unset: function (name, subName, path, domain, secure){
+				var subcookies = this.getAll(name);
+				if (subcookies){
+					delete subcookies[subName];
+					this.setAll(name, subcookies, null, path, domain, secure);
+				}
+			},
+			unsetAll: function(name, path, domain, secure){
+				this.setAll(name, null, new Date(0), path, domain, secure);
+			}
+		}  
+
+**<font color="blue">4.4 数据存储之Web Storage</font>**    
+Web Storage 的目的是克服由 cookie 带来的一些限制，当数据需要被严格控制在客户端上时，无须持续地将数据发回服务器。其有两个主要目标：
+
+- 提供一种在 cookie 之外存储会话数据的途径。
+- 提供一种存储大量可以跨会话存在的数据的机制。  
+
+**A) Storage 类型**   
+最初的 Web Storage 规范包含了两种对象的定义： `sessionStorage` 和 `globalStorage`（已被`localStorage`替换）。都是以 windows 对象属性的形式存在。Storage 类型有如下方法。
+
+- clear()： 删除所有值； Firefox 中没有实现 。
+- getItem(name)：根据指定的名字 name 获取对应的值。
+- key(index)：获得 index 位置处的值的名字。
+- removeItem(name)：删除由 name 指定的名值对儿。
+- setItem(name, value)：为指定的 name 设置一个对应的值。  
+
+**B) sessionStorage 对象**   
+sessionStorage 对象存储特定于某个会话的数据，也就是该数据只保持到浏览器关闭。这个对象就像会话 cookie，也会在浏览器关闭后消失。  
+  
+**C) localStorage 对象**  
+localStorage 对象存储的数据会一直保留在磁盘上，除非用户或开发人员主动删除；要访问同一个localStorage对象，页面必须来自同一个域名（子域名无效），使用同一种协议，在同一个端口上。  
+
+**D) 限制**   
+对于 localStorage 而言，大多数桌面浏览器会设置每个来源 5MB 的限制。 Chrome 和 Safari 对每个来源的限制是 2.5MB。而 iOS 版 Safari 和 Android 版 WebKit 的限制也是 2.5MB。
+
+**<font color="blue">4.5 数据存储之IndexedDB</font>**  
+Indexed Database API（简称：IndexedDB），是在浏览器中保存结构化数据的一种数据库。IndexedDB 是为了替代目前已被废弃的 Web SQL Database API而出现的。  
+
+浏览器也都使用提供商前缀，该对象在 IE10 中叫 msIndexedDB，在 Firefox 4 中叫
+mozIndexedDB，在 Chrome 中叫 webkitIndexedDB。
+
+IndexedDB 就是一个数据库，与 MySQL 或 Web SQL Database 等数据库类似，由于实际应用中这块基本没有涉及到，故不再介绍，详见书籍；  
 **<font size="5" color="red" >五. 标题4</font>**  
 **<font color="blue">4.. 二级标题</font>**   
 **A)** 
