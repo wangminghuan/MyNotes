@@ -293,7 +293,8 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		console.log(Cat.prototype.isPrototypeOf(cat1)); //true
 		console.log(Animal.prototype.isPrototypeOf(cat1)); //true
 
-5. 注意顺序：  
+5. 添加/重写方法要注意顺序：  
+给原型添加方法的代码一定要放在替换原型的语句之后，因为类型原型被一旦被重新赋值，就会断开与之前原型的所有关系：  
 
 			function Animal(){
 		    　 this.species = "动物";
@@ -304,15 +305,18 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		    function Cat(name,color){
 		　　　   this.name = name;
 				 this.color = color;
-		    }  
-			Cat.prototype.drink=function(){
+		    } 
+
+			Cat.prototype = new Animal();//在此语句执行后再为原型添加方法
+			
+			Cat.prototype.drink=function(){ //添加方法
 				console.log("喝牛奶！")
 			}
-			Cat.prototype.eat=function(){
+			Cat.prototype.eat=function(){ //
 				console.log("吃鱼！")
 			}
 			
-			Cat.prototype = new Animal();//Cat 继承 Animal
+
 			var cat1 = new Cat("咪咪","黄色");
 			cat1.drink();
 			cat1.eat();
