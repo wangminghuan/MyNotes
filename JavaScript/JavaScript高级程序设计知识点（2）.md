@@ -162,7 +162,7 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
         var person2=new Person(); 
         console.log(person1.name);//undefined
 		console.log(person2.name);//Nicholas
-重写原型对象会切断现有原型与任何之前已经存在的对象实例之间的联系。
+**！！！重写原型对象会切断现有原型与任何之前已经存在的对象实例之间的联系。即：只要对原型进行了赋值操作`Person.prototype = xx`,实例对象与原有原型之前的联系都会被断开！！！**
 ####原型模式存在的问题  
 对于包含引用类型值的属性来说，修改实例上的属性的同时，原型中的对应属性也会被修改。
 
@@ -294,7 +294,7 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		console.log(Animal.prototype.isPrototypeOf(cat1)); //true
 
 5. 添加/重写方法要注意顺序：  
-给原型添加方法的代码一定要放在替换原型的语句之后，因为类型原型被一旦被重新赋值，就会断开与之前原型的所有关系：  
+给原型添加方法的代码一定要放在替换原型的语句之后，因为原型被一旦被重新赋值，就会断开与之前原型（还有实例）的所有关系：  
 
 			function Animal(){
 		    　 this.species = "动物";
@@ -312,20 +312,195 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 			Cat.prototype.drink=function(){ //添加方法
 				console.log("喝牛奶！")
 			}
-			Cat.prototype.eat=function(){ //
+			Cat.prototype.eat=function(){ //重写方法
 				console.log("吃鱼！")
 			}
 			
-
 			var cat1 = new Cat("咪咪","黄色");
+			//此语句要放在Cat.prototype = new Animal()后面
+			//因为给Cat.prototype赋值后会断开与之前实例的关系
 			cat1.drink();
-			cat1.eat();
-####借用构造函数继承
+			cat1.eat();  
+同样在`Cat.prototype = new Animal()` 执行后，不能再通过字面量方式为原型增加方法和属性，那样会再次重写原型。  
+6. 原型链引发的问题：  
+同创建对象一样，对于引用类型值的修改，会通过原型链反映到所继承类型上（子类修改影响父类），而且与创建对象时的构造函数模式不同的是：不管是位于父类构造函数内还有父类原型上的引用属性，只要子类被修改，父类就会被修改。
 
-####组合继承
+		function Animal(){
+			this.species = "mammals";
+			this.color = ["white","grey"];
+		}
+		Animal.prototype.morecolor = ["yellow","blue","pink"];            
+		function Cat(name){
+		    this.name = name;
+		} 
+		Cat.prototype=new Animal();
+		var cat1 = new Cat("Tom"); 
+		var cat2 = new Cat("Jack");
+		
+		cat1.color.push("black");//修改引用类型
+		cat1.morecolor.push("tabby");
+		
+		console.log(cat1.color,cat1.morecolor);
+		//["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+		console.log(cat2.color,cat2.morecolor);
+		//["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+
+可以看到修改实例`cat1`的`color`和`morecolor`属性会直接影响实例`cat2`的`color`和`morecolor`属性（重写则不存在这个问题）。这是因为继承情况下，重写子类的实例改写的是父类构造函数同一处引用。而创建实例的时候，每次创建出来的构造函数都是一个副本。所以，实践中很少会单独使用原型链来实现继承。
+####借用构造函数继承
+这种技术的基本思想相当简单，即在子类型构造函数的内部调用超类型构造函数；  
+
+		function Animal(){
+        　 this.species = "mammals";
+           this.color = ["white","grey"];        
+        }            
+        function Cat(name){
+        	Animal.apply(this);//
+    　　　　 this.name = name;
+        } 
+        //Cat.prototype=new Animal();
+		var cat1 = new Cat("Tom");
+		var cat2 = new Cat("Jack");
+		cat1.color.push("tobby");
+		console.log(cat1.color);
+		//["white", "grey", "tobby"]
+		console.log(cat2.color);
+		//["white", "grey"]  
+可以看到通过使用 apply()和 call()方法也可以在（将来）新创建的对象上执行构造函数，这样每个实例就都会具有自己的 `color` 属性的副本。同时，我们还以通过子类的构造函数向父类传递构造函数。  
+
+		function Animal(species){
+        　 this.species = species;
+           this.color = ["white","grey"];        
+        }            
+        function Cat(name){
+        	Animal.call(this,"mammals");
+    　　　　 this.name = name;
+        } 
+        //Cat.prototype=new Animal();
+		var cat1 = new Cat("Tom");
+		console.log(cat1.species);//mammals
+
+但其仍存在问题：所有的属性和方法都在父类构造函数中定义，因此函数复用就无从谈起了。并且在父类的原型中定义的方法，对子类型而言也是不可见的。考虑到这些问题，借用构造函数的技术也是很少单独使用的。
+####组合继承  
+组合继承，有时候也叫做伪经典继承，指的是将原型链和借用构造函数的技术组合到一块。从而发挥二者之长的一种继承模式。其背后的思路是使用原型链实现对原型属性和方法的继承，而通过借用构造函数来实现对实例属性的继承。即：将公共的方法和属性放在原型链上，其他的属性和方法都放在构造函数中：  
+
+		function Animal(){
+        　 this.species = "mammals";
+           this.color = ["white","grey"];        
+        }
+        Animal.prototype.sayHi = function(){
+          console.log("Hi!")
+		}           
+        function Cat(name){
+        	Animal.apply(this);//第二次调用 父类Animal()
+    　　　　this.name = name;
+        } 
+        Cat.prototype=new Animal();//第一次调用 父类Animal()
+        Cat.prototype.constructor=Cat;//将构造函数指回来
+		
+        var cat1 = new Cat("Tom");
+        var cat2 = new Cat("Jack");
+
+        cat1.color.push("black");
+        
+		console.log(cat1.color);//["white", "grey", "black"]
+        console.log(cat2.color);//["white", "grey"]
+        cat1.sayHi();//Hi!
+        console.log(cat1 instanceof Cat);//true
+        console.log(cat1 instanceof Animal);//true
+        console.log(Cat.prototype.isPrototypeOf(cat1));//true
+        console.log(Animal.prototype.isPrototypeOf(cat1));//true
 ####原型式继承
-####寄生式继承
+比如，现在有一个对象，叫做"中国人"：
+
+        var Chinese = {
+    　 　　　nation:'中国'
+    　　 };
+还有一个对象，叫做"医生"：
+
+        var Doctor ={
+        　　　career:'医生'
+        　}
+请问怎样才能让"医生"去继承"中国人"，这两个对象都是普通对象，不是构造函数，所以我们无法使用构造函数方法实现"继承"。这时候我们可以通过object()方法实现一个非构造函数的继承：  
+
+    	function object(father){
+            var son=function(){}
+            son.prototype=father;
+            return new son();
+         }
+现在利用object函数实现person对象的继承：  
+
+	var person = {
+        name: "Nicholas",
+        friends: ["Shelby", "Court", "Van"]
+    };
+    var person1 = object(person);
+    person1.name = "Greg";
+    person1.friends.push("Rob");
+    var person2 = object(person);
+    person2.name = "Linda";
+    person2.friends.push("Barbie");
+    console.log(person.friends); //"Shelby,Court,Van,Rob,Barbie"
+ECMAScript 5 通过新增方法： `Object.create(参数1，参数2可选)`，规范化了原型式继承，用法和object基本一致。
+
+	var person3 = Object.create(person, {
+        name: {
+            value: "Greg"
+        }
+    });
+    console.log(person3.name);//Greg
+    console.log(person3.friends);//"Shelby,Court,Van,Rob,Barbie"  
+该模式中引用类型值的属性始终会被共享。
+####寄生式继承  
+寄生式继承的思路与寄生构造函数和工厂模式类似，即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象，最后再像真地是它做了所有工作一样返回对象。
+
+	function createAnother(original){
+        var clone = object(original); //通过调用函数创建一个新对象
+        clone.sayHi = function(){ //以某种方式来增强这个对象
+            console.log("hi");
+        };
+        return clone; //返回这个对象
+    }
+	var person = {
+        name: "Nicholas",
+        friends: ["Shelby", "Court", "Van"]
+    };
+    var person4=createAnother(person);
+    console.log(person4.friends);//"Shelby", "Court", "Van"
+    person4.sayHi();//"hi"
+object()函数不是必需的；任何能够返回新对象的函数都适用于此模式。
 ####寄生组合式继承
+组合模式继承是最常用的模式，但在使用过程中会调用两次父类构造函数（参见组合模式继承部分）。我们可以通过如下函数，省略第一次的父类构造函数调用：
+	
+		function inheritPrototype(son, father){
+			var prototype = object(father.prototype); //创建对象
+			prototype.constructor = son; //增强对象
+			son.prototype = prototype; //指定对象
+		}
+第一步是创建父类原型的一个副本。第二步是为创建的副本添加 `constructor` 属性，从而弥补因重写原型而失去的默认的 `constructor` 属性。最后一步，将新创建的对象（即副本）赋值给子类型的原型。  
+
+我们重写一下组合模式继承：
+		
+    	function Animal(){
+        　 this.species = "mammals";
+           this.color = ["white","grey"];        
+        }
+        Animal.prototype.sayHi=function(){
+            console.log("Hi!");
+        }          
+        function Cat(name){
+        	Animal.apply(this);
+    　　　　this.name = name;
+        } 
+        inheritPrototype(Cat, Animal);//通过寄生函数来为父类创建出一个子类（唯一区别）
+		
+        var cat1 = new Cat("Tom");
+        var cat2 = new Cat("Jack");
+
+        cat1.color.push("black");
+        console.log(cat1.color);//["white", "grey", "black"]
+        console.log(cat2.color);//["white", "grey"]
+        cat1.sayHi();//"Hi!"
+这样就只调用了一次父类构造函数，效率会比较高。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。  
 
 **<font size="5" color="red" >二. 函数表达式</font>**  
 **<font color="blue">2.1 递归</font>**   
@@ -955,25 +1130,84 @@ styleSheet 属性）；不同浏览器中都能取得样式表对象，也可以
 
 **C) 元素大小**  
 
-**<font color="blue">4.3 二级标题</font>**   
-**A)** 
+**1.偏移量**  
+  
+- 元素相对于定位父级的偏移量：`offsetLeft`,`offsetTop`。  
+- 元素的宽高、（可见的）垂直滚动条的宽高、左边框宽度和右边框宽高：`offsetHeight`,`offsetWidth`
+- `getElementLeft()`与 `getElementTop()`会返回与 `offsetLeft` 和 `offsetTop`相同的值。
+- 示意图：  
+![偏移量示意图](http://i.imgur.com/ubYfEOb.png)  
+- 要想知道某个元素在页面上的偏移量，将这个元素的 offsetLeft 和 offsetTop 与其 offsetParent的相同属性相加，如此循环直至根元素，就可以得到一个基本准确的值。对于简单的 CSS 布局的页面，这两函数可以得到非常精确的结果。对于使用表格和内嵌
+框架布局的页面，因为浏览器实现这些元素的方式不同，因此得到的值就不太精确了。  
 
-**B)**   
+**2.客户区大小**  
 
-**<font color="blue">4.4 二级标题</font>**   
-**A)** 
+- 元素内容及其内边距所占据的空间大小：`clientWidth` 和 `clientHeight`。
+- 示意图： 
+![可见区域大小](http://i.imgur.com/72lfmiU.png) 
+- 滚动条占用的空间不计算在内
+- 浏览器视口大小，可以使用 document.documentElement 或 document.body（在 IE7 之前的版本中）的clientWidth 和 clientHeight。
 
-**B)**   
+**3.滚动大小**  
 
-**<font color="blue">4.5 二级标题</font>**   
-**A)** 
+- scrollHeight：在没有滚动条的情况下，元素内容的总高度。
+- scrollWidth：在没有滚动条的情况下，元素内容的总宽度。
+- scrollLeft：被隐藏在内容区域左侧的像素数。通过设置这个属性可以改变元素的滚动位置。
+- scrollTop：被隐藏在内容区域上方的像素数。通过设置这个属性可以改变元素的滚动位置。
+- 示意图：  
+![滚动条示意图](http://i.imgur.com/XqBerAc.png)
+- 对于不包含滚动条的页面而言,`document.documentElement.scrollHeight`在每个浏览器中会有差别，具体百度；
+- 可以通过`scrollToTop`来设置返回顶部的功能：  
 
-**B)**   
+		function scrollToTop(element){
+			if (element.scrollTop != 0){
+				element.scrollTop = 0;
+			}
+		}
+        oBtn.onclick=function(){
+			scrollToTop(document.body);
+		}
 
-**<font color="blue">4.5 二级标题</font>**   
-**A)** 
+4.确定元素大小  
+`getBoundingClientRect()`方法：这个方法返回会一个矩形对象，包含 4 个属性： left、 top、 right 和 bottom。这些属性给出了元素在页面中相对于视口的位置。浏览器的实现稍有不同。 IE8 及更早版本认为文档的左上角坐标是(2, 2)，其他则认为是（0,0）。
 
-**B)**   
+**<font color="blue">4.3 二遍历</font>**   
+**A) NodeIterator**  
+ 
+- 使用document.createNodeIterator()方法创建它的新实例
+- 通过nextNode()和 previousNode()方法遍历节点
+
+**B) TreeWalker**   
+TreeWalker 是 NodeIterator 的一个更高级的版本。除了包括 nextNode()和 previousNode()
+在内的相同的功能之外，这个类型还提供了下列用于在不同方向上遍历 DOM 结构的方法。  
+
+**<font color="blue">4.4 范围</font>**  
+范围是选择 DOM 结构中特定部分，然后再执行相应操作的一种手段。如下所示HTML结构：
+		
+		<!DOCTYPE html>
+		<html>
+		<body>
+		<p id="p1"><b>Hello</b> world!</p>
+		</body>
+		</html>
+
+我们可以使用 createRange()来创建 DOM 范围： 
+
+		var range1 = document.createRange();
+		range2 = document.createRange();
+		p1 = document.getElementById("p1");
+		range1.selectNode(p1);//选择整个节点，包括其子节点
+		range2.selectNodeContents(p1);//只选择节点的子节点
+选择到节点后还可以对节点进行一系列操作:  
+
+		range1.deleteContents();//删除
+		range.insertNode(span);//插入
+		range.collapse(true);//折叠
+		比较；
+		复制；
+		清理范围等功能
+更详细的部分参见书籍。
+
 **<font size="5" color="red" >五. BOM</font>**  
 BOM是指浏览器对象模型。描述了与浏览器进行交互的方法和接口。BOM 提供了很多对象，用于访问浏览器的功能。H5中已经规范了BOM的主要内容。  
 
@@ -1198,7 +1432,112 @@ IE 的事件流叫做事件冒泡（event bubbling），即事件开始时由最
 
 IE9、 Opera、 Firefox、 Chrome 和 Safari 都支持 DOM 事件流； IE8 及更早版本不支持 DOM 事件流。  
 
-**<font color="blue">7.2 事件处理程序</font>**
+**<font color="blue">7.2 事件处理程序</font>**  
+**A) HTML 事件处理程序**  
+
+1. 顾名思义，就是在HTML中添加事件：  
+    
+		<input type="button" value="Click Me" onclick="alert('Clicked')" />
+2. 也可以在HTML中调用js代码中定义好的函数:   
+
+	    <script type="text/javascript">
+			function showMessage(){
+				alert("Hello world!");
+			}
+		</script>
+	    <input type="button" value="Click Me" onclick="showMessage()" />
+3. 函数中有一个局部变量 event，可以查看事件类型： 
+
+		<input type="button" value="Click Me" onclick="alert(event.type)">
+4. 函数内部还有this指针，指向事件的目标元素：  
+ 	
+		<input type="button" value="Click Me" onclick="alert(this.value)">
+5. 通过with扩展函数作用域：  
+
+		function(){
+			with(document){
+				with(this){
+					//元素属性值
+				}
+			}
+		}
+        //相比上述方式调用更简洁了
+		<input type="button" value="Click Me" onclick="alert(value)">
+
+6. 缺点：和js代码紧紧耦合在一起  
+
+**B) DOM0 级事件处理程序-赋值**   
+
+1. 通过 JavaScript 指定事件处理程序的传统方式，就是将一个函数赋值给一个事件处理程序属性：  
+
+		   var btn = document.getElementById("myBtn");
+			btn.onclick = function(){
+				alert("Clicked");
+			};
+2. 删除事件：  
+
+			btn.onclick = null; //删除事件处理程序
+
+3. 首先必须取得一个要操作的对象的引用，即获取元素。
+
+4. 缺点：不能同时绑定多个相同事件（如click）
+
+**C) DOM2 级事件处理程序-绑定**    
+
+####标准浏览器下的事件处理  
+1. `addEventListener()`和 `removeEventListener()`：用于处理指定和删除事件处理程序的操作。接受 3 个参数：要处理的事件名、作为事件处理程序的函数和一个布尔值。最后这个布尔值参数如果是 `true`，表示在捕获阶段调用事件处理程序；如果是 `false`，表示在冒泡阶段调用事件处理程序。
+2. 事件的删除：如果把handler函数作为匿名函数写在`addEventListener`中，是无法通过`removeEventListener`进行删除的，即便把匿名函数再写进去。因为两个匿名函数就不是同一个函数。  
+
+		var btn = document.getElementById("myBtn");
+		var handler = function(){
+			alert(this.id);
+		};
+		btn.addEventListener("click", handler, false);
+		btn.removeEventListener("click", handler, false); //有效！  
+3. 可以绑定多个相同事件（如click）。        
+4. 如果不是特别需要，我们不建议在事件捕获阶段注册事件处理程序。
+
+####IE8浏览器下的事件处理  
+1. 由于 IE8 及更早版本只支持事件冒泡，所有其时间绑定和函数函数为：`attachEvent()`和 `detachEvent()`  
+2. 事件删除与标准浏览器类似，不可使用匿名函数：  
+
+			var btn = document.getElementById("myBtn");
+			var handler = function(){
+				alert("Clicked");
+			};
+			btn.attachEvent("onclick", handler);
+			btn.detachEvent("onclick", handler);
+####兼容性写法  
+
+	var EventUtil = {
+		addHandler: function(element, type, handler){
+			if (element.addEventListener){
+				element.addEventListener(type, handler, false);
+			} else if (element.attachEvent){
+				element.attachEvent("on" + type, handler);
+			} else {
+				element["on" + type] = handler;
+			}
+		},
+		removeHandler: function(element, type, handler){
+			if (element.removeEventListener){
+				element.removeEventListener(type, handler, false);
+			} else if (element.detachEvent){
+				element.detachEvent("on" + type, handler);
+			} else {
+				element["on" + type] = null;
+			}
+		}
+	};
+我们可以这样调用：  
+
+		var btn = document.getElementById("myBtn");
+		var handler = function(){
+			alert("Clicked");
+		};
+		EventUtil.addHandler(btn, "click", handler);
+		
+		EventUtil.removeHandler(btn, "click", handler);
 
 **<font color="blue">7.3 事件对象</font>**
 

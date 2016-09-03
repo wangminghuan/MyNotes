@@ -841,7 +841,9 @@ Function构造函数可以接收任意数量的参数，最后一个参数始终
 ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现。
 
 **F)** **函数的方法**   
-每个函数都包含两个非继承（特有的，而非通过引用类型继承的）而来的方法：apply() 和 call()。两个方法均用于设置函数体内 this 对象的值。
+每个函数都包含两个非继承（特有的，而非通过引用类型继承的）而来的方法：apply() 和 call()。这两个方法的用途都是在特定的作用域中调用函数，实际上等于设置函数体内 this 对象的值。  
+
+这两个函数的主要用途有两个：**传递参数** 和 **能够扩充函数赖以运行的作用域**（最主要）。
   
 1. <font color="red">apply()方法 </font>：接收两个参数：一个是在其中运行函数的作用域，另一个是参数数组（Array的实例 或者 arguments对象）  
 
@@ -850,6 +852,7 @@ ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现�
 		}
 		function callSum1(num1, num2){
 			return sum.apply(this, arguments); // 传入 arguments 对象
+            //return sum(num1,num2);也可以用这个代替。
 		}
 		function callSum2(num1, num2){
 			return sum.apply(this, [num1, num2]); // 传入数组
@@ -864,7 +867,8 @@ ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现�
 		}  
 我们可以根据实际情况选择使用apply()还是call()。  
 
-3. 两个方法的最大用途是能够扩充函数赖以运行的作用域。  
+3. 扩充函数赖以运行的作用域：  
+不使用call或者apply方法时：  
 
 		window.color = "red";
 		var o = { color: "blue" };
@@ -873,14 +877,20 @@ ECMA5中，prototype 属性是不可枚举的，因此使用for-in 无法发现�
 		}
 		sayColor(); //"red"
 	   
-	    //不使用call或者apply方法时：
 		o.sayColor = sayColor; //需要先将sayColor函数复制给了对象o中的sayColor方法
 		o.sayColor(); //"blue"，在对象o下调用sayColor()方法
 	   
-	    //使用call方法直接改变指向
+我们也可以直接使用call方法直接改变指向  
+        
+		window.color = "red";
+		var o = { color: "blue" };
+		function sayColor(){
+			console.log(this.color);
+		}
 		sayColor.call(this); //red
 		sayColor.call(window); //red
 		sayColor.call(o); //blue 直接将函数sayColor内的this指向对象o;  
+
 4. 还有一个bind()方法：  该方法可以实现this值的绑定；
   
 		window.color = "red";

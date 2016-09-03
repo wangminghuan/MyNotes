@@ -1,10 +1,113 @@
 ##<font face="微软雅黑" size="4" >HTML 高级
 
-**<font size="5" color="red" >一. 标题1</font>**  
-**<font color="blue">1.1 二级标题</font>**   
-**A)** 
+**<font size="5" color="red" >一. JSON</font>**  
+**<font color="blue">1.1 JSON语法</font>**   
 
-**B)**  
+1. JSON 的语法可以表示以下三种类型的值：简单值，对象，数组。
+2. 布尔值和 null 也是有效的 JSON 形式。
+
+**<font color="blue">1.2 JSON对象的解析</font>**   
+**A) eval()**   
+早期的 JSON 解析器基本上就是使用 JavaScript 的 eval()函数，它会将传入的参数当作实际的 ECMAScript 语句来解析，然后把执行结果插入到原位置。但存在被注入恶意代码的风险。
+
+**B) stringify()**   
+
+1. 把一个 JavaScript 对象序列化为一个 JSON 字符串。默认情况下， `JSON.stringify()` 输出的 JSON 字符串不包含任何空格字符或缩进。  
+2. 序列化过程中所有函数及原型成员都会被有意忽略，不体现在结果中。此外，值为undefined 的任何属性也都会被跳过。
+
+**B) parse()**  
+ 
+1. 作用与stringify()正好相反：将JSON字符串序列化为JSON对象。   
+2. 如果传给 JSON.parse()的字符串不是有效的 JSON，该方法会抛出错误。（如含undefined，或者分号；）
+
+**<font color="blue">1.3 JSON对象的序列化-JSON.stringify()</font>**    
+实际上， JSON.stringify()除了要序列化的 JavaScript对象外，还可以接收另外两个参数，这两个参数用于指定以不同的方式序列化 JavaScript 对象： 
+ 
+- 第一个参数是个过滤器，可以是一个数组，也可以是一个函数；
+- 第二个参数是一个选项，表示是否在 JSON 字符串中保留缩进。
+
+单独或组合使用这两个参数，可以更全面深入地控制 JSON 的序列化。  
+**A) 过滤结果**   
+如果过滤器参数是数组，那么 JSON.stringify()的结果中将只包含数组中列出的属性:
+
+		var book = {
+		"title": "Professional JavaScript",
+		"authors": [
+		"Nicholas C. Zakas"
+		],
+		edition: 3,
+		year: 2011
+		};
+		var jsonText = JSON.stringify(book, ["title", "edition"]);
+        //{"title":"Professional JavaScript","edition":3}  
+
+如果第二个参数是函数，行为会稍有不同。传入的函数接收两个参数，属性（键）名和属性值。根据属性（键）名可以知道应该如何处理要序列化的对象中的属性。属性名只能是字符串，而在值并非键值对儿结构的值时，键名可以是空字符串。  
+
+	var jsonText = JSON.stringify(book, function(key, value){
+		switch(key){
+			case "authors":
+				return value.join(",")
+			case "year":
+				return 5000;
+			case "edition":
+				return undefined;
+			default:
+				return value;
+		}
+	})
+注意一定要加上 `default:return value;` ，否则会过滤为 `undefined`。  
+
+**B) 字符串缩进**   
+JSON.stringify()方法的第三个参数用于控制结果中的缩进和空白符。 如果这个参数是一个数值，那它表示的是每个级别缩进的空格数。例如，要在每个级别缩进 4 个空格，可以这样写：
+
+	var jsonText = JSON.stringify(book, null, 4);
+**C) toJSON()方法**  
+可以作为函数过滤器的补充，假设把一个对象传入 JSON.stringify()，序列化该对象的顺序如下：  
+
+- 如果存在 toJSON()方法而且能通过它取得有效的值，则调用该方法。否则，返回对象本身。
+- 如果提供了第二个参数，应用这个函数过滤器。传入函数过滤器的值是第(1)步返回的值。
+- 对第(2)步返回的每个值进行相应的序列化。
+- 如果提供了第三个参数，执行相应的格式化。  
+
+		var book = {
+			title: "Professional JavaScript",
+			authors: [
+			"Nicholas C. Zakas"
+			],
+			edition: 3,
+			year: 2011,
+			"name":undefined,
+			"age":40,
+			toJSON:function(){
+				return {
+		            "name":"jack",
+		            "age":"15"
+				};
+			}
+		};
+		var jsonText = JSON.stringify(book,function(key,value){
+			switch(key){
+				case "name":
+				   return value+" and me";
+				default:
+				   return value
+			}
+		console.log(jsonText);//{"name":"jack and me","age":"15"}
+
+**<font color="blue">1.3 JSON对象的解析-JSON.parse()</font>**  
+JSON.parse()方法也可以接收另一个参数，该参数是一个函数，与JSON.stringify()接收的过滤函数相同，它们都接收两个参数，一个键和一个值。  
+
+	var jsonText = JSON.stringify(book);
+
+	var bookCopy = JSON.parse(jsonText,function(key,value){
+            if(key=="year"){
+            	return 5000;
+            }else{
+            	return value;
+            }
+	})
+	console.log(bookCopy);
+
 **<font size="5" color="red" >二. HTML5 脚本编程</font>**  
 **<font color="blue">2.1 跨文档消息传递</font>**  
 跨文档消息传送（cross-document messaging），有时候简称为 XDM，指的是在来自不同域的页面间传递消息。   
@@ -432,26 +535,29 @@ Indexed Database API（简称：IndexedDB），是在浏览器中保存结构化
 mozIndexedDB，在 Chrome 中叫 webkitIndexedDB。
 
 IndexedDB 就是一个数据库，与 MySQL 或 Web SQL Database 等数据库类似，由于实际应用中这块基本没有涉及到，故不再介绍，详见书籍；  
-**<font size="5" color="red" >五. 标题4</font>**  
-**<font color="blue">4.. 二级标题</font>**   
+
+**<font size="5" color="red" >五. Ajax</font>**  
+**<font color="blue">5.1 二级标题</font>**   
 **A)** 
 
 **B)**   
 
-**<font size="5" color="red" >六. 标题4</font>**  
-**<font color="blue">4.. 二级标题</font>**   
+**<font color="blue">5.2 二级标题</font>**   
 **A)** 
 
 **B)**   
 
-**<font size="5" color="red" >七. 标题4</font>**  
-**<font color="blue">4.. 二级标题</font>**   
+**<font color="blue">5.3 二级标题</font>**   
 **A)** 
 
 **B)**   
 
-**<font size="5" color="red" >八. 标题4</font>**  
-**<font color="blue">4.. 二级标题</font>**   
+**<font color="blue">5.4 二级标题</font>**   
+**A)** 
+
+**B)**   
+
+**<font color="blue">5.5 二级标题</font>**   
 **A)** 
 
 **B)**   
