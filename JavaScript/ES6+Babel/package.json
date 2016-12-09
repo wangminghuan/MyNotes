@@ -1,0 +1,11 @@
+{
+  "name": "Babel",
+  "version": "0.1.0",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0"
+  },
+  "scripts":{
+    "build":"babel src -d lib"
+  }
+}
