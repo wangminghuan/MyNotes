@@ -81,32 +81,9 @@
 			<a v-on:click="doSomething"></a>
 			<!-- 缩写 -->
 			<a @click="doSomething"></a>
+5. **[计算属性]**：实例化时的computed属性
+  - 
 
-
-
-
-
-
-
-
-
-
-#### [强制] 当一个 `rule` 包含多个 `selector` 时，每个选择器声明必须独占一行。
-
-示例：
-
-
-	/* good */
-	.post,
-	.page,
-	.comment {
-	    line-height: 1.5;
-	}
-	
-	/* bad */
-	.post, .page, .comment {
-	    line-height: 1.5;
-	}
 
 
 ##  参考文献
