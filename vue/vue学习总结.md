@@ -82,6 +82,7 @@
 			<a v-on:click="doSomething"></a>
 			<!-- 缩写 -->
 			<a @click="doSomething"></a>
+### 2.4 属性
 5. **[计算属性]**：实例化时的computed属性  
 下面我们举一个例子：  	 
 
@@ -176,9 +177,182 @@ Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变
 		console.log(vm.$data.reversedMessage==userDate.reversedMessage);//true
 	    console.log(vm.$data.reversedMessage==vm.reversedMessage);//false
 从上述例子可以看出代理属性的变化并没有反应到userDate和$data上，因为computed改写的只是代理属性的setter，断开了与上述二者的绑定关系；而试图上其实绑定的是代理属性值，所以视图也会更新。       
-9. **[观察 Watchers]**  
+### 2.5 class与style绑定
+####绑定html class （v-bind:class）
+1. 对象语法。
+所谓对象语法，就是在模板中绑定的样式用json的方式描述，例如：  
 
-10. 
+		<div id="example">
+		<p class="static" v-bind:class="{active:isActive,'text-error':isError}">test example</p>
+		</div>
+		//////////分割线///////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				isActive:true,
+				isError:true
+			}
+		}); 
+键值（isActive与isError）在data中用布尔值表示，如果值为真，其键名（active和text-name）就会渲染到页面中。（- 拼接的变量必须用引号，分则无法解析）   
+也可以把这个json进行命名，模板中只写名称，json的数据放到data中：  
+
+		<div id="example">
+		<p class="static" v-bind:class="classObject">test example2</p>
+		</div>
+		//////////分割线///////////////
+		var vm=new Vue({
+		el:"#example",
+		data:{
+			classObject:{
+				active:true,
+				'text-error':false
+			}
+			}
+		});
+对象语法的好处：可以结合返回对象的计算属性使用：  
+
+		//dom 结构同上
+		var vm=new Vue({
+			el:"#example",
+			data:{
+					isActive:true,
+					isError:false
+			},
+			computed:{
+				classObject:function(){
+					return {
+		                active:this.isActive && !this.isError,
+		                'text-error':this.isError
+					}
+				}
+			}
+		});
+
+2. 数组语法  
+数组语法，其实模板中写入的就是一个数组变量，数组变量的具体数值在data中获取，data中必须都有命名，否则会报错，如果没有值，置空即可。
+
+		<div id="example">
+		<p class="static" v-bind:class="[activeClass, errorClass]">test example4</p>
+		</div>
+		////////////分割线//////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				activeClass:'active',
+				errorClass:'text-error'
+			}
+		});
+数组变量同样接受三目运算：
+
+		<div id="example">
+		<p class="static" v-bind:class="[isActive? activeClass:'', errorClass]">test example5</p>
+		</div>
+		////////////分割线//////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				isActive:false,
+				activeClass:'active',
+				errorClass:'text-error'
+				
+			}
+		});
+当data中的isActive为true时，将会取data中的activeClass，否则为空。  
+数组变量同样也可以混入对象语法；
+#### 绑定内联样式 （v-bind:style）  
+1. 对象语法
+同样可以使用对象语法，但与上述有不同，json中键值不再是布尔值，而是字符串，键名必须用驼峰法命名。最终渲染结果是把json中的键名和data中的数值拼接在一块的。例如：
+
+		<div id="example">
+		<p class="static" v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }">test example5</p>
+		</div>
+		////////////分割线//////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				activeColor:"red",
+				fontSize:'16'
+			}
+		});
+通常绑定到一个变量下会更容易维护
+
+		<div id="example">
+		<p class="static" v-bind:style="styleObject">test example5</p>
+		</div>
+		////////////分割线//////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				styleObject:{
+					color:"blue",
+				    fontSize:'16px'
+				}
+				
+			}
+		});//data中仍旧是驼峰法命名。
+
+2. 数组语法  
+数组语法可以将多个样式集合应用到一个元素上：他与上述语法不同的时，数组内是data中的json对象。
+
+		<div id="example">
+		<p class="static" v-bind:style="[baseStyles, overridingStyles]">test example7</p>
+		</div>
+		////////////分割线//////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				baseStyles:{
+					color:"yellow",
+				},
+				overridingStyles:{
+					fontSize:'16px'
+				}
+			}
+		});
+
+### 2.6 列表渲染
+#### Template 中的 v-for 循环
+v-for 也可以用于循环整个template标签块：
+
+		<div id="example">
+		    <ul>
+		        <template v-for="item in items">
+		            <li>
+		                {{item.message}}
+		            </li>
+		        </template>
+		    </ul>
+		</div>
+		/////////分割线////////////////
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				items:[
+		          {message:"one"},
+		          {message:"two"},
+		          {message:"three"}
+				]
+			}
+		});
+#### 对象迭代 v-for
+除了可以迭代数组，还可以迭代对象，同时可以遍历三个参数，键名，键值，索引
+
+		<ul id="example">
+		        <li v-for="(value, key, index) in items">
+		            {{index}}:{{key}}-{{value}}
+		        </li>
+		    </ul>
+		<script type="text/javascript">
+		var vm=new Vue({
+			el:"#example",
+			data:{
+				items:{
+			      a:"one",
+			      b:"two",
+			      c:"three"
+		    	}
+			}
+		});
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)
