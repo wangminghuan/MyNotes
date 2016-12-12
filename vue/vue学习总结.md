@@ -9,9 +9,9 @@
 ## 2 基础
 
 ### 2.1 属性和方法  
-
-1. 带有$前缀的属性和方法（vue实例暴露出来的）与代理的属性和方法，有什么区别？
-2. 二者数据都是双向绑定
+1. **代理属性和方法**：每个 Vue 实例都会代理其 data 对象里所有的属性，即：把data下的属性和方法挂载到实例对象（例如：vm）下。
+2. **$前缀+属性和方法**：带有$前缀的属性和方法（vue实例暴露出来的），方便我们与代理属性和方法区分开；
+3. **数据的双向绑定**
         
 		var userData = { a: 1 };
 		var vm = new Vue({
@@ -20,6 +20,7 @@
 		});
 		console.log(vm.$el === document.getElementById('example'));//true
 		console.log(vm.$data.a === vm.a);//true,二者是相等的，只是写法上的一些区别；
+		console.log(vm.a===userData.a);//true，本例相等，但不代表二者数据是绑定的
 		userData.a=2;
 		console.log(vm.$data.a==2);//true
 		console.log(vm.a==2);//true
@@ -81,11 +82,103 @@
 			<a v-on:click="doSomething"></a>
 			<!-- 缩写 -->
 			<a @click="doSomething"></a>
-5. **[计算属性]**：实例化时的computed属性
-  - 
+5. **[计算属性]**：实例化时的computed属性  
+下面我们举一个例子：  	 
 
+		<!-- 模板文件-->
+		<div id="example">
+		  <p>Original message: "{{ message }}"</p>
+		  <p>Computed reversed message: "{{ reversedMessage }}"</p>
+		</div>
 
+		<!-- js文件-->
+		var userData={
+			message:'Hello'
+		};
+		var vm = new Vue({
+		  el: '#example',
+		  data: {
+			message:'Hello'
+		 },
+		  computed: {
+		    // a computed getter
+		    reversedMessage: function () {
+		      // `this` points to the vm instance
+		      return this.message.split('').reverse().join('')
+		    }
+		  }
+		})
+   此时便声明了一个计算属性  `reversedMessage`, 实例化时computed下的reversedMessage函数将作为`vm.reversedMessage`属性的getter。  
 
+6. **[计算属性 VS Methods]**  
+通过实例化时的method同样可以达到上述效果：  
+
+		var userData={
+			message:'Hello'
+		};
+		var vm = new Vue({
+			  el: '#example',
+			  data: {
+			  message:'Hello'
+			 },
+			  methods: {
+			    reversedMessage: function () {
+			      return this.message.split('').reverse().join('')
+			    }
+			  }
+			});//method中的方法和属性不能命名相同，否则会报错。
+但是二者还是存在差别的：
+	- 计算属性对它的**依赖是有缓存**的，只要message属性没有变，多次执行也不会重新计算，只会返回之前的计算结果；Methods则不会。
+7. **[计算属性 VS Watched Property]**  
+Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变动。
+
+		var vm = new Vue({
+			  el: '#example',
+			  data: {
+				message:'Hello',
+ 				reversedMessage:'olleH',
+			 },
+			  watch:{
+  				message:function(val){
+  				this.reversedMessage=this.message.split('').reverse().join('')
+  				}
+  	
+  			 }
+			}); 
+     	 //改变vm.message，vm.reversedMessage也会跟着变动
+但是，更建议使用计算属性。
+8. **[计算属性的setter]**  
+因为computed下提供的函数将用作属性（代理属性） vm.reversedMessage 的 getter 。所以setter也得通过vm.reverseMessage进行赋值才能触发。
+
+		var userDate={
+		  message:"hello",
+		  reversedMessage:"olleh"
+		};
+		var vm = new Vue({
+			  el: '#example',
+			  data: userDate,
+			  computed: {
+			    reversedMessage: {
+			    	get:function(){
+			          return this.message.split('').reverse().join('')
+			    	},
+			    	set:function(val){
+			           this.message=val.split('').reverse().join('')
+			    	}
+			    }
+			  }
+			});
+        console.log(vm.$data.reversedMessage==userDate.reversedMessage);//true
+	    console.log(vm.$data.reversedMessage==vm.reversedMessage);//true
+	    
+		vm.reversedMessage="dlrow";//视图更新为world 和 dlrow
+	    
+		console.log(vm.$data.reversedMessage==userDate.reversedMessage);//true
+	    console.log(vm.$data.reversedMessage==vm.reversedMessage);//false
+从上述例子可以看出代理属性的变化并没有反应到userDate和$data上，因为computed改写的只是代理属性的setter，断开了与上述二者的绑定关系；而试图上其实绑定的是代理属性值，所以视图也会更新。       
+9. **[观察 Watchers]**  
+
+10. 
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)
