@@ -1,16 +1,93 @@
 <font face="微软雅黑" size="4" >
 <font size="6">JS中的对象属性</font>
 
-
+ECMAScript 中有两种属性：数据属性和访问器属性
 ## 数据属性 
+数据属性包含一个**数据值的位置**。在这个位置可以读取和写入值。
 
-### 1. ES5的Object.definedProperty()
+### 1. 数据属性有以下四个描述其行为的特性：
+- [[Configurable]]：表示能否通过delete 删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为访问器属性。默认值为true。
+- [[Enumerable]]：表示能否通过for-in 循环返回属性。默认值为true。
+- [[Writable]]：表示能否修改属性的值。默认值为true。
+- [[Value]]：包含这个属性的数据值。读取属性值的时候，从这个位置读；写入属性值的时候，把新值保存在这个位置。这个特性的默认值为undefined。
+
+要修改属性默认的特性，必须使用ECMAScript 5 的Object.defineProperty()方法。下面介绍该方法。
+
+### 2. ES5的Object.definedProperty()
 这个函数接受三个参数 Object.defineProperty(obj, prop, descriptor)：
 
 - obj，表示要定义属性的对象,
 - prop，是要定义或者更改的属性名字，
 - descriptor,描述符，来定义属性的具体描述。
+
+例子： 
+
+	var obj={
+			name:"jack",
+			age:"25",
+		};
+	Object.defineProperty(obj,"name",{
+		writable:false,
+		value: "Nicholas"
+	});
+	obj.name="mike";
+	console.log(obj.name);
+运行结果：  
+1.非严格模式下
+
+	Nicholas
+2.严格模式下，报错：
+ 
+	TypeError: Cannot assign to read only property 'name' of #<Object>
+
+### 2 ES5的Object.defineProperties() 
+该方法可以通过描述符一次定义多个属性，接受两个参数：  
+
+- 对其添加或修改属性的对象。 这可以是本机 JavaScript 对象或 DOM 对象。；
+- 包含一个或多个描述符对象的 JavaScript 对象。 每个描述符对象描述一个数据属性或访问器属性;
+
+例子：
+
+	var obj={};
+	Object.defineProperties(obj,{
+		_name:{
+			value:"jack",
+			writable:true
+		},
+		age:{
+			value:"25"
+		},
+		name:{
+	      get:function(){
+	      	return this._name;
+	      },
+	      set:function(val){
+	      	this._name="new_"+val;
+	      }
+		}
+	});
+	obj.name="blues";
+	console.log(obj.name);
+运行结果：
+
+	blues//必须设置_name的writable为true，否则严格无法改写属性。
+
+### 3 ES5的Object.getOwnPropertyDescriptor()
+
+获取指定对象的自身属性描述符；接受两个参数：
+
+- 包含属性的对象。
+- 属性的名称。
+
+对上面例子执行：
+
+	console.log(Object.getOwnPropertyDescriptor(obj,"name"));
+chrome下运行结果：  
+![getOwn](http://i.imgur.com/OETNt8S.jpg)  
+
+可以获取name属性的所有属性描述；
 ## 访问器属性 
+访问器属性不包含数据值；它们包含一对儿**getter 和setter 函数**
 ### 1 在ECMAScript 2015之前，JavaScript中的对象字面量（也称为对象初始化器）是非常基础的。能够定义两种类型的属性：
 
 1. 成对出现的名称以及相应的值{ name1: value1 }
