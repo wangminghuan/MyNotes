@@ -24,23 +24,58 @@ ES6新增了let命令，用来声明变量。它的用法类似于var，但是�
 	for (let i = 0; i < 10; i++) {}
 	
 	console.log(i)//
-#### [强制] 当一个 `rule` 包含多个 `selector` 时，每个选择器声明必须独占一行。
 
-示例：
+## 箭头函数  
 
+	var add= (arg1,arg2)=>arg1+arg2;
+	console.log(add(5,4));//9
+	
+等同于
+	
+	var add= (arg1,arg2)=>{
+	  return arg1+arg2
+	}
+	console.log(add(5,4));//9
 
-	/* good */
-	.post,
-	.page,
-	.comment {
-	    line-height: 1.5;
+## Generator 
+generator的英语意思就是“发动机”, Generator函数是ES6提供的一种异步编程解决方案。  
+形式上，Generator函数是一个普通函数，但是有两个特征：  
+1. function关键字与函数名之间有一个星号；  
+2. 函数体内部使用yield语句，定义不同的内部状态（yield语句在英语里的意思就是“产出”）
+
+	function* helloWorldGenerator() {
+	  yield 'hello';
+	  yield 'world';
+	  return 'ending';
 	}
 	
-	/* bad */
-	.post, .page, .comment {
-	    line-height: 1.5;
-	}
+	var hw = helloWorldGenerator();
 
+	hw.next()
+	// { value: 'hello', done: false }
+	
+	hw.next()
+	// { value: 'world', done: false }
+	
+	hw.next()
+	// { value: 'ending', done: true }
+	
+	hw.next()
+	// { value: undefined, done: true }
+每次调用next方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个yield语句（或return语句）为止。
+## Promise  
+promise的英语意思就是“承诺”,Promise是一个对象，异步编程的一种解决方案。
+
+### 起步例子  
+
+	var promise=new Promise(function(resolve, reject){
+		// some code
+		if(/*异步请求成功*/){
+	     resolve(val)
+		}else{
+	     reject(error)
+		}
+	})
 
 ##  参考文献
 
