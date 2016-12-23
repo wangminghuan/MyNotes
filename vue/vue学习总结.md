@@ -1,5 +1,5 @@
 <font face="微软雅黑" size="4" >
-<font size="6">Vue.js 学习总结</font>
+<font size="6">Vue.js 学习总结 实时刷新</font>
 
 
 ## 1 环境搭建
@@ -12,7 +12,7 @@
 ### 2.1 属性和方法  
 1. **代理属性和方法**：每个 Vue 实例都会代理其 data 对象里所有的属性，即：把data下的属性和方法挂载到实例对象（例如：vm）下。
 2. **$前缀+属性和方法**：带有$前缀的属性和方法（vue实例暴露出来的），方便我们与代理属性和方法区分开；
-3. **数据的双向绑定**
+3. **数据的双向绑定**  
 
 		var userData = { a: 1 };
 		var vm = new Vue({
@@ -25,7 +25,6 @@
 		userData.a=2;
 		console.log(vm.$data.a==2);//true
 		console.log(vm.a==2);//true
-
 ###2.2 生命周期：
 
 1. 可以理解为在整个vue实例构建的过程中，每个阶段的分割点（也是所谓的“钩子”）：
@@ -114,6 +113,7 @@
    此时便声明了一个计算属性  `reversedMessage`, 实例化时computed下的reversedMessage函数将作为`vm.reversedMessage`属性的getter。  
 
 2. **[计算属性 VS Methods]**  
+
 通过实例化时的method同样可以达到上述效果：  
 
 		var userData={
@@ -131,7 +131,7 @@
 			  }
 			});//method中的方法和属性不能命名相同，否则会报错。
 但是二者还是存在差别的：
-	- 计算属性对它的**依赖是有缓存**的，只要message属性没有变，多次执行也不会重新计算，只会返回之前的计算结果；Methods则不会。
+	- 计算属性对它的**依赖是有缓存**的，只要message属性没有变，多次执行也不会重新计算，只会返回之前的计算结果；Methods则不会。  
 7. **[计算属性 VS Watched Property]**  
 Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变动。
 
@@ -149,7 +149,7 @@ Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变
   			 }
 			});
      	 //改变vm.message，vm.reversedMessage也会跟着变动
-但是，更建议使用计算属性。
+但是，更建议使用计算属性。  
 8. **[计算属性的setter]**  
 因为computed下提供的函数将用作属性（代理属性） vm.reversedMessage 的 getter 。所以setter也得通过vm.reverseMessage进行赋值才能触发。
 
@@ -177,7 +177,7 @@ Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变
 		vm.reversedMessage="dlrow";//视图更新为world 和 dlrow
 
 		console.log(vm.$data.reversedMessage==userDate.reversedMessage);//true
-	    console.log(vm.$data.reversedMessage==vm.reversedMessage);//false
+	  console.log(vm.$data.reversedMessage==vm.reversedMessage);//false
 从上述例子可以看出代理属性的变化并没有反应到userDate和$data上，因为computed改写的只是代理属性的setter，断开了与上述二者的绑定关系；而试图上其实绑定的是代理属性值，所以视图也会更新。   
 
 ### 2.5 class与style绑定
@@ -714,6 +714,17 @@ v-model 绑定的 value 通常是静态字符串（对于勾选框是逻辑值�
 		    'my-component': Child
 		  }
 		})
+或者全部放在实例化中：
+
+			new Vue({
+			  // ...
+			  components: {
+			    // <my-component> 将只在父模板可用
+			    'my-component':{
+			      template: '<div>A custom component!</div>'
+			    }
+			  }
+			}
 3. 注册组件时，data数据必须是函数：
 
 		Vue.component('my-component', {
@@ -741,33 +752,202 @@ v-model 绑定的 value 通常是静态字符串（对于勾选框是逻辑值�
 #### Props
 1. 组件实例的作用域是孤立的。这意味着不能并且不应该在子组件的模板内直接引用父组件的数据。
 
-2. 子组件和父组件个个人理解：  
+2. prop 是父组件用来传递数据的一个自定义属性，子组件需要显式地用 props 选项 声明 “props” ：
+   
+		   Vue.component("child",{
+		        props:["message"],
+		        template:"<div>这是子组件,父组件传递过来的信息是：{{message}}</div>"
+		    })
+		
+		   var vm=new Vue({
+		     	el:"#example"
+		   })
+此处我们在模板文件中的子组件显式的赋值（父组件传递信息也是这样传到子组件的）：
 
-html文件：
+	    <div id="example">
+	      <!-- #example是Vue实例挂载的元素，应该在挂载元素范围内使用组件 -->
+	      <child message="Hello"></child>
+	    </div>
+3. 如果不从props获取，那么在组件中添加data属性即可：
 
-	   <div id="example">
-        <!-- #example是Vue实例挂载的元素，应该在挂载元素范围内使用组件 -->
-        <child message="Hello"></child>
-      </div>
+		   Vue.component("child",{
+		        template:"<div>这是子组件,父组件传递过来的信息是：{{message}}</div>",
+		        data:function(){
+		          return {
+		            message:"Hello_1"//注意要是函数
+		          }
+		        }
+		    })
+		
+		   var vm=new Vue({
+		     	el:"#example"
+		   })
 
-js文件：
+4. 使用驼峰法命名的props，譬如：myMessage, 在模板中请手动更改为prop的名字形式从 camelCase 为 kebab-case（短横线隔开）,譬如：my-message，这是因为HTML语法不区分大小写。
 
+5. 动态props  
+通过v-bind将数据绑定到父级，实现父组件跟子组件的数据单向绑定：
 
+		   <div id="example">
+		      <input type="text" v-model="parentMsg">
+		      <br>
+		      <child v-bind:message="parentMsg"></child>
+              <!--此处也可以不写绑定的变量名，可以写成数字，并且仅限数字，-->
+			  <!--因为数字被认为是有效数据，而其他则认为是调用变量，会出现未定义的报错。-->
+			  <!--这种方式可以传递数字，而非绑定的方式其实传递过去就变成字符串了-->
+		    </div>
 
-3. prop 是父组件用来传递数据的一个自定义属性，子组件需要显式地用 props 选项 声明 “prop” 
+		   <script type="text/javascript">
+		    Vue.component("child",{
+		        props:["message"],
+		        template:"<div>这是子组件,父组件传递过来的信息是：{{message}}</div>"
+		    })
+		   var vm=new Vue({
+		        el:"#example",
+		        data:{
+		            parentMsg:""
+		        }
+		   })
+		   </script>
+
+6. 单向数据流  
+prop 是单向绑定的：当父组件的属性变化时，将传导给子组件，但是不会反过来。通常情况下子组件不要修改Props内的数据，但也存在以下两种修改的情况：
+  - prop 作为初始值传入，子组件之后只是将它的初始值作为本地数据的初始值使用：  
+  
+             //改写东
+			  Vue.component("child",{
+			        props:["message"],
+			        template:"<div>这是子组件,父组件传递过来的信息是：{{message}}</div>",
+			        data:function(){
+			            return {
+			                counter:this.message
+			            }
+			        }
+			    })
+			
+			   var vm=new Vue({
+			        el:"#example",
+			        data:{
+			            parentMsg:""
+			        }
+			   })
+
+  - prop 作为需要被转变的原始值传入
+7. Prop验证
+我们在组件中可以指定接受的数据类型，我们仍用动态props下的例子：
+
+		  Vue.component("child",{
+		        props:{
+		            message: Number //指定为数字
+		        },
+		        template:"<div>这是子组件,父组件传递过来的信息是：{{message}}</div>",
+		        data:function(){
+		            return {
+		                counter:this.message
+		            }
+		        }
+		    })
+		
+		   var vm=new Vue({
+		        el:"#example",
+		        data:{
+		            parentMsg:2
+		        }
+		   })
+上述例子初始化时不会报错，因为vm.parentMsg初始值为数字，但输入时就会报错，因为input中的值都是string类型
 
 #### 自定义事件
+我们通过自定义事件来实现子组件向父组件传递数据的功能：
+
+1. 自定义事件：
+
+	- 使用 $on(eventName) 监听事件
+	- 使用 $emit(eventName) 触发事件
 
 
 #### 使用slots分发
 
+solts就像子组件里面预留的插槽，在父模板引用子模板的时候，父模板内部的内容会按照name进行匹配，匹配成功的部分会自动添加在子模板的插槽内，匹配成功的部分会放在默认插槽内。
 
+例子：  
+
+有一个名为app-layout的组件
+
+	<div class="container">
+	  <header>
+	    <slot name="header"></slot>
+	  </header>
+	  <main>
+	    <slot></slot>
+	  </main>
+	  <footer>
+	    <slot name="footer"></slot>
+	  </footer>
+	</div>
+父模板是这样使用的
+
+	<app-layout>
+	  <h1 slot="header">Here might be a page title</h1>
+	  <p>A paragraph for the main content.</p>
+	  <p>And another one.</p>
+	  <p slot="footer">Here's some contact info</p>
+	</app-layout>
+
+最终渲染结果：
+
+	<div class="container">
+	  <header>
+	    <h1>Here might be a page title</h1>
+	  </header>
+	  <main>
+	    <p>A paragraph for the main content.</p>
+	    <p>And another one.</p>
+	  </main>
+	  <footer>
+	    <p>Here's some contact info</p>
+	  </footer>
+	</div>
 #### 动态组件
+多个组件可以使用同一个挂载点，然后动态地在它们之间切换。使用保留的 <component\> 元素，动态地绑定到它的 is 特性：  
+注意，不可以使用全局注册方式，因为component一旦全局注册，没有办法再局部动态修改。只能使用局部注册的两种方式（参照上方组件的局部注册部分）
 
+keep-alive：外包一个keep-alive标签，可以缓存非活动组件
 
-#### 其他
+		<keep-alive>
+		  <component :is="currentView">
+		    <!-- 非活动组件将被缓存！ -->
+		  </component>
+		</keep-alive>
+#### 其他  
+1. 可复用组件的编写规则：
+vue组件是API来自三部分：props,events,slots
+  - props:允许外部环境传递数据给组件。
+  - events:允许组件触发外部环境的副作用（意料之外的行为，计算机术语）。
+  - slots:允许外部环境将额外的内容组合在组件中。
 
+2. 子组件的索引  
+ `ref` 为子组件指定一个索引 ID ，通过 vm.$refs来访问(是一个对象)，vm.$refs.索引ID 就可以看到对应组件了
 
+		 <div id="example">
+		      <child ref="profiles"></child>
+		    </div>
+		   <script type="text/javascript">
+		   
+		  var vm=new Vue({
+		    el:"#example",
+		    components:{
+		      child:{
+		         template:'<p>我是子组件</p>'
+		      }
+		    }
+		  });
+		</script>
+vm.$refs.profiles 可以访问到组件，但是该方法只是一个应急方案，尽量避免使用
+
+3. 组件的命名约定  
+vue注册组件时，你可以用驼峰法，短横线拼接法，甚至混用也可以，但在HTML中请统一使用短横线拼接语法。
+
+4. v-once 可以将渲染结果缓存起来，标签上加入v-once标记即可。
 ##  参考文献
 
 1. [vue中文官方文档](http://cn.vuejs.org/v2/guide/)

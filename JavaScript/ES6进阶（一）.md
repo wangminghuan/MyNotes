@@ -44,15 +44,19 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
 2. 函数体内部使用yield语句，定义不同的内部状态（yield语句在英语里的意思就是“产出”）
 
 	function* helloWorldGenerator() {
+      console.log("start");
 	  yield 'hello';
 	  yield 'world';
 	  return 'ending';
 	}
 	
 	var hw = helloWorldGenerator();
+    //必须先调用一下这个函数,但此时函数并不会执行。
+    //只有通过next方法才会执行。
 
 	hw.next()
-	// { value: 'hello', done: false }
+	// "start"；此时才会执行函数体，遇到yield停止
+    //{ value: 'hello', done: false }
 	
 	hw.next()
 	// { value: 'world', done: false }
@@ -66,6 +70,7 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
 ## Promise  
 promise的英语意思就是“承诺”,Promise是一个对象，异步编程的一种解决方案。
 
+ES6规定，Promise对象是一个构造函数，用来生成Promise实例。
 ### 起步例子  
 
 	var promise=new Promise(function(resolve, reject){
