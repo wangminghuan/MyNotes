@@ -1,6 +1,6 @@
 "use strict";
 
-(function (item) {
+/*(function (item) {
 	return item + 1;
 });
 var a = [];
@@ -46,3 +46,21 @@ var sum3 = function sum3(num1, num2) {
 		return num1 + num2;
 	}
 };
+*/
+function fn2(){
+	var arr=[1,3];
+	for (let i = 0; i < arr.length; i++) {
+		console.log('d')
+	}
+	console.log("i="+i)
+}
+//fn2()
+function timeout(ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve,ms,"done");
+  });
+}
+
+timeout(4000).then((value) => {
+  console.log(value);
+});

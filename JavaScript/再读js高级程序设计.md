@@ -208,20 +208,148 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
 			doAdd(30, 20); //50
             //根据传入函数中参数的类型和数量，实现不同的逻辑，但这并非真正的重载。
     - arguments对象中的值会自动反映到对应的命名参数(stritc模式无效);
+### 1.5 变量的复制
+1. ECMAScript中访问变量有按值传递和按引用传递。
+
+2. ECMAScript中所有的函数的参数都是按值传递的，无论参数是基本数据类型还是引用数据类型
+
+### 1.6 instanceof
+
+引用类型的检测利用instanceof更准确，检测一个变量是否是引用类型的实例，返回布尔值。
+
+    console.log(arr instanceof Array);//arr 是Array对象的实例？true
+    console.log(arr instanceof Object);//所有引用类型都是Object对象的实例，永远返回true
+
 ## 2 引用类型
 
-### 2.1 Object类型
+### 2.1 引用类型通用的方法
+所有对象都有，`toLocaleString()`,`toString()`, `valueOf()`方法。  
+
+1. toLocaleString()：返回对象的字符串表示，该字符串与执行环境的地区对应。  
+2. toString(): 返回对象的字符串表示。  
+3. valueOf(): 返回对象的字符串，数值，或者布尔值，通常与toString()返回值相同。  
+4. 通常情况下ECMAScript类型转换时会默认调用对象的`valueOf()`, `toString()`方法。
+
+
+### 2.2 Object类型
 方括号和“.”都可以访问对象属性，但方括号有以下两点是“.”做不到的：
 
  - 访问变量：
  - 访问带空格的属性名称，如：`obj["first name"]`
-### 2.2 Array类型
+
+### 2.3 Array类型
+
+#### 特点 
 1. ECMA的数组有以下特点：
 
 	- 数组每项都可以保存任何类型数据
 	- 数组大小动态调整
-2. 
+2. 数组的检测有两种方式：`instanceof` 和 `Array.isArray()`(ECMA5新增)
+#### 方法  
+1. push():栈方法，从后推入。
 
+2. pop():栈方法。从后删除，删除最后一项
+
+3. unshift():队列方法。从前推入
+
+4. shift():队列方法。从前删除,删除第一项
+
+5. reverse():反转，倒序排列。
+
+6. sort()：重排，默认是调用toString()方法，变成字符串，比较ASCII码，并不是我们想要的结果。但sort接受可以接受一个比较函数作为参数，譬如：
+  
+		var arr=[1,3,10,23];
+		arr.sort(function(a,b){
+		   return a-b;//比较函数通过返回一个小于0，等于0，大于0的值来影响排序结果
+		})
+		console.log(arr);//[ 1, 3, 10, 23 ]
+7. concat():拼接数组。基于目前数组返回一个新数组
+
+		var arr=[1,3,10,23];
+		var arr1=arr.concat(2,[5,6]);//返回新数组,接受多个参数，参数为字符串，数字，或者数组。
+		console.log(arr);//[ 1, 3, 10, 23 ]
+		console.log(arr1);//[ 1, 3, 10, 23, 2, 5, 6 ]
+
+8. slice():分割数组，接受一个或两个参数，即要返回项的起始或结束位置：
+
+		var arr=[1,3,10,23];
+		var arr1=arr.slice(2);//一个参数表示分割的起始位置
+		var arr2=arr.slice(1,3);
+		console.log(arr);//[ 1, 3, 10, 23 ]原数组不变 
+		console.log(arr1);//[ 10, 23 ]
+		console.log(arr2);//[ 3, 10 ]
+        //还可以接受负数，arr.slice(-3,-1)=arr.slice(4-3,4-1)=arr.slice(1,3)
+9. splice()：最强大的数组方法，具有删除，插入，替换三项功能。
+       
+        //删除功能
+	    var arr=[1,3,10,23];
+		var arr1=arr.splice(0,1);//要删除第一项的位置和删除的项数，不指定默认为0
+		console.log(arr);//[ 3, 10, 23 ],直接在原数组上修改
+		console.log(arr1);//[1]，数组形式返回被删掉的数据
+       
+       //插入功能
+		var arr=[1,3,10,23];
+		var arr1=arr.splice(0,0,"4");//要插入的位置，插入时替换几项数据，第三个参数以后部分为要插入的数据
+		console.log(arr);//[ '4', 1, 3, 10, 23 ],直接在原数组上插入
+		console.log(arr1);//[]，数组形式返回被删掉的数据
+
+		//替换功能
+		var arr=[1,3,10,23];
+		var arr1=arr.splice(0,1,"4");//要插入的位置，插入时替换几项数据，第三个参数以后部分为要替换的数据
+		console.log(arr);//[ '4', 3, 10, 23 ],直接在原数组上修改
+		console.log(arr1);//[1]，数组形式返回被删掉的数据
+9. indexOf():查找，参数为要查找的数组索引，从前向后
+
+10. lastIndexOf()：查找，参数为要查找的数组索引，从后向前
+
+11. map()：对数组中的每一项运行给定函数，返回每次函数调用的结果组成的数组
+
+12. forEach()：对数组中的每一项运行给定函数。这个方法没有返回值
+
+13. every()：对数组中的每一项运行给定函数，如果该函数对每一项都返回true，则返回true
+
+14. filter()：对数组中的每一项运行给定函数，返回该函数会返回true 的项组成的数
+
+15. some()：对数组中的每一项运行给定函数，如果该函数对任一项返回true，则返回true
+   
+        //以上迭代方法都接受一个函数,形参分别为，数组每项，索引，数组本身
+
+		  numbers.map(function(item, index, array){ 
+		   //some code
+		   }）
+16. reduce():从左向右迭代数组的所有项，然后构建一个最终返回的值
+
+17. reduceRight():从右向左迭代数组的所有项，然后构建一个最终返回的值
+
+		//以上归并方法都接收4 个参数：前一个值、当前值、项的索引和数组对象
+		var sum = values.reduce(function(prev, cur, index, array){
+			return prev + cur;
+		});
+### 2.4 Date类型
+
+		var date=new Date();
+		console.log(date.getFullYear());
+		console.log(date.getMonth()+1);
+		console.log(date.getDate());
+		console.log(date.getHours());
+		console.log(date.getMinutes());
+		console.log(date.getSeconds());
+
+### 2.5 RegExp类型
+### 2.6 String类型
+
+		var str="hello world";
+        //起始位置，到截止位置分割字符串，slice跟substring基本是一样的
+		var str1=str.slice(1,3);
+		var str2=str.substring(1,3);
+		//起始位置，返回指定长度的字符串
+		var str3=str.substr(1,3);
+		//按照指定分隔符分割字符串，拼接成一个数组
+		var str4=str.split("");
+		console.log(str1);//el
+		console.log(str2);//el
+		console.log(str3);//ell
+		console.log(str4);//[ 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd' ]
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)
