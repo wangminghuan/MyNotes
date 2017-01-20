@@ -208,6 +208,51 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
 			doAdd(30, 20); //50
             //根据传入函数中参数的类型和数量，实现不同的逻辑，但这并非真正的重载。
     - arguments对象中的值会自动反映到对应的命名参数(stritc模式无效);
+5. 在函数内部，有两个特殊的对象： arguments 和 this。
+6.  arguments.callee 指向函数名本身，常用于循环调用。（严格模式下无效）
+7.  arguments.callee.caller：保存着调用当前函数的函数的引用  
+
+		function outer(){
+		   inner();
+		}
+		function inner(){
+		   console.log(inner.caller);
+		}
+		outer();//function outer(){inner()},打印出调用inner的函数，严格模式下报错
+8. 每个函数都包含两个属性： length 和 prototype。  
+ length属性表示函数希望接收的命名参数的个数；  
+ prototype属性表示引用类型的原型；
+
+		   function sum(num1, num2){
+		     return num1 + num2;
+		   }
+		  console.log(sum.length)；//2
+
+9. apply() 和 call()：二者作用相同，区别仅在于接收参数的方式不同。
+
+a) 传递参数  
+
+	function sum(num1, num2){
+		return num1 + num2;
+	}
+	function callSum(num1, num2){
+		return sum.call(this, num1, num2);//调用sum，并将参数传递过去
+        //return sum.apply(this, arguments);//apply调用方式1
+		//return sum.apply(this, [num1,num2]);//apply调用方式2
+	    //return sum(num1,num2);//直接调用，效果跟通过call调用一样
+	}
+	console.log(callSum(10,10)); //20
+b) 扩充函数赖以运行的作用域（重要）  
+
+	    window.color = "red";
+		var o = { color: "blue" };
+		function sayColor(){
+		console.log(this.color);
+		}
+		sayColor(); //red
+		sayColor.call(this); //red
+		sayColor.call(window); //red
+		sayColor.call(o); //blue
 ### 1.5 变量的复制
 1. ECMAScript中访问变量有按值传递和按引用传递。
 
@@ -287,7 +332,7 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
 		console.log(arr);//[ 3, 10, 23 ],直接在原数组上修改
 		console.log(arr1);//[1]，数组形式返回被删掉的数据
        
-       //插入功能
+        //插入功能
 		var arr=[1,3,10,23];
 		var arr1=arr.splice(0,0,"4");//要插入的位置，插入时替换几项数据，第三个参数以后部分为要插入的数据
 		console.log(arr);//[ '4', 1, 3, 10, 23 ],直接在原数组上插入
@@ -335,21 +380,149 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
 		console.log(date.getMinutes());
 		console.log(date.getSeconds());
 
-### 2.5 RegExp类型
-### 2.6 String类型
+### 2.5 RegExp类型  
+1. exec(字符串)  
+返回返回包含第一个匹配项信息的数组；（若无返回null）。
+在不设置全局标志的情况下，在同一个字符串上多次调用 exec()将始终返回第一个匹配项的信息；即使设置了全局标志（g），它每次也只会返回一个匹配项。只不过再次调用都会在字符串中继续查找新匹配项。
 
-		var str="hello world";
-        //起始位置，到截止位置分割字符串，slice跟substring基本是一样的
-		var str1=str.slice(1,3);
-		var str2=str.substring(1,3);
+		var pt=/.at/g;
+		var text = "cat, bat, sat, fat";
+		console.log(pt.exec(text));//[ 'cat', index: 0, input: 'cat, bat, sat, fat' ]
+		console.log(pt.exec(text));//[ 'bat', index: 5, input: 'cat, bat, sat, fat' ] 
+返回的数组虽然是 Array 的实例，但包含两个额外的属性：  
+   - index：表示匹配项在字符串中的位置。   
+   - input：表示应用正则表达式的字符串。  
+
+2. test(字符串)  
+返回一个布尔值，常用于if语句。  
+
+		var pt=/.at/g;
+		var text = "cat, bat, sat, fat";
+		console.log(pt.test(text));//true
+### 基本包装类型（Boolean(略), Number, String）
+### 2.6 Number类型
+1. toFixed():按照指定的小数位返回数值的字符串表示
+2. toExponential():按照指定的小数位返回数值的字符串表示(指数形式)    
+
+		var num = 99.586;
+
+		console.log(num.toFixed(1)); //"99.6"
+		console.log(num.toFixed(2)); //"99.59"
+		console.log(num.toFixed(3)); //"99.586"
+		
+		console.log(num.toPrecision(1)); //"1e+2"
+		console.log(num.toPrecision(2)); //"1.0e+2"
+		console.log(num.toPrecision(3)); //"99.6"
+### 2.7 String类型
+1. charAt(索引) 
+   
+		   var stringValue = "hello world";
+		   alert(stringValue.charAt(1)); //"e"
+2. substring(起始, 终止)  
+和slice用法基本一样。二者在第一个参数为负数，起始大于截止时返回结果会不一样。
+
+3. substr(起始, 返回字符串长度)  
+ slice,substring,substr只有一个参数时，返回结果一模一样：
+
+		var str = "hello world";
+		console.log(str.slice(3)); //"lo world"
+		console.log(str.substring(3)); //"lo world"
+		console.log(str.substr(3)); //"lo world"
+  
+		//起始位置，到截止位置分割字符串，正常情况下slice跟substring是一样的
+		console.log(str.slice(1,3));//el
+		console.log(str.substring(1,3));//el
+		
 		//起始位置，返回指定长度的字符串
-		var str3=str.substr(1,3);
-		//按照指定分隔符分割字符串，拼接成一个数组
-		var str4=str.split("");
-		console.log(str1);//el
-		console.log(str2);//el
-		console.log(str3);//ell
-		console.log(str4);//[ 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd' ]
+		console.log(str.substr(1,3));//ell
+4. 大小写转换
+
+		var str = "hello world";
+		console.log(str.toLowerCase()); //"hello world"
+		console.log(str.toUpperCase()); //"HELLO WORLD"  
+5. 匹配方法  
+
+	- **match**(正则表达式/RegExp对象/字符串)：本质上与调用 RegExp 的 exec()方法相同，返回一个包含匹配项的数组。
+	- **search**(正则表达式/RegExp对象/字符串)：返回第一个匹配项的索引，若无返回-1
+	- **replace**(参数1，参数2)：这个方法接受两个参数：第
+一个参数可以是一个 RegExp 对象或者一个字符串（这个字符串不会被转换成正则表达式），第二个参数可以是一个字符串或者一个函数。
+	- **split**(字符串/正则，数组长度)：基于指定的分隔符将一个字符串分割成多个子字符串，并将结果放在一个数组中。  
+例子：
+ 
+			var text = "cat, bat, sat, fat";
+			console.log(text.match(/.at/));//[ 'cat', index: 0, input: 'cat, bat, sat, fat' ]
+			console.log(text.match(/.at/g));//[ 'cat', 'bat', 'sat', 'fat' ]
+			console.log(text.match(".at"));//[ 'cat', index: 0, input: 'cat, bat, sat, fat' ] 
+            console.log((/.at/g).exec(text));//[ 'cat', index: 0, input: 'cat, bat, sat, fat' ]
+            //match与正则对象的exec方法很相似
+         
+			console.log(text.search(/at/));//1
+			console.log(text.search(/at/g));//1
+			console.log(text.search("at"));//1
+            //match & search 方法中字符串参数会被强制转化为正则表达式   
+           
+            console.log(text.replace("at", "ond"));//cond, bat, sat, fat
+			console.log(text.replace(/at/g, "ond"));//cond, bond, sond, fond
+            //replace方法第一个参数为字符串时，不会全局匹配，全局匹配必须通过正则表达式来实现  
+
+            console.log(text.split(","));//[ 'cat', 'bat', 'sat', 'fat' ] 
+			console.log(text.split(",", 2));//[ 'cat', 'bat' ]
+			console.log(text.split(/[^\,]+/));// [ '', ',', ',', ',', '' ]
+            
+6. 位置方法：indexOf() 和 lastIndexOf()
+7. trim()方法：ECMAScript 5，这个方法会创建一个字符串的副本，删除前置及后缀的所有空格，然后返回结果。 
+8. localeCompare()方法：比较两个字符串。
+9. fromCharCode()方法：是接收一或多个字符编码，然后将它们转换成一个字符串
+
+## 3 单体内置对象
+
+### 3.1 Global对象  
+1. URI方法  
+
+		1. encodeURI()；不会对本身属于 URI 的特殊字符进行编码，例如冒号、正斜杠、问号和井字号等进行编码。
+		2. encodeURIComponent()；任何非标准字符均进行编码
+		3. decodeURI()；解码
+		4. decodeURIComponent()；解码
+2. eval()    
+该方法就像是一个完整的 ECMAScript 解析器，它只接受一个参数，即要执行的ECMAScript （或 JavaScript）字符串。慎用！！！
+
+### 3.2 Math对象  
+1. 获取最大（小）值  
+
+		console.log(Math.max("3", "54", 32, 16));//54
+		console.log(Math.min("3", "54", 32, 16));//3
+        //接收多个数值参数，参数若不是Number类型会被强制转换
+
+2. 舍入方法
+
+		Math.ceil()执行向上舍入，即它总是将数值向上舍入为最接近的整数；
+		Math.floor()执行向下舍入，即它总是将数值向下舍入为最接近的整数；
+		Math.round()执行标准舍入，即它总是将数值四舍五入为最接近的整数；
+
+3. random()方法  
+Math.random()方法返回大于等于 0 小于 1 的一个随机数。
+
+		//随机返回一个指定范围内的整数
+		function selectFrom(lowerValue, upperValue) {
+			var choices = upperValue - lowerValue + 1;
+			return Math.floor(Math.random() * choices + lowerValue);
+		}
+		console.log(selectFrom(1,10));
+
+4. 其他方法  
+
+	    Math.abs(num)       返回num 的绝对值 
+		Math.exp(num)       返回Math.E 的num 次幂 
+		Math.log(num)       返回num 的自然对数 
+		Math.pow(num,power) 返回num 的power 次幂 
+		Math.sqrt(num)      返回num 的平方根 
+		Math.acos(x)        返回x 的反余弦值  
+		Math.asin(x)        返回x 的反正弦值 
+		Math.atan(x)        返回x 的反正切值
+		Math.atan2(y,x)     返回y/x 的反正切值
+		Math.cos(x)         返回x 的余弦值
+		Math.sin(x)         返回x 的正弦值
+		Math.tan(x)         返回x 的正切值
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)

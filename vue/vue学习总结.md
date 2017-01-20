@@ -150,6 +150,51 @@ Vue.js 提供了一个方法 $watch ，它用于观察 Vue 实例上的数据变
 			});
      	 //改变vm.message，vm.reversedMessage也会跟着变动
 但是，更建议使用计算属性。  
+
+例子，vue构建的一个时间显示器
+
+html:  
+	
+	<div id="timer">
+		<p>{{year}}年{{month}}月{{day}}日 {{hour}}点:{{min}}分:{{sec}}秒</p>
+	</div>
+js   
+  
+    new Vue({
+    	el:"#timer",
+    	data:{
+    		date:new Date()
+    	},
+    	computed:{
+    		year:function(){
+                 return this.date.getFullYear();
+    		},
+    		month:function(){
+                 return this.date.getMonth()+1;
+    		},
+    		day:function(){
+                   return this.date.getDate(); 
+    		},
+    		hour:function(){
+                   return this.date.getHours()
+    		},
+    		min:function(){
+                    return this.date.getMinutes();
+    		},
+    		sec:function(){
+                   return this.date.getSeconds();
+    		}
+    	},
+    	created:function(){
+    		var self=this;
+    		setInterval(function(){
+				self.date=new Date()
+    		},1000)
+    		
+    	}
+    })
+
+
 8. **[计算属性的setter]**  
 因为computed下提供的函数将用作属性（代理属性） vm.reversedMessage 的 getter 。所以setter也得通过vm.reverseMessage进行赋值才能触发。
 
