@@ -220,11 +220,11 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
             //根据传入函数中参数的类型和数量，实现不同的逻辑，但这并非真正的重载。
     - arguments对象中的值会自动反映到对应的命名参数(stritc模式无效);
 
-5. 在函数内部，有两个特殊的对象： arguments 和 this。
+5. 在函数内部，有两个特殊的对象： arguments 和 this。arguments 的主要用途是保存函数参数。
 
-6.  arguments.callee 指向函数名本身，常用于循环调用。（严格模式下无效）
+6.  arguments.callee(arguments对象的属性)： arguments对象下有一个名叫callee 的属性，该属性是一个指针，指向拥有这个arguments 对象的函数。它指向函数名本身，常用于循环调用。（严格模式下无效）
 
-7.  arguments.callee.caller：保存着调用当前函数的函数的引用  
+7.  fn1.caller(函数的属性)：保存调用fn1的函数，为了实现更松散的耦合，也可写为：arguments.callee.caller  
 
 		function outer(){
 		   inner();
@@ -243,9 +243,10 @@ with 语句的作用是将代码的作用域设置到一个特定的对象中，
 		   }
 		  console.log(sum.length)；//2
 
-9. apply() 和 call()：二者作用相同，区别仅在于接收参数的方式不同。
+9. 每个函数都包含两个非继承而来的方法：apply() 和 call()：这两个方法的用途都是在特定的作
+用域中调用函数，实际上等于设置函数体内this 对象的值。二者作用相同，区别仅在于接收参数的方式不同。
 
-a) 传递参数  
+a) 传递参数，调用函数  
 
 	function sum(num1, num2){
 		return num1 + num2;
