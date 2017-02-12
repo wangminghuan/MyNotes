@@ -426,9 +426,13 @@ b) 扩充函数赖以运行的作用域（重要）
 		var pt=/.at/g;
 		var text = "cat, bat, sat, fat";
 		console.log(pt.test(text));//true
-### 基本包装类型（Boolean(略), Number, String）
+
+以下为基本包装类型（Boolean(略), Number, String）：
+
 ### 2.6 Number类型
+
 1. toFixed():按照指定的小数位返回数值的字符串表示
+
 2. toExponential():按照指定的小数位返回数值的字符串表示(指数形式)    
 
 		var num = 99.586;
@@ -440,7 +444,9 @@ b) 扩充函数赖以运行的作用域（重要）
 		console.log(num.toPrecision(1)); //"1e+2"
 		console.log(num.toPrecision(2)); //"1.0e+2"
 		console.log(num.toPrecision(3)); //"99.6"
+
 ### 2.7 String类型
+
 1. charAt(索引) 
    
 		   var stringValue = "hello world";
@@ -507,6 +513,7 @@ b) 扩充函数赖以运行的作用域（重要）
 ## 3 单体内置对象
 
 ### 3.1 Global对象  
+
 1. URI方法  
 
 		1. encodeURI()；不会对本身属于 URI 的特殊字符进行编码，例如冒号、正斜杠、问号和井字号等进行编码。
@@ -518,6 +525,7 @@ b) 扩充函数赖以运行的作用域（重要）
 该方法就像是一个完整的 ECMAScript 解析器，它只接受一个参数，即要执行的ECMAScript （或 JavaScript）字符串。慎用！！！
 
 ### 3.2 Math对象  
+
 1. 获取最大（小）值  
 
 		console.log(Math.max("3", "54", 32, 16));//54
