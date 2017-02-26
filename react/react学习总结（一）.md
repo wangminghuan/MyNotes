@@ -6,10 +6,9 @@
 
 结合webpack进行搭建，此处不再赘述。
 
-## 2 React入门
-### 2.1  前言
+## 2 前言
 react其实不是一个完整的前端框架，它只是MVC框架中的"V"层。React 中最值得称道的部分莫过于 Virtual DOM 与 diff 的完美结合，特别是其高效的 diff 算法，因为 React diff 会帮助我们计算出 Virtual DOM 中真正变化的部分，并只针对该部分进行实际 DOM 操作，而非重新渲染整个页面，从而保证了每次操作更新后页面的高效渲染，因此 Virtual DOM 与 diff 是保证 React 性能口碑的幕后推手。
-### 2.2 Dom Diff  
+## 3 虚拟DON算法（Dom Diff）  
 
 ####两个假设
 为了降低dom结构比较的复杂度，FaceBook工程师提出两个假设：
@@ -21,21 +20,23 @@ react其实不是一个完整的前端框架，它只是MVC框架中的"V"层。
 
 关于diff的更详细解释，参见[React源码剖析系列－不可思议的react diff](http://www.w3ctech.com/topic/1598)
 
-### 2.3 JSX语法 
-在用React写组件的时候，通常会用到JSX语法，粗看上去，像是在Javascript代码里直接写起了XML标签，实质上这只是一个语法糖，每一个XML标签都会被JSX转换工具转换成纯Javascript代码，当然你想直接使用纯Javascript代码写也是可以的，只是利用JSX，组件的结构和组件之间的关系看上去更加清晰。
+## 4 JSX语法 
+在用React写组件的时候，通常会用到JSX语法，粗看上去，像是在Javascript代码里直接写起了XML标签，实质上这只是一个语法糖(只是使代码更容易理解和阅读，并没有增加新的东西)，每一个XML标签都会被JSX转换工具转换成纯Javascript代码，当然你想直接使用纯Javascript代码写也是可以的，只是利用JSX，组件的结构和组件之间的关系看上去更加清晰。
 
-JSX 的基本语法规则：遇到 HTML 标签（以 `<` 开头），就用 `HTML` 规则解析；遇到代码块（以 `{` 开头），就用 `JavaScript` 规则解析  
+### 4.1 语法规则  
+1. HTML 语言直接写在 JavaScript 语言之中，不加任何引号，这就是 JSX 的语法。  
+2. JSX 的基本语法规则：遇到 HTML 标签（以 `<` 开头），就用 `HTML` 规则解析；遇到代码块（以 `{` 开头），就用 `JavaScript` 规则解析。    
 
-#### 2.3.1 React创建元素的方法  
+### 4.2 React.createElement 
 
-jsx语法的实质其实就是调用`eact.createElement`方法，我们写一个XML标签，通过这个方法，返回一个`ReactElement`对象。
+jsx语法的实质其实就是调用`React.createElement`方法创建元素，我们写一个XML标签，通过这个方法，返回一个`ReactElement`对象。官方解释为：
 
 	ReactElement createElement(
-	  string/ReactClass type,
-	  [object props],
-	  [children ...]
+	  string/ReactClass type,//必填，可以是html标签名字符串，也可以是ReactClass
+	  [object props],//可选，标签属性
+	  [children ...]//可选，元素子节点
 	)
-#### type参数 为html标签名称  
+#### 1. [type参数为html标签]  
 
 	var child1 = React.createElement('li', null, 'First Text Content');
 	var child2 = React.createElement('li', null, 'Second Text Content');
@@ -45,10 +46,16 @@ jsx语法的实质其实就是调用`eact.createElement`方法，我们写一个
 	        root,
 	        document.getElementById('content')
 	);
+- 前三个创建的元素：type参数为html元素li，第2个元素属性参数不需要设置为null，第3个参数为li标签内需要添加的节点（例子中为文本节点）。
+- 第四个创建的元素：type参数为html元素ul，第2个元素属性参数可以设置为多个，如：{ className: 'my-list', name:'ulname'}，第3个为ul内需要填充的节点。，例子中有参数3,4,5，其实等同于[child1,child2,child3]数组中的元素就是该节点的所有子节点。  
+- 最终渲染结果：  
 
-1. 前三个创建的元素：type参数为html元素li，第2个元素属性参数不需要设置为null，第3个参数为li标签内需要添加的节点（例子中为文本节点）。
-2. 第四个创建的元素：type参数为html元素ul，第2个元素属性参数可以设置为多个，如：{ className: 'my-list', name:'ulname'}，第3个为ul内需要填充的节点。，例子中有参数3,4,5，其实等同于[child1,child2,child3].数组中的元素就是该节点的所有子节点。
-#### type参数 为ReactClass
+		<ul data-reactroot="" class="my-list">
+		    <li>First Text Content</li>
+		    <li>Second Text Content</li>
+		    <li>Third Text Content</li>
+		</ul>
+#### 2. [type参数为ReactClass]
 
 	var cli = React.createClass({
 	    render:function(){
@@ -67,14 +74,89 @@ jsx语法的实质其实就是调用`eact.createElement`方法，我们写一个
 	        root,
 	        document.getElementById('content')
 	);
-1. 前三个创建的元素：type参数为ReactClass,第二个参数要加上key:’value’, 这里的value彼此都不相同，如果不指定此属性——虽然也能按照逻辑正常显示——会报如下的警告:
+- 前三个创建的元素：type参数为ReactClass,第二个参数要加上key:’value’, 这里的value彼此都不相同，如果不指定此属性——虽然也能按照逻辑正常显示——会报如下的警告:
 
-    	Warning: Each child in an array or iterator should have a unique "key" prop. Check the top-level render call using <ul>. See https://fb.me/react-warning-keys for more information.
+		Warning: Each child in an array or iterator should have a unique "key" prop. Check the top-level render call using <ul>. See https://fb.me/react-warning-keys for more information.
+- 渲染结果同上
 
-2. 。
+### 4.3 ReactDOM.render
+
+1. react.js的入口函数，render函数主要负责将将虚拟DOM渲染到真实的DOM上。
+2. ReactDOM.render方法接受三个参数
+
+		ReactDOM.render(nextElement, container, callback)
+        //第一个是ReactElement,第二个是父级元素，第三个是回调
+### 4.4 JSX语法详细说明
+
+####1.  {}花括号内只能运行表达式，不支持语句
+
+	var n=1;
+	ReactDOM.render(
+	  <h1>{n? n+1:n-1}</h1>,
+	  document.getElementById("example")
+	  )
+### 2. 多个标签必须在外部用一个标签包裹起来
+
+	ReactDOM.render(
+	  <div>
+		  <h1>Hello</h1>
+		  <h2>world</h2>
+	  </div>,
+	  document.getElementById("example")
+	  )
+### 3. 注释必须在花括号中添加（不会渲染到页面中）
+
+	ReactDOM.render(
+	  <div>
+		  <h1>Hello</h1>
+		  <h2>world</h2>
+          {/*我是注释*/}
+	  </div>,
+	  document.getElementById("example")
+	  )
+### 4. 数组会自动展开
+
+	var arr=[
+	<h1>Hello</h1>,
+	<h2>world</h2>
+	];//此处
+	
+	ReactDOM.render(
+	  <div>{arr}</div>,
+	  document.getElementById("example")
+	  )
+需要注意的是：组数内容不加引号，否则会被当作字符串渲染到页面，而不是解析为html标签。这是因为React渲染的是虚拟DOM，并不是 HTML 字符串，这可以有效避免xss攻击
+
+### 5. 渲染HTML标签VS渲染组件  
+
+渲染html标签（推荐第一个字母小写）：  
+
+	var myHtmlElement=<h1>Hello world!</h1>;
+
+	ReactDOM.render(
+	  myHtmlElement,
+	  document.getElementById("example")
+	  )
+渲染组件  
+
+	var MyComponent=React.createClass({
+	  render:function(){
+	    return <h1>Hello World</h1>
+	  }
+	});
+	ReactDOM.render(
+	  <MyComponent />,
+	  document.getElementById("example")
+	  )
+区别：  
+ 
+- 命名：组件名的第一个字母必须大写，否则React不会渲染组件。html标签命名则不会（为了区别，建议小写开头）
+- 渲染：render函数的第一个参数，组件必须传入xml标签形式
 
 
-###组件
+## 5 组件
+### 5.1 React.createClass
+
 React.createClass 方法就用于生成一个组件类，组件编写过程中需要注意：  
 
 - 组件类名首字母必须大写，否则会报错。
@@ -82,29 +164,105 @@ React.createClass 方法就用于生成一个组件类，组件编写过程中�
 - 每个组件中都必须有render方法，用于输出组件。
 - 组件的属性可以在组件类的 this.props 对象上获取。
 - 添加组件属性时，class属性需要写成className,for属性需要写成htmlFor,因为class和for都是js的保留字。
-#### [强制] 当一个 `rule` 包含多个 `selector` 时，每个选择器声明必须独占一行。
 
-示例：
+### 5.2 ReactComponent的render
 
+1. 组件的render方法，每个组件都必须有，用于输出组件，且必须为function函数，有return值
+2. 该方法接受三个参数,返回ReactComponent类型的对象
 
-	/* good */
-	.post,
-	.page,
-	.comment {
-	    line-height: 1.5;
-	}
-	
-	/* bad */
-	.post, .page, .comment {
-	    line-height: 1.5;
-	}
+		ReactComponent render( ReactElement element, DOMElement container, [function callback] )
+### 5.3 this.props
+通过props对象，可以从父级向自己传递数据
 
->[语法参考](http://en.wikipedia.org/wiki/Cascading_Style_Sheets#Syntax)
+	  var MyComponent=React.createClass({
+	    render:function(){
+	      return <h1>{this.props.text}</h1>
+	    }
+	  });
+	  ReactDOM.render(
+	    <MyComponent text="Hello world"/>,
+	    document.getElementById("example")
+	    )
+### 5.4 复合组件
 
-- 要点1
-- 要点2
+	var WebSite = React.createClass({
+	  render: function() {
+	    return (
+	      <div>
+	        <Name name={this.props.name} />
+	        <Link site={this.props.site} />
+	      </div>
+	    );
+	  }
+	});
+	 
+	var Name = React.createClass({
+	  render: function() {
+	    return (
+	      <h1>{this.props.name}</h1>
+	    );
+	  }
+	});
+	 
+	var Link = React.createClass({
+	  render: function() {
+	    return (
+	      <p>{this.props.site}</p>
+	    );
+	  }
+	});
+	 
+	ReactDOM.render(
+	  <WebSite name="我是name组件" site="我是site组件" />,
+	  document.getElementById('example')
+	);
+多个组件互相嵌套，最终渲染结果为：
+
+	<div id="example">
+	    <div data-reactroot="">
+	        <h1>我是name组件</h1>
+	        <p>我是site组件</p>
+	    </div>
+	</div>
+
+## 6. React State(状态)
+组件可以看作是一个状态机，只要state变化，组件会自动调用render重新渲染页面。  
+组件API:   
+
+ -  `getInitialState` 方法用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取
+ -  `this.setState` 方法用于修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件。
+
+我们编写一个例子，点击按钮可以切换组件的state值：  
+
+	var ToggleCompoent=React.createClass({
+	    getInitialState:function(){
+	      return {
+	        liked:false
+	      }
+	    },
+	    handleClick:function(){
+	      this.setState({liked: !this.state.liked});
+	    },
+	    render:function(){
+	      var text=this.state.liked? "喜欢":"讨厌";
+	      return (
+	        <div>
+	          <p>你{text}我</p>
+	          <button onClick={this.handleClick}>点我切换</button>
+	        </div>
+	      )
+	    }
+	});
+	 
+	ReactDOM.render(
+	  <ToggleCompoent />,
+	  document.getElementById('example')
+	);
+## 7. React Props 
+
+## 8. 组件API
 ##  参考文献
 
-1. [文献1](http://codeguide.bootcss.com/)
+1. [React.createElement使用详解](http://www.onmpw.com/tm/xwzj/web_103.html)
 
 
