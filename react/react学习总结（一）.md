@@ -229,7 +229,7 @@ React.createClass 方法就用于生成一个组件类，组件编写过程中�
 组件可以看作是一个状态机，只要state变化，组件会自动调用render重新渲染页面。  
 组件API:   
 
- -  `getInitialState` 方法用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取
+ -  `getInitialState` 方法用于定义初始状态，也就是一个对象，对象下的key值都会挂载到this.state对象下，可以通过 this.state 属性读取。
  -  `this.setState` 方法用于修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件。
 
 我们编写一个例子，点击按钮可以切换组件的state值：  
@@ -258,6 +258,7 @@ React.createClass 方法就用于生成一个组件类，组件编写过程中�
 	  <ToggleCompoent />,
 	  document.getElementById('example')
 	);
+注意 组件中的render 函数的return结果, 如果是xml结构且没有写在一行，**必须用圆括号括起来！！！**
 ## 7. React Props 
 ### 7.1 父级传递props  
 例子同上: 
@@ -311,11 +312,145 @@ React.createClass 方法就用于生成一个组件类，组件编写过程中�
 2. props主要用于组件之间的数据传递，state是组件内部的状态管理。
 
 ### 7.4 Props 验证 
-React组件的 `PropTypes` 属性下可以挂载多个验证器来验证传入的数据是否有效（通过 `React.PropTypes`对象调用对应验证器）。
+React组件的 `PropTypes` 属性（值为json对象）下可以挂载多个验证器来验证传入的数据是否有效（通过 `React.PropTypes`对象调用对应验证器）。
 
+	var name=123;
+	var MyComponent = React.createClass({
+	     propTypes:{
+	       name:React.PropTypes.string.isRequired,
+	    },
+	    render: function() {
+	        return <h1> Hello { this.props.name } </h1>
+	    }
+	  });
+	  ReactDOM.render( 
+	    <MyComponent name={name}/> ,
+	      document.getElementById("example")
+	  )
 
+校验器要求传入的数据为字符串，例子中的name为number类型，此时页面可以正常渲染出来，但是控制台会有提示：
+	
+	Warning: Failed prop type: Invalid prop `name` of type `number` supplied to `MyComponent`, expected `string` in MyComponent
+有以下几种验证器  
+
+	React.createClass({
+	  propTypes: {
+	      // 可以声明 prop 为指定的 JS 基本数据类型，默认情况，这些数据是可选的
+	    optionalArray: React.PropTypes.array,
+	    optionalBool: React.PropTypes.bool,
+	    optionalFunc: React.PropTypes.func,
+	    optionalNumber: React.PropTypes.number,
+	    optionalObject: React.PropTypes.object,
+	    optionalString: React.PropTypes.string,
+	 
+	    // 可以被渲染的对象 numbers, strings, elements 或 array
+	    optionalNode: React.PropTypes.node,
+	 
+	    //  React 元素
+	    optionalElement: React.PropTypes.element,
+	 
+	    // 用 JS 的 instanceof 操作符声明 prop 为类的实例。
+	    optionalMessage: React.PropTypes.instanceOf(Message),
+	 
+	    // 用 enum 来限制 prop 只接受指定的值。
+	    optionalEnum: React.PropTypes.oneOf(['News', 'Photos']),
+	 
+	    // 可以是多个对象类型中的一个
+	    optionalUnion: React.PropTypes.oneOfType([
+	      React.PropTypes.string,
+	      React.PropTypes.number,
+	      React.PropTypes.instanceOf(Message)
+	    ]),
+	 
+	    // 指定类型组成的数组
+	    optionalArrayOf: React.PropTypes.arrayOf(React.PropTypes.number),
+	 
+	    // 指定类型的属性构成的对象
+	    optionalObjectOf: React.PropTypes.objectOf(React.PropTypes.number),
+	 
+	    // 特定 shape 参数的对象
+	    optionalObjectWithShape: React.PropTypes.shape({
+	      color: React.PropTypes.string,
+	      fontSize: React.PropTypes.number
+	    }),
+	 
+	    // 任意类型加上 `isRequired` 来使 prop 不可空。
+	    requiredFunc: React.PropTypes.func.isRequired,
+	 
+	    // 不可空的任意类型
+	    requiredAny: React.PropTypes.any.isRequired,
+	 
+	    // 自定义验证器。如果验证失败需要返回一个 Error 对象。不要直接使用 `console.warn` 或抛异常，因为这样 `oneOfType` 会失效。
+	    customProp: function(props, propName, componentName) {
+	      if (!/matchme/.test(props[propName])) {
+	        return new Error('Validation failed!');
+	      }
+	    }
+	  },
+	  /* ... */
+	})
 
 ## 8. 组件API
+> [点我了解](http://reactjs.cn/react/docs/component-api.html)  
+### 8.1 设置状态：setState
+
+	setState(nextState, callback)
+参数说明：
+
+- nextState：将要设置的新状态，可以是一个json对象，譬如：
+
+		this.setState({mykey: 'my new value'})
+也可以是一个函数，接受两个参数，组件的state对象和props对象,但一定要有返回值
+
+		this.setState(function(prevState, props){
+		 return {
+		     name:prevState.key+props.key
+			}
+		})
+- callback：可选参数，回调函数。该函数会在setState设置成功，且组件重新渲染后调用。
+
+例子：点击按钮，记录一次次数。
+
+	var MyComponent=React.createClass({
+	  getInitialState: function () {
+	    return { clickCount: 0 };
+	  },
+	  handleClick:function(){
+	     this.setState(function(prevState, props){
+	        return {
+	           clickCount:prevState.clickCount+1
+	        }
+	     }, function(){
+		 console.log("render over!!")
+		})
+	  },
+	  render:function(){
+	    return (
+	     <div>
+	      <button onClick={this.handleClick}>点击+1</button>
+	      <p>按钮被点击了{this.state.clickCount}次</p>
+	     </div>
+	    )
+	  }
+	})
+### 8.2 替换状态：replaceState
+用法参照setState,但是方法只会保留nextState中状态，原state不在nextState中的状态都会被删除
+
+### 8.3 强制更新：forceUpdate
+
+### 8.4 判断组件挂载状态：isMounted
+
+### 8.5 获取DOM节点：findDOMNode
+目前只在ReactDOM.findDOMNode下可以访问（v15.0）
+
+### 8.6 其他废弃API
+
+	Deprecated component instance methods are removed: setProps, replaceProps, and getDOMNode
+
+
+
+
+
 ##  参考文献
 
 1. [React.createElement使用详解](http://www.onmpw.com/tm/xwzj/web_103.html)
