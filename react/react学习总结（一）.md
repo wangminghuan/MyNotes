@@ -259,6 +259,61 @@ React.createClass 方法就用于生成一个组件类，组件编写过程中�
 	  document.getElementById('example')
 	);
 ## 7. React Props 
+### 7.1 父级传递props  
+例子同上: 
+
+	var MyComponent=React.createClass({
+	    render:function(){
+	      return <h1>Hello {this.props.name}</h1>
+	    }
+	  });
+	  ReactDOM.render(
+	    <MyComponent name="jack"/>,
+	    document.getElementById("example")
+	    )
+
+### 7.2 默认Props  
+可以使用`getDefaultProps()`方法设置默认props的值 
+
+	var MyComponent = React.createClass({
+    getDefaultProps: function() {
+        return {
+            name: 'Runoob'
+        };
+    },
+    render: function() {
+        return <h1> Hello { this.props.name } </h1>
+    }
+	});
+	ReactDOM.render( 
+		<MyComponent /> ,
+	    document.getElementById("example")
+	)
+如果同时用默认props和父级传递，则父级传递的优先级高
+
+	var MyComponent = React.createClass({
+    getDefaultProps: function() {
+        return {
+            name: 'Runoob'
+        };
+    },
+    render: function() {
+        return <h1> Hello { this.props.name } </h1>
+    }
+	});
+	ReactDOM.render( 
+		<MyComponent name="Jack"/> ,
+	    document.getElementById("example")
+	)
+### 7.3 props和state区别   
+
+1.主要区别： props 是不可变的，而 state 可以根据与用户交互来改变。  
+2. props主要用于组件之间的数据传递，state是组件内部的状态管理。
+
+### 7.4 Props 验证 
+React组件的 `PropTypes` 属性下可以挂载多个验证器来验证传入的数据是否有效（通过 `React.PropTypes`对象调用对应验证器）。
+
+
 
 ## 8. 组件API
 ##  参考文献
