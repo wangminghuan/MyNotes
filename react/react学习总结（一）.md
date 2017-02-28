@@ -437,17 +437,66 @@ React组件的 `PropTypes` 属性（值为json对象）下可以挂载多个验�
 用法参照setState,但是方法只会保留nextState中状态，原state不在nextState中的状态都会被删除
 
 ### 8.3 强制更新：forceUpdate
+  
+	forceUpdate([function callback])
+参数说明：  
+ 
+- callback，可选参数，回调函数。该函数会在组件render()方法调用后调用。
+
+forceUpdate()方法会使组件调用自身的render()方法重新渲染组件，组件的子组件也会调用自己的render()。尽量避免使用，而是建议通过this.state的改变来触发render
+
+例子，上述例子中点击触发
+
+	var MyComponent=React.createClass({
+	  ....
+	  handleClick:function(){
+	     this.forceUpdate(function(){
+          console.log('reload over')
+         })
+	  },
+	  .....
+	})
 
 ### 8.4 判断组件挂载状态：isMounted
+isMounted()方法用于判断组件是否已挂载到DOM中。返回一个布尔值。可以使用该方法保证了setState()和forceUpdate()在异步场景下的调用不会出错。
+
+	var MyComponent=React.createClass({
+	  ....
+	  handleClick:function(){
+	     this.forceUpdate(function(){
+          console.log(this.isMounted())
+         })
+	  },
+	  .....
+	})
 
 ### 8.5 获取DOM节点：findDOMNode
-目前只在ReactDOM.findDOMNode下可以访问（v15.0）
+如果组件已经挂载到DOM中，该方法返回对应的本地浏览器 DOM 元素。当render返回null 或 false。该方法也会返回null。目前只在ReactDOM.findDOMNode下可以访问（v15.0）
 
+	var MyComponent=React.createClass({
+	      render:function(){
+	        return <h1>Hello {this.props.name}</h1>
+	      }
+	    });
+	var results=ReactDOM.render(
+	      <MyComponent name="jack"/>,
+	      document.getElementById("example")
+	      )
+	document.getElementById('btn').onclick=function(){
+	  console.log(ReactDOM.findDOMNode(results))
+	}
+
+点击结果
+
+	<h1 data-reactroot="">
+     <!-- react-text: 2 -->Hello <!-- /react-text -->
+     <!-- react-text: 3 -->jack<!-- /react-text -->
+    </h1>
 ### 8.6 其他废弃API
 
 	Deprecated component instance methods are removed: setProps, replaceProps, and getDOMNode
 
-
+## 9 组件的生命周期
 
 
 
