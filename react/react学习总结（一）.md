@@ -498,10 +498,51 @@ isMounted()方法用于判断组件是否已挂载到DOM中。返回一个布尔
 
 ## 9 组件的生命周期
 
+### 9.1 组件的生命周期可分成三个状态  
+
+1. Mounting：已插入真实 DOM
+2. Updating：正在被重新渲染
+3. Unmounting：已移出真实 DOM
+
+### 9.2 生命周期的方法
+
+1. **componentWillMount**: 在渲染前调用,在客户端也在服务端。
+2. **componentDidMount** : 在第一次渲染后调用，只在客户端。之后组件已经生成了对应的DOM结构，可以通过this.getDOMNode()来进行访问。 如果你想和其他JavaScript框架一起使用，可以在这个方法中调用setTimeout, setInterval或者发送AJAX请求等操作(防止异部操作阻塞UI)。
+3. componentWillReceiveProps 在组件接收到一个新的prop时被调用。这个方法在初始化render时不会被调用。
+4. shouldComponentUpdate 返回一个布尔值。在组件接收到新的props或者state时被调用。在初始化时或者使用forceUpdate时不被调用。 
+可以在你确认不需要更新组件时使用。
+5. componentWillUpdate在组件接收到新的props或者state但还没有render时被调用。在初始化时不会被调用。
+6. componentDidUpdate 在组件完成更新后立即调用。在初始化时不会被调用。
+7. componentWillUnmount在组件从 DOM 中移除的时候立刻被调用。
+
+## 10 React Refs
+React支持一种非常特殊的属性 Ref，可以用来绑定到 render() 输出的任何组件上。如果需要从组件获取真实 DOM 的节点，这时就要用到 ref 属性。渲染完成后，拥有ref属性的标签的真实dom就会挂在this.refs.[refName]下
+
+	var MyComponent=React.createClass({
+	  handleClick:function(){
+	    console.log(this.refs.myText.value)
+	  },
+	  render:function(){
+	    return (
+	    <div>
+		    <h1>请输入:</h1>
+		    <input type="text" ref="myText"/><br />
+		    <button onClick={this.handleClick}>点我获取输入值</button>
+	    </div>
+	    )
+	  }
+	});
+	
+	ReactDOM.render(
+	<MyComponent />,
+	document.getElementById("example")
+	)
+需要注意的是，由于 this.refs.[refName] 属性获取的是真实 DOM， 所以必须等到虚拟 DOM 插入文档以后，才能使用这个属性，否则会报错。
+
+## 11 React 表单与事件 
 
 
 ##  参考文献
 
 1. [React.createElement使用详解](http://www.onmpw.com/tm/xwzj/web_103.html)
-
-
+2. [组件的生命周期](http://www.jianshu.com/p/f462b78689f6)
