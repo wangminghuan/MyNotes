@@ -504,16 +504,161 @@ isMounted()方法用于判断组件是否已挂载到DOM中。返回一个布尔
 2. Updating：正在被重新渲染
 3. Unmounting：已移出真实 DOM
 
-### 9.2 生命周期的方法
+### 9.2 生命周期的方法  
+1. 生命周期其实就是一个对象从开始生成到最后消亡所经历的状态。
+2. React 中组件有自己的生命周期方法，简单理解可以为组件从 出生（实例化） -> 激活（运行） -> 销毁 生命周期 hook。通过这些 hook 方法可以自定义组件的特性。
+#### 示意图
 
-1. **componentWillMount**: 在渲染前调用,在客户端也在服务端。
-2. **componentDidMount** : 在第一次渲染后调用，只在客户端。之后组件已经生成了对应的DOM结构，可以通过this.getDOMNode()来进行访问。 如果你想和其他JavaScript框架一起使用，可以在这个方法中调用setTimeout, setInterval或者发送AJAX请求等操作(防止异部操作阻塞UI)。
-3. componentWillReceiveProps 在组件接收到一个新的prop时被调用。这个方法在初始化render时不会被调用。
-4. shouldComponentUpdate 返回一个布尔值。在组件接收到新的props或者state时被调用。在初始化时或者使用forceUpdate时不被调用。 
-可以在你确认不需要更新组件时使用。
-5. componentWillUpdate在组件接收到新的props或者state但还没有render时被调用。在初始化时不会被调用。
-6. componentDidUpdate 在组件完成更新后立即调用。在初始化时不会被调用。
-7. componentWillUnmount在组件从 DOM 中移除的时候立刻被调用。
+![组件生命周期](http://i.imgur.com/AGySVHD.jpg)
+
+如图，可以把组件生命周期大致分为三个阶段：
+
+1. 第一阶段：是组件第一次绘制阶段，如图中的上面虚线框内，在这里完成了组件的加载和初始化；  
+
+2. 第二阶段：是组件在运行和交互阶段，如图中左下角虚线框，这个阶段组件可以处理用户交互，或者接收事件更新界面；  
+
+3. 第三阶段：是组件卸载消亡的阶段，如图中右下角的虚线框中，这里做一些组件的清理工作
+
+#### 简易图 （供对比参考）
+
+![组件的生命周期](http://i.imgur.com/1DBUVRK.png)
+
+React 为每个状态都提供了两种处理函数，will 函数在进入状态之前调用，did 函数在进入状态之后调用
+#### 【实例化阶段-Mounting】
+1. **getDefaultProps** ：在组件创建之前，会先调用getDefaultProps()，这是全局调用一次，
+2. **getInitialState** ：初始化组件的状态。
+3. **componentWillMount**：组件创建，并初始化了状态之后，在第一次绘制 render() 之前，整个生命周期只执行一次。
+
+     	void componentWillMount()  
+4. **render**：纯粹的渲染，创建出虚拟DOM。
+
+		a). 只能通过this.props和this.state访问数据
+		b). 可以返回null、false或任何React组件
+		c). 只能出现一个顶级组件（不能返回数组）
+		d). 不能改变组件的状态
+		e). 不能修改DOM的输出
+5. **componentDidMount**：在组件第一次绘制之后，会调用该方法，通知组件已经加载完成，此时其虚拟 DOM 已经构建完成
+
+		void componentDidMount() 
+#### 【运行阶段-Updating】
+1. **componentWillReceiveProps**：在初始化渲染的时候，该方法不会调用。如果组件收到新的属性（props）就会将新属性作为参数nextProps来调用该方法。可以根据属性的变化，通过调用 `this.setState()` 来更新组件状态。
+   
+		componentWillReceiveProps: function(nextProps) {
+	        if (nextProps.bool) {
+	            this.setState({
+	                bool: true
+	            });
+	        }
+	    }
+2. **shouldComponentUpdate**：接收到新属性或者新状态的时候在 render 前会被调用。该方法让我们有机会决定是否重渲染组件，如果返回 false，那么不会重渲染组件，借此可以优化应用性能（在组件很多的情况）。这个方法在首次渲染期间或者调用了`forceUpdate()`后是不会触发的;
+
+		boolean shouldComponentUpdate(
+		  object nextProps, object nextState
+		)
+3. **componentWillUpdate**：
+如果组件状态或者属性改变，并且上面的 `shouldComponentUpdate()` 返回为 true，就会开始准更新组件，此时不允许更新props或state。  
+
+		void componentWillUpdate(
+		  object nextProps, object nextState
+		)
+4. **render**:再次渲染
+
+5. **componentDidUpdate**：
+调用了 render() 更新完成界面之后，会调用 `componentDidUpdate()` 来得到通知，其函数原型如下
+
+		void componentDidUpdate(  
+		  object prevProps, object prevState
+		)
+因为到这里已经完成了属性和状态的更新了，此函数的输入参数变成了 prevProps 和 prevState。
+#### 【销毁阶段-Unmounting】
+1. componentWillUnmount
+组件被移除之前被调用，可以用于做一些清理工作，在`componentDidMount`方法中添加的所有任务都需要在该方法中撤销，比如创建的定时器或添加的事件监听器。
+
+#### 【总结】
+<table>
+    <thead>
+        <tr>
+            <th>生命周期</th>
+            <th>调用次数</th>
+            <th>能否使用 setSate()</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>getDefaultProps</td>
+            <td>1(全局调用一次)</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>getInitialState</td>
+            <td>1</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>componentWillMount</td>
+            <td>1</td>
+            <td>是</td>
+        </tr>
+        <tr>
+            <td>render</td>
+            <td>&gt;=1</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>componentDidMount</td>
+            <td>1</td>
+            <td>是</td>
+        </tr>
+        <tr>
+            <td>componentWillReceiveProps</td>
+            <td>&gt;=0</td>
+            <td>是</td>
+        </tr>
+        <tr>
+            <td>shouldComponentUpdate</td>
+            <td>&gt;=0</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>componentWillUpdate</td>
+            <td>&gt;=0</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>componentDidUpdate</td>
+            <td>&gt;=0</td>
+            <td>否</td>
+        </tr>
+        <tr>
+            <td>componentWillUnmount</td>
+            <td>1</td>
+            <td>否</td>
+        </tr>
+    </tbody>
+</table>
+
+例子：一个定时器
+
+	var MyComponent=React.createClass({
+	      getInitialState:function(){
+	         return {
+	            date: new Date()
+	         }
+	      },
+	      render:function(){
+	        return <h1>现在时间是：{this.state.date.toLocaleTimeString()}</h1>
+	      },
+	      componentDidMount:function(){
+	        var _this=this;
+	        setInterval(function(){
+	           _this.setState({date:new Date()})
+	         },1000)
+	      }
+	    });
+	ReactDOM.render(
+	      <MyComponent />,
+	      document.getElementById("example")
+	)
 
 ## 10 React Refs
 React支持一种非常特殊的属性 Ref，可以用来绑定到 render() 输出的任何组件上。如果需要从组件获取真实 DOM 的节点，这时就要用到 ref 属性。渲染完成后，拥有ref属性的标签的真实dom就会挂在this.refs.[refName]下
@@ -540,9 +685,38 @@ React支持一种非常特殊的属性 Ref，可以用来绑定到 render() 输�
 需要注意的是，由于 this.refs.[refName] 属性获取的是真实 DOM， 所以必须等到虚拟 DOM 插入文档以后，才能使用这个属性，否则会报错。
 
 ## 11 React 表单与事件 
+React中表单变动是通过绑定表单事件监控的（有点类似Vue的v-modle属性），下面是一个监控用户输入内容的例子：
 
+	var MyComponent=React.createClass({
+	    getInitialState:function(){
+	       return {
+	         value:""
+	       }
+	    },
+	    handleInput:function(event){
+	       this.setState({value:event.target.value})
+	    },
+	    render:function(){
+	      return (
+	       <div>
+	          <input type="text" placeholder="请输入" onChange={this.handleInput}/>
+	          <p>你输入的内容是：{this.state.value}</p>
+	       </div>
+	        )
+	    }
+	});
+
+	ReactDOM.render(
+	<MyComponent />,
+	document.getElementById("example")
+	)
+
+更多React事件，请点击 [官方文档](https://facebook.github.io/react/docs/events.html)
 
 ##  参考文献
 
 1. [React.createElement使用详解](http://www.onmpw.com/tm/xwzj/web_103.html)
 2. [组件的生命周期](http://www.jianshu.com/p/f462b78689f6)
+3. [React 组件生命周期](https://zhuanlan.zhihu.com/p/21246418?refer=leanreact)
+4. [React Native 中组件的生命周期](http://www.race604.com/react-native-component-lifecycle/)
+5. [React的事件大全](https://my.oschina.net/u/2608629/blog/680352?p=1)
