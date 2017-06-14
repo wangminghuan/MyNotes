@@ -52,7 +52,8 @@ git是分布式，svn是集成式。链接更多区别点击 [Git和SVN之间的
 **<font size="3" color="blue">6.撤销命令:</font>**
               
 **git reset HEAD  <file.name>** &emsp; &emsp; 暂存区撤销回工作区  
-**git checkout -- <file.name>**   &emsp;&emsp;还原版本(默认从暂存区还原)   
+**git checkout  <file.name>**   &emsp;&emsp;还原版本(默认从暂存区还原)  
+**git checkout origin/master <file.name>**   &emsp;&emsp;从远程仓强制更新某个文件    
 **git commit --amend** &emsp;&emsp;&emsp;&emsp;撤销上次提交记录   
 
 **<font size="3" color="blue">7.删除命令:</font>**
