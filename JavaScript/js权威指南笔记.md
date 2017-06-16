@@ -54,9 +54,9 @@
 2. 任何不在函数内部的声明的变量都是全局变量，其他为局部变量
 3. 
 ### 3.2 原始数据类型
-#### 字符串
+### A. 字符串
 1. 双引号或单引号括起来的字符序列
-#### 数字
+### B. 数字
 
 1. js不区分整数数值和浮点数值，所有数字都是用浮点值来表示的。
 2. ECMAScript标准支持十六进制，不支持八进制，而有些浏览器是支持八进制的。在严格模式下八进制是无效。
@@ -64,9 +64,9 @@
 4. NaN 与任何值都不相等，包含他自身，通过`isNaN()`函数来判断
 5. js采用IEEE-754浮点数表示法，是二进制表示法，可以很好表示，1/8, 1/1024等，但不能精确表示诸如：1/100, 1/1000等，建议换算成整数再计算
 
-#### Boolean
+### C. Boolean
 1. 只有两个值，是保留字：true 和 false
-#### null && undefined
+### D. null && undefined
 1. 未初始化的变量
 
 		var age;
@@ -83,14 +83,14 @@
 		console.log(undefined==null)//true
 		console.log(undefined===null)//false
 
-#### 全局对象
+###3.3. 全局对象
 1. 全局属性：undefined, Infinity, NaN
 2. 全局函数：isNaN(), parseInt(),eval()
 3. 构造函数：Date(), RegExp(), String(), Object(), Array()
 4. 全局对象：Math, JSON
 5. window对象的有一个window属性指向自身：window.window===window（其实，测试发现可以挂载无数个window属性....）
 
-#### 包装对象
+###3.4 包装对象
 字符串，数字，布尔值可以像下面这样使用
 
 	var str="components";
@@ -131,7 +131,7 @@
 	typeof new String("components"); //"object"
 	typeof "components"; //"string"
 
-#### 值的可变与不可变
+###3.5 值的可变与不可变
 
 1. 原始类型的值（string,number,Boolean,null,undefined）是不可更改的
 2. 原始类型值的比较是值的比较，只有值相等才会相等。
@@ -146,10 +146,10 @@
 		}
 		console.log(obj1==obj2)//false
 
-#### 变量作用域
+###3.6 变量作用域
 1. 函数体内局部变量优先级高于同名的全局变量，全局变量可以被函数体内同名变量覆盖。
 
-#### 函数作用域&&提前声明
+###3.7 函数作用域&&提前声明
 
 1. ES5 只有全局作用域和函数作用域，没有块级作用域。
 2. 自执行函数在通常情况下被用来模拟块级作用域。
@@ -171,12 +171,12 @@
 4. 函数体内的变量声明提前，使得变量在整个函数体内都有效。这就可以理解为什么函数体的for循环初始化，在函数体内其他地方也可以访问的到。
 
 
-#### 作为属性的全局变量
+###3.8 作为属性的全局变量
 
 1. ECMAScript规范中强制规定：js全局变量是全局对象的属性。
 2. 通过给未声明变量赋值创建的全局变量，可以通过delect语句删除
 
-#### 作用域链
+###3.9 作用域链
 
 1. 当代码在一个环境中执行时，会创建变量对象的一个作用域链（scope chain）。作用域链的用途，是保证对执行环境有权访问的所有变量和函数的有序访问。
 
@@ -199,15 +199,113 @@
 2. 每个环境都可以向上搜索作用域链，以查询变量和函数名。
 3. 但任何环境都不能通过向下搜索作用域链而进入另一个执行环境。
 
-#### 延长作用域链
+###3.10 延长作用域链
 1. try-catch 语句的 catch 块；
 2. with 语句。
-#### 1.1.1 三级标题
+
+## 第4章 表达式和运算符
+
+### 4.1 表达式和语句的区别
+
+1. 表达式：是由运算元和运算符(可选)构成，并产生运算结果的语法结构。
+2. 表达式总有返回值，其中，单值表达式的结果是值本身，其他表达式结果是根据运算符进行运算的结果值。
+3. 语句：表明了代码执行过程的流程、限定和约定，形式上可以是单行语句，也可以是由大括号括起来的复合语句。
+4. 语句由分号来分隔。语句是“使某事发生”的指令，不存在返回值一说
+
+### 4.2 原始表达式
+1. 原始表达式是表达式的最小单位，包含常量，直接量，关键字和变量。
+2. 
+## 第x章 xxx和xxx
+
+### 4.1 xxx
 
 1. 列表1
 
 2. 列表2
 
+
+## 第x章 xxx和xxx
+
+### 4.1 xxx
+
+1. 列表1
+
+2. 列表2
+
+## Object.prototype.toString 检测类型原理
+### 1. Object对象下的 toString方法
+首先说下toString()方法，js所有对象下都有改方法，只要是对象，都可以从Object.prototype上继承toString方法：
+
+		var obj= new Object();
+		obj.toString();//"[object Object]"
+1. 输出一个字符串类型的数组，数组第一项统一为"[object]",第二项就是对象的[[Class]]属性的值。
+2. [[Class]]是一个内部属性（只读）,所有的对象(原生对象和宿主对象)都拥有该属性.在规范中,[[Class]]是这么定义的
+
+		内部属性	   描述
+		[[Class]]	一个字符串值,表明了该对象的类型.
+3. [[Class]]内部属性的值一共有以下几种(ES6或许会添加)： 
+
+		"Array", "Boolean", "Date", "Error", "Function", "Math", "Number", "Object", "RegExp", "String"，"Null", "Undefined", "JSON", "Arguments"
+### 2. 被重写的 toString方法
+对于Object的子类型：Array类型、Date类型、RegExp类型以及Number、Boolean、String三个包装类型，我们调用他们的toString()方法：
+
+1. Array类型：
+
+		var arr = ["tom",12,"rose",18];
+		console.log(arr.toString());//"tom,12,rose,18"
+2. RegExp类型
+
+		var patten = new RegExp("\\[hbc\\]at", "gi");
+		console.log(patten.toString());//"/\[hbc\]at/gi"
+3. Date类型
+
+		var date = new Date(2014,02,26);//注意这种格式创建的日期，其月份是3月
+		console.log(date.toString());//"Wed Mar 26 2014 00:00:00 GMT+0800"输出格式因浏览器不同而不同，此为firefox的输出格式；
+4. number类型
+
+		var num = 16;
+		console.log(num.toString(2));//10000 二进制
+		console.log(num.toString(8));//20 八进制
+		console.log(num.toString(16));//10 十六进制
+		console.log(num.toString(5));//31 虽然没有五进制，但是这样传参是可以被toString()方法接受的
+5. Boolean 和 String 类型
+
+	      var str="jack";
+	      console.log(str.toString());//"jack"
+	      var bool=true;
+		  console.log(bool.toString());//"true"
+会发现各自构造函数下的toString方法都被改写了，并没有继承Object对象下的方法，所有如果要通过toString()来判断类型，此时就需要调用Object.prototype.toString。
+
+### 3. Object.prototype.toString
+首先重温一下call/apply方法：
+
+1. 另个方法可以简单理解为改变函数运行作用于的方法
+2. 在函数/方法名称后面加上call/apply就等同于调用执行了函数/方法
+3. call接受的第一个参数为运行函数的作用域，其余参数都直接传递给了函数
+4. apply接受的第一个参数仍是运行函数的作用域，第二个是参数数组，或arguments对象
+
+
+		function sum(num1, num2){
+			return num1 + num2;
+		}
+        sum(1,2);//3
+        sum.call(this,1,2)//3
+        sum.apply(this,[1,2])//3
+
+既然子类的toString()方法被重写，我们直接通过call/apply使对象直接通过原型链调用 Object.prototype.toString():
+
+      Object.prototype.toString();//"[object Object]"
+      Object.prototype.toString.call(this)//"[object Window]"
+      Object.prototype.toString.call([])//"[object Array]"
+	  Object.prototype.toString.apply([])//"[object Array]"
+ 
+需要注意的是：  
+
+1. Object 的 toString()方法只能检测原生构造函数的构造函数名。
+2. 定义的任何构造函数都将返回[object Object]，建议使用 instanceOf 判断。
+3. instanceof 操作符在存在多个全局作用域（像一个页面包含多个 frame）的情况下，会存在问题。
+4. typeof 对于基本类型的判断还可以，对于对象类型判断就比较糟糕了。一般返回的都是 "object"。
+5. 三种判断方式（typeof instanceof Object.prototype.toString.call）按需要使用。
 ## 客户端的javaScript
 
 ### window对象
