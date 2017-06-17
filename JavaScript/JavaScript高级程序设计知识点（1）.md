@@ -1,4 +1,4 @@
-##<font face="微软雅黑" size="4" >JavaScript高级程序设计阅读笔记-基础部分
+## <font face="微软雅黑" size="4" >JavaScript高级程序设计阅读笔记-基础部分
 
 **<font size="5" color="red" >一. 基本概念</font>**  
 **<font color="blue">1.1 数据类型</font>**   
@@ -425,7 +425,7 @@ typeof 操作符是确定一个变量是字符串、数值、布尔值，还是 
 
 1. 每一项可以保存任何类型的数据。也就是说，可以用数组的第一个位置来保存字符串，用第二位置来保存数值，用第三个位置来保存对象。  
 2. ECMAScript 数组的大小是可以动态调整的，即可以随着数据的添加自动增长以容纳新增数据。  
-
+3. 数组是对象的特殊形式
 
 **B)创建Array对象**   
 
@@ -530,15 +530,15 @@ sort()方法显然不能够满足多数需求。两个方法可以接收一个�
 
 1. <font color="red">concat(拼接元素，拼接元素，拼接元素，...)</font>：拼接数组，接受的参数为要拼接到对象数组中的元素；  
   
-	var colors = ["red", "green", "blue"];
-	var colors2 = colors.concat("yellow", ["black", "brown"]);
-	alert(colors); //red,green,blue
-	alert(colors2); //red,green,blue,yellow,black,brown
+		var colors = ["red", "green", "blue"];
+		var colors2 = colors.concat("yellow", ["black", "brown"]);
+		alert(colors); //red,green,blue
+		alert(colors2); //red,green,blue,yellow,black,brown
 2. <font color="red">splice()</font>:强大的数组方法。  
 
-	arr.splice(起始位置， 删除个数);
-	arr.splice(起始位置， 替换个数， 替换内容)；
-	arr.splice(起始位置， 删除个数， 添加内容)；
+		arr.splice(起始位置， 删除个数);
+		arr.splice(起始位置， 替换个数， 替换内容)；
+		arr.splice(起始位置， 删除个数， 添加内容)；
 splice()方法始终都会返回一个数组，该数组中包含从原始数组中删除的项（如果没有删除任何项，则返回一个空数组）。  
 
 **I)位置方法**  （ECMA5） 
