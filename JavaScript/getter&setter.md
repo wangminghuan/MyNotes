@@ -94,8 +94,9 @@ chrome下运行结果：
 
 2. getters { get name(){..} } 以及setters { set name(val){..} } 可以用于动态的属性值。
 
-### 2 举个例子：    
-####例子1： 
+### 2 举个例子：  
+  
+#### 例子1： 
 
 	var obj={
 		name:"jack",
@@ -112,14 +113,17 @@ chrome下运行结果：
 	console.log(obj);
 	console.log(obj.name);
 	console.log(obj.name==obj.getName())
-运行结果：  
+
 **chrome**下运行结果:  
+
 ![字面量1](http://i.imgur.com/KWg2XQ1.png)
 
-**node**下运行结果：
+**node**下运行结果：  
+
 ![字面量2](http://i.imgur.com/owltzk9.png)
 
-####例子2 （get和set语句）
+#### 例子2 （get和set语句）
+
 	var obj={
 		name:"jack",
 		age:"25",
@@ -137,6 +141,7 @@ chrome下运行结果：
 	console.log(obj);
 	console.log(obj.name);
 	console.log(obj.name==obj.getName)
+
 **chrome**下运行结果是：
 
 ![字面量运行结果](http://i.imgur.com/fd6hCTN.png)
@@ -146,6 +151,7 @@ chrome下运行结果：
 ![字面量node下运行结果](http://i.imgur.com/fDKhML9.png)
 
 #### 结论 
+
 1. 例子1中的 getName，setName只是obj下的方法，而例子2下，通过set 和 get标识，getname和setName其实已经成为obj下的属性。
 2. 对于例子 2，obj.name是对name变量的getter方法调用。
 3. 对于例子2，obj.name和obj.getName可以理解为互相绑定，改动任何一个都会反应到对方上。
@@ -171,13 +177,17 @@ chrome下运行结果：
 	obj.name="blues";//调用__defineSetter__
 	console.log(obj);//调用__defineGetter__
 	console.log(obj.name);//调用__defineGetter__
-运行结果：
+
 **chrome**下运行结果是：
+
 ![old](http://i.imgur.com/u8ZVDJd.png)
 
 **node**下的运行结果： 
+
 ![old setter&getter 2](http://i.imgur.com/6Rn004D.png)
+
 ### 结论
+
 1. 如果使用__defineGetter__或__defineSetter__，它会重写之前定义的相同名称的getter或setter，甚至是属性(property)。
 2. _name 前面的下划线是一种常用的记号，用于表示只能通过对象方法访问的属性。
 
