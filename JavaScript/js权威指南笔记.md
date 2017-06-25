@@ -167,7 +167,7 @@ str.length
 
 ###3.9 作用域链
 
-1. 当代码在一个环境中执行时，会创建变量对象的一个作用域链（scope chain）。作用域链的用途，是保证对执行环境有权访问的所有变量和函数的有序访问。
+1. 当代码在一个环境中执行时，会创建变量对象的一个作用域链（scope chain）。这个链表是一个对象链表，并不是绑定的栈。作用域链的用途，是保证对执行环境有权访问的所有变量和函数的有序访问。
 
 		function changeColor() {
 		    var anotherColor = "red";
@@ -617,32 +617,194 @@ js中除了基本数据外，其他的都是对象，所以函数也是对象，
 
 #### 方式2：作为方法调用
 1. 此时函数是挂载在对象属性下的，调用方式为： o.m(x, y)。
-2. 跟作为函数调用的最大区别就是this的指向问题。
+2. 跟作为函数调用的最大区别就是this的指向,函数内的this始终指向调用他的对象（就是点离他最近的调用者）
+3. 关于JQ的链式调用，其实就是在每个方法中将this作为返回值return出去了：
+
+		   function Person(){};
+			Person.prototype={
+			  setName:function(name){
+			    this.name=name;
+			     return this;
+			  },
+			  getName:function(){
+			   return this.name
+			}
+			}
+			var p1=new Person();
+			p1.setName("blue").getName()://"blue"
 #### 方式3：作为构造函数调用
+1. 上面例子已经展示了作为构造函数的调用方式，通过new关键字进行调用。
+2. 一上述例子为例子，返回值是 Person.prototype的内容，构造函数内部一般不会使用return语句，就算使用了通过new Person()调用时会被忽略。
 
-#### 方式4：间接调用，通过call()和apply()
+#### 方式4：间接调用： 通过call()和apply()
 
-### 4.1 xxx
+### 4.4 函数的形参和实参
+1. 函数的形参，相当于已经在函数体内被声明了一次，只是他的值等于实参，所以函数体内我们可以这样写：
 
-1. 列表1
+	     function add(a,b){
+	        b=parseInt(b)||0; //这种给参数添加默认值的方式，只适用于b已经被声明过
+	        a=parseInt(a)||0;
+	        console.log(a,b);
+	        return a-b
+	     }
+2. 省略的实参都是undefined, 多出的参数会被自动省略。
+3. 函数内部可以通过实参对象 `arguments` 来获取是实参的引用值，该对象是一个类数组对象。ECMA5严格模式无效。
+4. callee 和 caller属性(ECMA5 严格模式下报错)
 
-2. 列表2
+		function outer(){
+			inner();
+		}
+		function inner(){
+			console.log(inner.caller===arguments.callee.caller);//true
+		}
+		outer();
+`fnName.caller` 引用调用fnName的函数。  
+`arguments.callee` 引用arguments对象所在函数的函数对象。 
+			
+### 4.5 作为返回值的函数
+1. 函数调用后的值可以作为参数传递到另一个函数中。
+2. Array.sort方法就接受一个函数返回值来进行排序
 
-### 4.1 xxx
+		[4,5,2,0].sort(function(a,b){
+          	return a-b
+      		 };//[0, 2, 4, 5]
+3. 函数也可以拥有属性，我们尝经常用函数下的属性来缓存数据，不用创建全局变量就可以实现数据的缓存。譬如我们实现一个阶乘函数:
 
-1. 列表1
+		//n的阶乘：1*2*3*....*n
+		function factorial(n){
+		 if(isFinite(n) && n>0 && n==Math.round(n)){//确保n是有限正整数
+		    if(!(n in factorial))  factorial[n]= n*factorial(n-1);
+		    return factorial[n];
+		 }
+		  else return NaN
+		}
+		factorial[1]=1;//将属性初始化，必须操作。
+输入factorial(5)时，函数会生成factorial[4],factorial[3],factorial[2]属性，最后将属性actorial[5]作为返回值返回出去。这样做的好处是不用每次都走循环，而且数据都被缓存起来，可以有效提高运行速度！
 
-2. 列表2
+### 4.6 作为命名空间的函数
+js中没有块级作用域，取而代之是函数作用域，可以利用函数作用域形成一个命名空间：
 
+		(function(){
+		//my code...
+		}())
+### 4.7 闭包
+1. 通常一个函数执行完毕后，内部的局部变量都就会被销毁。也就是被JS的垃圾回收机制回收掉。
+2. 每次调用函数的时候，都会为函数创建一个新的对象来保存局部变量，并把这个对象添加到作用域链对象上。如果一个函数定义了嵌套函数，并将他作为返回值返回或者存在某处的属性中，此时就会有一个外部引用指向了这个嵌套的函数，因而就不会被垃圾回收机制所回收。
+
+		var scope="global";
+		function fn1(){
+			var scope="local";
+			function f(){
+		      return scope
+		    };
+		    return f()//返回一个值
+		}
+		function fn2(){
+			var scope="local";
+			function f(){
+		      return scope
+		    };
+		    return f //闭包
+		}
+		fn1();//local
+		//调用函数fn1时候,函数f顺着作用域链查找到了局部变量scope，于是返回了它的值"local"
+		
+		var m=fn2();//m就是函数fn的函数体，保存着fn2的内部函数f的引用
+		m();//因为f被m引用，而f又引用了父函数fn2作用域中的变量，所以scope不会被垃圾回收机制回收，此时扔可以访问的到。这就形成了闭包。
+3. 垃圾回收机制如下：
+   - 全局变量不会被回收
+   - 局部变量会被回收，也就是函数一旦运行结束，函数内部的东西都会被销毁
+   - 只要被另外一个作用域所引用就不会被回收
+4.	闭包的一个例子	
+
+		var addOne((function(){
+			var count=0;
+			return function(){
+				return count++
+			}
+		})());
+		addOne();//1
+		addOne();//2
+		addOne();//3
+		//局部变量始终在内存中，不会被回收，实现了累加
+### 4.8 函数的属性、方法和构造函数
+js中一切都是对象，函数也是对象，因此它也拥有属性和方法
+
+1. length属性：表示函数期望接受的参数个数（形参）
+    
+	    function add(a,b,c){
+	      console.log("实参长度为："+arguments.length)
+	    }
+	    add.length;//3, 形参个数
+	    add(1,2)//实参长度为：2
+2. prototype属性：指向原型对象，每个函数都有不同的原型对象。
+
+3. call() 和 apply()方法：在特定作用域内调用函数，通过第一个参数来设置调用函数的母对象。区别在于第二个参数。可参见[js高级程序设计](https://github.com/wangminghuan/MyNotes/blob/master/JavaScript/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%881%EF%BC%89.md)
+
+4. bind()方法：ECMA5新增，同样可以实现call,apply的功能，多了一些附加功能（略）
+
+5. toString()方法：返回函数体代码
+
+6. Function构造函数：实际中用到较少
+
+
+### 4.9 函数式编程：
+
+1. 用命令式的方式编写代码，而非指令式（个人理解）
+2. gitBook开源书 [js函数式编程指南](https://llh911001.gitbooks.io/mostly-adequate-guide-chinese/content/ch1.html)
 
 ## 第八章 类和模块
 
-### 4.1 xxx
+### 4.1 面向对象的理解
 
-1. 列表1
+1. 面向对象的语言都有一个标志就是有类的概念，通过类创建任意多个具有相同属性和方法的对象，但是js没有类的概念，我们可以通过工厂模式，构造函数模式等来创建"类"对象。
+2. 面向对象的三大特性：封装（创建对象），继承，多态）。可以参考[js高级程序设计知识点2](https://github.com/wangminghuan/MyNotes/blob/master/JavaScript/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%882%EF%BC%89.md)
 
-2. 列表2
+### 4.2 构造函数
+1. 原型对象是类的唯一标识，当且仅当两个对象继承同一个原型对象时，他们才属于同一个类的实例。
+2. 对于构造函数一般约定首字母是大写，用来与普通函数做区分，并且通过new 进行调用。当然也可以普通函数进行调用，但往往会无法正常工作。
+		
+		var F=function(){};
+		var p=F.prototype; //构造函数的原型
+		var c=p.constructor; //原型的构造函数
+		c===F// true,二者恒等
+3. 通过字面量方式创建原型对象会引发构造函数被重写的问题
+    
+		 function Person(){
+		  }
+		 Person.prototype = {
+		   constructor:Person, //重新指回来,否则就变成了function Object(){}
+		 	name : "Nicholas",
+		 	age : 29,
+		 	job: "Software Engineer",
+		 	sayName : function () {
+		 		console.log(this.name);
+		 	}
+		 };
+4. js基于原型链的继承是动态的，如果创建对象之后原型的属性发生了改变，也会影响到继承这个原型的所有的实例对象。，这样就可以给原始类型添加一些他们原本不支持的方法：
 
+		String.prototype._trim = function() {
+		    return this.replace(/(^\s*)(\s*$)/g, "");
+		    //移除多余空格，所有字符串都可用。
+		};
+
+### 4.3 模块
+ECMA5和ECMA3模块化的原生模块化的几种方案：
+
+1. 用作命名空间的对象  
+
+		//将属性和方法等都挂在一个对象下
+	      var obj={
+	         getName:function(){
+	           // your code
+	         }
+	       }
+
+2. 用作私有命名空间的函数
+
+	      (function(){
+	        //your code
+	      }());
 
 ## Date 对象
 1. GMT时间：英国格林威治时间（0时区），也就是世界标准时间，北京时间=GMT时间+8小时
