@@ -1,7 +1,7 @@
-##<font face="微软雅黑" size="4" >JavaScript高级程序设计阅读笔记-中级部分
+## JavaScript高级程序设计阅读笔记-中级部分
 
-**<font size="5" color="red" >一. 面向对象</font>**  
-**<font color="blue">1.1 对象的属性</font>**   
+### 一. 面向对象  
+### 1.1 对象的属性   
 
 - Object.defineProperty()方法： ECMAScript 5方法，用于修改属性默认的特性
 - Object.defineProperties()方法：可以通过描述符一次定义多个属性。  
@@ -9,7 +9,7 @@
 
 上述几个方法，一般场景用不到。  
 
-**<font color="blue">1.2 创建对象</font>**    
+### 1.2 创建对象    
 字面量构建对象虽然方便，但这些方式有个明显的缺点：使用同一个接口创建很多对象，会产生大量的重复代码。于是就有了工厂模式。
 
 **A) 工厂模式**   
@@ -77,7 +77,9 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
 	var person2 = new Person();
 	alert(person1.sayName == person2.sayName); //true   
 这就解决了实例化对象不相等的问题。
-####关于原型对象   
+
+#### 关于原型对象   
+
 1. 只要创建了一个新函数，就会为该函数创建一个 prototype属性，这个属性指向函数的原型对象。同时，在默认情况下，所有原型对象都会自动获得一个 constructor（构造函数）属性，这个属性包含一个指向 prototype 属性所在函数的指针。
 2. Firefox、 Safari 和 Chrome 在每个对象上都支持一个属性 `__proto__`；这个连接存在于实例与构造函数的原型对象之间，而不是存在于实例与构造函数之间。 
 3. isPrototypeOf()方法：可以测试了 person1 和 person2与原型之前的关系：  
@@ -95,7 +97,9 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
 
 		person1.name = "Greg";		
 		alert(person1.hasOwnProperty("name")); //false
-####原型与 in 操作符
+
+#### 原型与 in 操作符
+
 1. 有两种方式使用 in 操作符：单独使用和在 for-in 循环中使用。在单独使用时， in 操作符会在通过对象能够访问给定属性时返回 true，无论该属性存在于实例中还是原型中:  
 
      	person1.name = "Greg";		
@@ -113,7 +117,9 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
 		//chrome下该方法与Object.keys()返回内容与一样,chrome认为constructor也是可枚举  
 
 5. `Object.keys()`和 `Object.getOwnPropertyNames()`方法都可以用来替代 for-in 循环。支持这两个方法的浏览器有 IE9+、 Firefox 4+、 Safari 5+、 Opera12+和 Chrome。  
-####原型模式的简化与引发的问题 
+
+#### 原型模式的简化与引发的问题 
+
 1. 可以通过如下方式简化原型模式来创建对象：  
 
 		function Person(){
@@ -147,7 +153,9 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
 			alert(this.name);
 			}
 		};  
-####原型的动态性   
+
+#### 原型的动态性   
+ 
 对原型对象所做的任何修改都能够立即从实例上反映出来——即使是先创建了实例后修改原型也照样如此，但是，如果我们通过字面量方式重写实例的原型：
 
 		function Person(){
@@ -163,7 +171,9 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
         console.log(person1.name);//undefined
 		console.log(person2.name);//Nicholas
 **！！！重写原型对象会切断现有原型与任何之前已经存在的对象实例之间的联系。即：只要对原型进行了赋值操作`Person.prototype = xx`,实例对象与原有原型之前的联系都会被断开！！！**
-####原型模式存在的问题  
+
+#### 原型模式存在的问题  
+
 对于包含引用类型值的属性来说，修改实例上的属性的同时，原型中的对应属性也会被修改。
 
 	function Person(){
@@ -255,9 +265,11 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
 		return o;
 	}
 
-**<font color="blue">1.3 继承</font>**   
+### 1.3 继承   
 ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继承主要是依靠原型链来实现的。
-####原型链    
+
+#### 原型链  
+  
 通过原型链实现的简单继承。cat继承animal的所有属性和方法。
 
 		function Animal(){
@@ -346,7 +358,9 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		//["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
 
 可以看到修改实例`cat1`的`color`和`morecolor`属性会直接影响实例`cat2`的`color`和`morecolor`属性（重写则不存在这个问题）。这是因为继承情况下，重写子类的实例改写的是父类构造函数同一处引用。而创建实例的时候，每次创建出来的构造函数都是一个副本。所以，实践中很少会单独使用原型链来实现继承。
-####借用构造函数继承
+
+#### 借用构造函数继承
+
 这种技术的基本思想相当简单，即在子类型构造函数的内部调用超类型构造函数；  
 
 		function Animal(){
@@ -380,7 +394,9 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		console.log(cat1.species);//mammals
 
 但其仍存在问题：所有的属性和方法都在父类构造函数中定义，因此函数复用就无从谈起了。并且在父类的原型中定义的方法，对子类型而言也是不可见的。考虑到这些问题，借用构造函数的技术也是很少单独使用的。
-####组合继承  
+
+#### 组合继承  
+
 组合继承，有时候也叫做伪经典继承，指的是将原型链和借用构造函数的技术组合到一块。从而发挥二者之长的一种继承模式。其背后的思路是使用原型链实现对原型属性和方法的继承，而通过借用构造函数来实现对实例属性的继承。即：将公共的方法和属性放在原型链上，其他的属性和方法都放在构造函数中：  
 
 		function Animal(){
@@ -409,7 +425,9 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
         console.log(cat1 instanceof Animal);//true
         console.log(Cat.prototype.isPrototypeOf(cat1));//true
         console.log(Animal.prototype.isPrototypeOf(cat1));//true
-####原型式继承
+
+#### 原型式继承
+
 比如，现在有一个对象，叫做"中国人"：
 
         var Chinese = {
@@ -450,7 +468,9 @@ ECMAScript 5 通过新增方法： `Object.create(参数1，参数2可选)`，�
     console.log(person3.name);//Greg
     console.log(person3.friends);//"Shelby,Court,Van,Rob,Barbie"  
 该模式中引用类型值的属性始终会被共享。
-####寄生式继承  
+
+#### 寄生式继承 
+ 
 寄生式继承的思路与寄生构造函数和工厂模式类似，即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象，最后再像真地是它做了所有工作一样返回对象。
 
 	function createAnother(original){
@@ -468,7 +488,9 @@ ECMAScript 5 通过新增方法： `Object.create(参数1，参数2可选)`，�
     console.log(person4.friends);//"Shelby", "Court", "Van"
     person4.sayHi();//"hi"
 object()函数不是必需的；任何能够返回新对象的函数都适用于此模式。
-####寄生组合式继承
+
+#### 寄生组合式继承
+
 组合模式继承是最常用的模式，但在使用过程中会调用两次父类构造函数（参见组合模式继承部分）。我们可以通过如下函数，省略第一次的父类构造函数调用：
 	
 		function inheritPrototype(son, father){
@@ -502,8 +524,14 @@ object()函数不是必需的；任何能够返回新对象的函数都适用于
         cat1.sayHi();//"Hi!"
 这样就只调用了一次父类构造函数，效率会比较高。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。  
 
-**<font size="5" color="red" >二. 函数表达式</font>**  
-**<font color="blue">2.1 递归</font>**   
+### 1.4 多态
+
+同一操作作用于不同的对象，可以有不同的解释，产生不同的执行结果。重载也是多态的一种，但是
+js中没有重载的概念，可以通过使用arguments对象的使用，完成类似重载的功能。而其他根据不同类型完成不同的功能有待进一步探索
+
+
+### 二. 函数表达式  
+### 2.1 递归   
 递归函数是在一个函数通过名字调用自身的情况下构成的，如下所示。  
 
 		function factorial(num){
@@ -523,16 +551,11 @@ object()函数不是必需的；任何能够返回新对象的函数都适用于
 		}
 	});  
 
-**<font color="blue">2.2 闭包</font>**  
-详见其他文档  
-**A)** 
 
-**B)**    
-
-**<font size="5" color="red" >三. DOM</font>**  
+### 三. DOM  
 DOM（文档对象模型）是针对HTML 和XML 文档的一个API（应用程序编程接口），描述了处理网页内容的方法和接口。DOM本身是与语言无关的API。
    
-**<font color="blue">3.1 节点</font>**   
+### 3.1 节点   
 
 **A) Node类型**  
 
@@ -663,7 +686,8 @@ document.implementation 属性提供了相应信息和功能，用于检测浏�
 
 **C) Element类型**   
 除了Document 类型之外，Element 类型就要算是Web 编程中最常用的类型了。  
-<font size="3">补充：关于节点和元素:  
+
+##### 补充：关于节点和元素:  
 
 	根据 W3C 的 HTML DOM 标准，HTML 文档中的所有内容都是节点：  
 	整个文档是一个文档节点  
@@ -671,7 +695,7 @@ document.implementation 属性提供了相应信息和功能，用于检测浏�
 	HTML 元素内的文本是文本节点  
 	每个 HTML 属性是属性节点  
 	注释是注释节点  
-</font>  
+  
 
 1. 元素的标签名，可以使用nodeName 属性，也可以使用tagName 属性；  
 
@@ -784,7 +808,7 @@ DocumentFragment 在文档中没有对应的标记。通常把它作为一个“
 **I) Attr类型**   
 元素的特性在DOM 中以Attr 类型来表示。特性就是存在于元素的attributes 属性中的节点。
  
-**<font color="blue">3.2 DOM操作</font>**  
+### 3.2 DOM操作  
 
 1. 动态添加js的两种方式：  
 
@@ -844,7 +868,7 @@ DocumentFragment 在文档中没有对应的标记。通常把它作为一个“
 NodeList 对象都是“动态的”，这就意味着每次访问NodeList 对象，都会运行一次查询。有鉴于此，最好的办法就是尽量减少DOM操作。同时可以考虑将从NodeList 中取得的值缓存起来。
 
 
-**<font color="blue">3.3 DOM扩展之新增选择符</font>**    
+### 3.3 DOM扩展之新增选择符    
 Selectors API（www.w3.org/TR/selectors-api/）是由 W3C 发起制定的一个标准，致力于让浏览器原生支持 CSS 查询。目前已完全支持 Selectors API Level 1
 的浏览器有 IE 8+、 Firefox 3.5+、 Safari 3.1+、 Chrome 和 Opera 10+。  
 **A) querySelector()方法**：选择某个元素 
@@ -875,7 +899,7 @@ Level 2 规范为 Element 类型新增的一个方法，目前支持的浏览器
 	if (document.body.matchesSelector("body.page1")){
 	//true
 	}
-**<font color="blue">3.4 DOM扩展之元素遍历</font>**     
+### 3.4 DOM扩展之元素遍历     
 对于元素间的空格， IE9 及之前版本不会返回文本节点，而其他所有浏览器都会返回文本节点。这就导致了在使用 childNodes 和 firstChild 等属性时的行为不一致。Element Traversal 规范（www.w3.org/TR/ElementTraversal/）新定义了一组属性。 
 
 Element Traversal API 为 DOM 元素添加了以下 5 个属性。  
@@ -888,7 +912,7 @@ Element Traversal API 为 DOM 元素添加了以下 5 个属性。
 通过新增的 DOM 属性，可以不必担心空白文本节点，从而可以更方便的查找元素了。  
 支持 Element Traversal 规范的浏览器有 IE 9+、 Firefox 3.5+、 Safari 4+、 Chrome 和 Opera 10+。
 
-**<font color="blue">3.5 DOM扩展之H5规范新增</font>**   
+### 3.5 DOM扩展之H5规范新增   
 **A) getElementsByClassName()方法**：返回一组特定class的元素；支持的浏览器有 IE 9+、 Firefox 3+、 Safari 3.1+、 Chrome 和Opera 9.5+。 
 
 **B) classList 属性**   
@@ -996,7 +1020,7 @@ HTML5 规定可以为元素添加非标准的属性，但要添加前缀 data-�
 
 **G) scrollIntoView()方法** : 支持性较差。忽略；  
 
-**<font color="blue">3.6 DOM扩展之专有扩展</font>**   
+### 3.6 DOM扩展之专有扩展   
 **A) 文档模式** ：  
 IE8 引入了一个新的概念叫“文档模式”（document mode）。
 要强制浏览器以某种模式渲染页面，可以使用HTTP 头部信息X-UA-Compatible，或通过等价的
@@ -1033,7 +1057,7 @@ innerText属性会过滤掉子节点中所有的HTML标签，只会生成一个�
 2. outerText  
 除了作用范围扩大到了包含调用它的节点之外，与innerText 基本上没有多大区别。
 
-**<font size="5" color="red" >四. DOM2和DOM3</font>**  
+### 四. DOM2和DOM3  
 DOM1 级主要定义的是 HTML 和 XML 文档的底层结构。 DOM2 和 DOM3 级则在这个结构
 的基础上引入了更多的交互能力，也支持了更高级的 XML 特性。  
 
@@ -1046,7 +1070,7 @@ DOM2 和 DOM3级分为许多模块（模块之间具有某种关联），分别�
 - DOM2 级遍历和范围（DOM Level 2 Traversal and Range）：引入了遍历 DOM 文档和选择其特定部分的新接口。
 - DOM2 级 HTML（DOM Level 2 HTML）：在 1 级 HTML 基础上构建，添加了更多属性、方法和新接口。    
 
-**<font color="blue">4.1 DOM 变化</font>**   
+### 4.1 DOM 变化   
 **A)** 有了 XML 命名空间，不同 XML 文档的元素就可以混合在一起，共同构成格式良好的文档，而不必担心发生命名冲突。HTML 不支持 XML 命名空间，但 XHTML 支持 XML 命名空间。
 
 **B)** DOM2中增加了许多针对命名空间的属性和方法，用途不大，此处不再详细介绍；  
@@ -1063,7 +1087,7 @@ DOM1级中，框架和内嵌框架分别用 HTMLFrameElement 和 HTMLIFrameEleme
 	var iframe = document.getElementById("myIframe");
 	var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-**<font color="blue">4.2 样式</font>**   
+### 4.2 样式   
 
 **A) 访问元素样式**   
 任何支持 style 特性的 HTML 元素在 JavaScript 中都有一个对应的 style 属性，该属性包含着通过 HTML 的 style 特性指定的所有样式信息，但不包含与外部样式表或嵌入样式表经层叠而来的样式。  
@@ -1171,7 +1195,7 @@ styleSheet 属性）；不同浏览器中都能取得样式表对象，也可以
 4.确定元素大小  
 `getBoundingClientRect()`方法：这个方法返回会一个矩形对象，包含 4 个属性： left、 top、 right 和 bottom。这些属性给出了元素在页面中相对于视口的位置。浏览器的实现稍有不同。 IE8 及更早版本认为文档的左上角坐标是(2, 2)，其他则认为是（0,0）。
 
-**<font color="blue">4.3 二遍历</font>**   
+### 4.3 二遍历   
 **A) NodeIterator**  
  
 - 使用document.createNodeIterator()方法创建它的新实例
@@ -1181,7 +1205,7 @@ styleSheet 属性）；不同浏览器中都能取得样式表对象，也可以
 TreeWalker 是 NodeIterator 的一个更高级的版本。除了包括 nextNode()和 previousNode()
 在内的相同的功能之外，这个类型还提供了下列用于在不同方向上遍历 DOM 结构的方法。  
 
-**<font color="blue">4.4 范围</font>**  
+### 4.4 范围  
 范围是选择 DOM 结构中特定部分，然后再执行相应操作的一种手段。如下所示HTML结构：
 		
 		<!DOCTYPE html>
@@ -1208,10 +1232,10 @@ TreeWalker 是 NodeIterator 的一个更高级的版本。除了包括 nextNode(
 		清理范围等功能
 更详细的部分参见书籍。
 
-**<font size="5" color="red" >五. BOM</font>**  
+### 五. BOM  
 BOM是指浏览器对象模型。描述了与浏览器进行交互的方法和接口。BOM 提供了很多对象，用于访问浏览器的功能。H5中已经规范了BOM的主要内容。  
 
-**<font color="blue">5.1 window对象</font>**  
+### 5.1 window对象  
   
 **A)** BOM 的核心对象是 window，在浏览器中， window 对象有双重角色，它既是通过 JavaScript 访问浏览器窗口的一个接口，又是 ECMAScript 规定的 Global 对象。
 
@@ -1265,9 +1289,8 @@ innerWidth、 innerHeight：浏览器窗口大小（不含边框）
 				}
 		}
 
-<font size="3">  
-对于移动设备情况的补充：<a href="./其他/移动端viewPort.md">移动端viewPort</a>  
-</font>
+#####  对于移动设备情况的补充：<a href="./其他/移动端viewPort.md">移动端viewPort</a>  
+
 
 **E) 导航和打开窗口**        
 window.open()：接收4 个参数：要加载的URL、窗口目标、一个特性字符串以及一个表示新页面是否取代浏览
@@ -1321,7 +1344,7 @@ resizeTo()和resizeBy()：调整浏览器窗口的大小，接受两个参数：
 		window.resizeTo(300, 300);  
 但在高版本浏览器中，两个方法基本都已经无效；
 
-**<font color="blue">5.2 location 对象</font>**   
+### 5.2 location 对象   
 location 是最有用的BOM对象之一。location 对象既是window对象的属性，也是document对象的属性。  
 **A) 属性** 
 
@@ -1364,13 +1387,13 @@ location 是最有用的BOM对象之一。location 对象既是window对象的�
 		location.reload(); //重新加载（有可能从缓存中加载）
 		location.reload(true); //重新加载（从服务器重新加载）
 
-**<font color="blue">5.3 navigator 对象</font>**   
+### 5.3 navigator 对象   
 navigator 对象的属性通常用于检测显示网页的浏览器类型
 
-**<font color="blue">5.4 screen 对象</font>**  
+### 5.4 screen 对象  
 该对象在编程中用处不大； 
 
-**<font color="blue">5.5 history 对象</font>**    
+### 5.5 history 对象    
 history 对象保存着用户上网的历史记录。     
 **A) 属性**   
 length 属性：保存着历史记录的数量
@@ -1395,22 +1418,22 @@ length 属性：保存着历史记录的数量
 		//前进一页
 		history.forward();
 
-**<font size="5" color="red" >六. 客户端（浏览器）检测</font>**
+### 六. 客户端（浏览器）检测
 
  
-**<font color="blue">6.1 能力检测</font>**  
+### 6.1 能力检测  
 通过确定浏览器支持特定的能力，来给出解决方案，推荐！。   
 在可能的情况下，要尽量使用typeof 进行能力检测。 
 
-**<font color="blue">6.2 怪癖检测</font>**  
+### 6.2 怪癖检测  
 怪癖检测（quirks detection）的目标是识别浏览器的特殊行为（bug）,它无法怪癖检测无法精确地检测特定的浏览器和版本。  
 
-**<font color="blue">6.3 用户代理检测</font>**  
+### 6.3 用户代理检测  
 通过检测用户代理字符串（navigator.userAgent）来识别浏览器，但这最好作为第三个选择，因为一些历史原因浏览器厂商会在用户代理字符串中添加一些欺骗性信息，导致该字符串信息不一定准确。   
 
-**<font size="5" color="red" >七. 事件</font>**  
+### 七. 事件  
 
-**<font color="blue">7.1 事件流</font>**   
+### 7.1 事件流   
 
 事件流描述的是从页面中接收事件的顺序。但有意思的是， IE 和 Netscape 开发团队居然提出了差不多是完全相反的事件流的概念。 IE 的事件流是事件冒泡流，而 Netscape Communicator 的事件流是事件捕获流。  
 
@@ -1432,7 +1455,7 @@ IE 的事件流叫做事件冒泡（event bubbling），即事件开始时由最
 
 IE9、 Opera、 Firefox、 Chrome 和 Safari 都支持 DOM 事件流； IE8 及更早版本不支持 DOM 事件流。  
 
-**<font color="blue">7.2 事件处理程序</font>**  
+### 7.2 事件处理程序  
 **A) HTML 事件处理程序**  
 
 1. 顾名思义，就是在HTML中添加事件：  
@@ -1539,7 +1562,7 @@ IE9、 Opera、 Firefox、 Chrome 和 Safari 都支持 DOM 事件流； IE8 及�
 		
 		EventUtil.removeHandler(btn, "click", handler);
 
-**<font color="blue">7.3 事件对象</font>**  
+### 7.3 事件对象  
 **A）DOM中的事件对象**    
 兼容DOM 的浏览器会将一个event 对象传入到事件处理程序中,该对象包含如下属性和方法：  
   
@@ -1629,7 +1652,7 @@ IE中的event 对象包含如下属性和方法：
 		}
 	};
 
-**<font color="blue">7.4 事件类型</font>**  
+### 7.4 事件类型  
 Web 浏览器中的几类事件：  
 
 - UI（User Interface，用户界面）事件，当用户与页面上的元素交互时触发；
@@ -1929,7 +1952,7 @@ bubbles、cancelable、view、clientX、clientY、screenX、screenY、detail、a
 		 gesturechange：当触摸屏幕的任何一个手指的位置发生变化时触发。
 		 gestureend：当任何一个手指从屏幕上面移开时触发。
 
-**<font color="blue">7.5 内存和性能</font>**  
+### 7.5 内存和性能  
 
 1. 事件委托  
 最适合采用事件委托技术的事件包括click、mousedown、mouseup、keydown、keyup 和keypress。事件委托的具体使用在其他文档中已经描述，此处不再赘述。
@@ -1939,7 +1962,7 @@ bubbles、cancelable、view、clientX、clientY、screenX、screenY、detail、a
 	- 第一种情况就是通过纯粹的DOM操作，如removeChild()和replaceChild()方法，那么原来添加到元素中的事件处理程序极有可能无法被当作垃圾回收。解决办法就是删除节点的时候将事件也清空；
 	- 另一种情况，就是卸载页面的时候（譬如IE8）。一般来说，最好的做法是在页面卸载之前，先通过onunload 事件处理程序移除所有事件处理程序。
 
-**<font color="blue">7.6 模拟事件</font>**  
+### 7.6 模拟事件  
 
 事件经常由用户操作或通过其他浏览器功能来触发。但很少有人知道，也可以使用JavaScript 在任意时刻来触发特定的事件，而此时的事件就如同浏览器创建的事件一样。大致需要以下三个步奏：  
 
@@ -2000,7 +2023,7 @@ cancelable、relatedNode、preValue、newValue、attrName 和attrChange。譬如
 			div.dispatchEvent(event);
 		}
 
-**<font color="blue">7.7 IE下的模拟事件</font>**    
+### 7.7 IE下的模拟事件    
 IE下创建自定义事件也是三个步奏，只是在实现每个步骤时都采用了不一样的方式：
 
 		var btn = document.getElementById("myBtn");
@@ -2018,9 +2041,9 @@ IE下创建自定义事件也是三个步奏，只是在实现每个步骤时都
 		//触发事件
 		btn.fireEvent("onclick", event); 
 
-**<font size="5" color="red" >八. 表单</font>**  
+### 八. 表单  
 
-**<font color="blue">8.1 基础知识</font>**     
+### 8.1 基础知识     
 
 **A) 属性和方法**   
 <form\>表单元素属于HTMLFormElement类型，它有自己独有的属性和方法：  
@@ -2136,7 +2159,7 @@ IE下创建自定义事件也是三个步奏，只是在实现每个步骤时都
 当用户改变了当前字段的焦点，或者我们调用了blur()或focus()方法时，都可以触发blur 和
 focus 事件。
 
-**<font color="blue">8.2 文本框脚本</font>**    
+### 8.2 文本框脚本    
 
 **A) 两种文本框**    
 在HTML 中，有两种方式来表现文本框：一种是使用<input\>元素的单行文本框，另一种是使用
@@ -2255,7 +2278,7 @@ HTML5 为文本字段新增了pattern 属性。这个属性的值是一个正则
 		//禁用验证
 		document.forms[0].elements["btnNoValidate"].formNoValidate = true;
 
-**<font color="blue">8.3 选择框脚本</font>**  
+### 8.3 选择框脚本  
 选择框是通过<select\>和<option\>元素创建的。该HTML除了继承所有表单字段共有的属性和方法外，还有许多特有的属性和方法：  
 
 - add(newOption, relOption)：向控件中插入新<option>元素，其位置在相关项（relOption）
@@ -2367,7 +2390,7 @@ HTML5 为文本字段新增了pattern 属性。这个属性的值是一个正则
 		var optionToMove = selectbox.options[1];
 		selectbox.insertBefore(optionToMove, selectbox.options[optionToMove.index-1]);  
 
-**<font color="blue">8.4 表单序列化</font>**  
+### 8.4 表单序列化  
 表单提交期间，浏览器是通过下面步奏将数据发送给服务器的：  
 
 - 对表单字段的名称和值进行URL 编码，使用和号（&）分隔。
@@ -2380,7 +2403,7 @@ HTML5 为文本字段新增了pattern 属性。这个属性的值是一个正则
 - <select\>元素的值，就是选中的<option\>元素的value 特性的值。如果<option\>元素没有
 value 特性，则是<option\>元素的文本值。
 
-**<font color="blue">8.5 富文本</font>**   
+### 8.5 富文本   
 
 1. 富文本编辑功能是通过一个包含空HTML 文档的iframe 元素来实现的。通过将空文档的
 designMode 属性设置为"on"，就可以将该页面转换为可编辑状态，此时其表现如同字处理软件。另外，也可以将某个元素设置为 `contenteditable`。将该属性应用给页面中的任何元素，然后用户立即就可以编辑该元素。
@@ -2389,7 +2412,7 @@ designMode 属性设置为"on"，就可以将该页面转换为可编辑状态�
 该属性有三个值：："true"表示打开、"false"表示关闭，"inherit"表示从父元素那里继承。 
 2. 富文本编辑器并不属于表单。不会被自动提交到服务器。
 
-<font size="2">第二部分 end</font>
-</font>  
+#### 第二部分 end
+  
 ******
 
