@@ -24,10 +24,10 @@
 			}
           componentDidMount(){
 		   //订阅一个事件，需求方
-		    _pubSub.subscribe('getItemInfo',function(data){
+		    _pubSub.subscribe('getItemInfo',(data)=>{
 		      console.log(data);
               //do something
-		    }.bind(this))
+		    })
 			}
 	   }
        //组件B 发布，产生数据方
