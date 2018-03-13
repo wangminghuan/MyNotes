@@ -69,6 +69,28 @@ js只有一个数字类型，它在内部表示为64位的浮点数，和java的
 ### 2.1 字符串
 js中所有字符都是16位的。js没有字符类型，要表示一个字符，之粗腰创建一个仅包含一个字符的字符串即可。字符串一经创建是不可改变的，所有字符串的改写方法都返回了一个新的字符串，原字符串并没有改变。
 
+
+## 2 语句和表达式
+[点我查看](https://github.com/wangminghuan/MyNotes/blob/master/JavaScript/js%E4%B8%AD%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E8%AF%AD%E5%8F%A5.md)
+
+## 3 对象
+1. 对象通过引用来传递，永远不会被复制。
+2. 所有通过对象字面量创建的对象都会连接到`Object.prototype`。（通过`new Object()`的方式一样）。
+3. 原型关系是一种动态的关系，如果添加一个新属性到原型中，那么该属性会对所有基于该原型创建的对象可见。
+4. `hasOwnPrototype`方法不会检查原型链
+
+	    Object.prototype.name="1";
+	    var obj=new Object();
+		console.log(obj.name);//1
+	    console.log(obj.hasOwnProperty('name'))//false
+5. 通过`for in`遍历对象时，顺序是不确定的。
+6. `delete`可以删除对象属性，可能会将来自原型链的属性暴露出来。
+   
+		Object.prototype.name="1";
+	    var obj={name:2};
+		delete obj.name
+	    console.log(obj.name)//1
+
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)

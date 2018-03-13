@@ -179,7 +179,8 @@ JavaScript表达式总有返回值，其中，单值表达式的结果是值本�
 	      console.log(count);//输出0-9
 	      count++;
 	     }
-while(true)是死循环
+while(true)是死循环    
+
 2. do while语句
      
 	       var count=0;
