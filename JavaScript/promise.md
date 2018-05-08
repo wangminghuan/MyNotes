@@ -28,7 +28,107 @@
 8. 事件监听
 9. 发布/订阅
 10. Promise 
-11. async/aw
+11. async/await
+
+## 5 Promise
+
+1. Promise 是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。Promise是一个容器，里面保存着某个未来才会结束的事件的结果。
+2. 从语法上来说，Promise是一个对象，使用的时候通常通过构造函数生成promise实例来进行异步编程
+
+举几个简单的例子：
+
+1. 图片加载 
+
+        function loadImageAsync(url) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = function () {
+                    resolve(image);
+                };
+                image.onerror = function () {
+                    reject("加载失败");
+                };
+                image.src = url;
+            });
+        }
+        loadImageAsync("http://crowdsource-test.oss-cn-hangzhou.aliyuncs.com/shop/apply/1524205867.png").then((res) => {
+            console.log("加载完毕", res)
+        }).catch((err) => {
+            console.log(err)
+        })
+
+
+2. promise写法实现ajax  
+
+        function axios(_url, _data) {
+            return new Promise((resolve, reject) => {
+
+                var defaults = {
+                    method: "GET",
+                    url: _url,
+                    data: _data,
+                    async: true,
+                    cache: true,
+                    contentType: 'application/x-www-form-urlencoded'
+                };
+
+                //处理用户输入的data数据
+
+                if (typeof defaults.data == 'object' && Object.prototype.toString.call(defaults.data) !=
+                    "[object Array]") {
+                    var dataStr = "";
+                    for (var k in defaults.data) {
+                        dataStr += encodeURIComponent(k) + "=" + encodeURIComponent(defaults.data[k]) + "&"
+                    }
+                    defaults.data = dataStr.substring(0, dataStr.length - 1)
+                }
+                //将请求方式改为大写
+                defaults.method = defaults.method.toUpperCase();
+
+                //设置cache ,cache为false时设置随机数，防止缓存
+                defaults.cache = defaults.cache ? "" : "&" + (new Date()).getTime();
+
+                //GET方式下将data拼接到url中进行传递
+                if (defaults.method == "GET" && (defaults.data || defaults.cache)) {
+                    defaults.url += "?" + defaults.data + defaults.cache;
+                }
+
+                //1. 创建XMLHttpRequest对象
+                var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+
+                //2. 同服务器建立联系，open方法
+                xhr.open(defaults.method, defaults.url, defaults.async)
+
+                //3. 向服务器发送请求，send方法
+                if (defaults.method == "GET") {
+                    xhr.send()
+                } else {
+                    xhr.setRequestHeader('Content-Type', defaults.contentType);
+                    //提交的数据格式，默认application/x-www-form-urlencoded
+                    xhr.send(defaults.data);
+                }
+
+                //4. 接收服务器返回请求内容，onreadystatechange
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            resolve(JSON.parse(xhr.responseText))
+                        } else {
+                            reject(xhr.status)
+                        }
+                    }
+                }
+            })
+        }
+        //调用
+        axios("/api/user/account/myqr", {
+            u_id: 96
+        }).then(res => {
+            console.log(res)
+        }).catch(err => {
+            console.log(err)
+        })
+ 
 
 ##  参考文献
 
