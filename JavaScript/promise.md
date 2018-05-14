@@ -129,9 +129,29 @@
             console.log(err)
         })
  
+## 6 axios
+Axios 是一个基于 promise 的 HTTP 库，可以用在浏览器和 node.js 中
+### 特性
+1. 从浏览器中创建 XMLHttpRequests
+2. 从 node.js 创建 http 请求
+3. 支持 Promise API
+4. 拦截请求和响应
+5. 转换请求数据和响应数据
+6. 取消请求
+7. 自动转换 JSON 数据
+8. 客户端支持防御 XSRF
 
+### axios创建的对象
+axios在浏览器端创建的还是XMLHttpRequest对象，将返回数据打印出来，结果如下：
+![](https://i.imgur.com/zo2eKj5.jpg)
+
+我们通过原生写法创建XMLHttpRequest,将返回数据打印出来，结果如下：
+![](https://i.imgur.com/26Zihx0.jpg)
+
+对比可以看出axios发出请求返回比原生的数据要“多”一些，其实就是axios的config配置，定义了更多的api,可以让我们做更多的事儿，`config.request`就和原生写法返回的是一样的内容。
 ##  参考文献
 
 1. [什么是 Event Loop](http://www.ruanyifeng.com/blog/2013/10/event_loop.html)
+2. [axios](https://www.jianshu.com/p/df464b26ae58)
 
 

@@ -158,17 +158,26 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
 ### 7.2 作为属性名
 1. 由于每一个 Symbol 值都是不相等的，这意味着 Symbol 值可以作为标识符，可以防止改写或者覆盖
 
+		let symbol1=Symbol(),symbol2=Symbol(),symbol3=Symbol();
+		let myObject = { 
+		    publicProperty: 'Value of myObject[ "publicProperty" ]',
+            [symbol1]:'Value of myObject[ symbol1 ]'
+		};
+		 
+		myObject[ symbol2 ] = 'value of myObject[ symbol2 ]';
+		Object.defineProperty(myObject, symbol3, { value: 'Value of myObject[ symbol1 ]' });
+		console.log(myObject)
+![](https://i.imgur.com/668jPPT.jpg)
+2. Symbol 值作为对象属性名时，不能用点运算符,所以读取该属性时，必须通过`myObject[ symbol2 ]`来读取。
+3. Symbol 作为属性名，该属性不会出现在`for...in`、`for...of`循环中，也不会被`Object.keys(`)、`Object.getOwnPropertyNames()`、`JSON.stringify()`返回，
+4. 可以通过`Object.getOwnPropertySymbols`来进行读取symbol属性，他返回一个数据
 
-## axios和ajax区别
-
-### axios创建的对象
-
-![](https://i.imgur.com/zo2eKj5.jpg)
-
-### ajax创建的对象
-![](https://i.imgur.com/26Zihx0.jpg)
+		[Symbol(), Symbol(), Symbol()]
+5. Symbol.for()，Symbol.keyFor()（略）
 
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
+2. [ES6 的 Symbol 类型及使用案例](https://my.oschina.net/u/2903254/blog/818796)
+
 
 
