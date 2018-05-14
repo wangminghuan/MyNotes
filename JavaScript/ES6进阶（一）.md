@@ -28,9 +28,9 @@
 3. let声明，一个代码块内不可重复声明，否则会报错，而var命名则不会。
 ### 1.2 const
 const声明一个只读的常量。一旦声明，常量的值就不能改变, 且一旦声明变量，就必须立即初始化，不能留到以后赋值。
-## 块级作用域
+## 2 块级作用域
 
-## 箭头函数  
+## 3 箭头函数  
 
 	var add= (arg1,arg2)=>arg1+arg2;
 	console.log(add(5,4));//9
@@ -42,9 +42,9 @@ const声明一个只读的常量。一旦声明，常量的值就不能改变, �
 	}
 	console.log(add(5,4));//9
 
-## 变量的解构赋值
+## 4 变量的解构赋值
 
-### 1 数组的解构赋值
+### 4.1 数组的解构赋值
 
 ES6 允许这样赋值
 
@@ -56,7 +56,7 @@ ES6 允许这样赋值
 	let [a, b, c="0"] = [1, 2];
 	console.log(c);//0
 
-### 2 对象的解构赋值
+### 4.2 对象的解构赋值
 
 	let { foo, bar } = { foo: "aaa", bar: "bbb" };
 	foo // "aaa"
@@ -74,7 +74,7 @@ ES6 允许这样赋值
 	//console.log(foo) // 报错
 	console.log(bar) // "aaa"
 将foo映射为bar，然后去等号后面取名称为bar的变量的值。但foo始终是未声明的，所以就会报错。
-## Promise  
+## 5 Promise  
 promise的英语意思就是“承诺”,Promise是一个对象，异步编程的一种解决方案。
 
 ES6规定，Promise对象是一个构造函数，用来生成Promise实例。
@@ -101,7 +101,7 @@ then方法可以接受两个回调函数作为参数。第一个回调函数是P
 	});
 Promise不是新的语法功能，而是一种新的写法，允许将回调函数的嵌套，改成链式调用。
 
-## Generator 
+## 6 Generator 
 generator的英语意思就是“发动机”, Generator函数是ES6提供的一种异步编程解决方案。  
 形式上，Generator函数是一个普通函数，但是有两个特征：  
 1. function关键字与函数名之间有一个星号；  
@@ -132,7 +132,43 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
 	// { value: undefined, done: true }
 每次调用next方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个yield语句（或return语句）为止。
 
+## 7 Symbol
 
+### 7.1 基本属性
+1. ES5 的对象属性名都是字符串，这容易造成属性名的冲突。所以ES6新引入了一种全新的原始数据类型Symbol。
+2. Symbol不是对象，所以不同通过创建对象的方式来创建（譬如 new），它的值通过Symbol函数生成。基本上，它是一种类似于字符串的数据类型。
+3. 举个例子
+
+        let s1 = Symbol('foo');
+        let s2 = Symbol('bar');
+        console.log([s1,s2])//[Symbol(foo), Symbol(bar)]
+         //Symbol 值不能与其他类型的值进行运算
+        console.log("s1的值为"+s1) //报错，Cannot convert a Symbol value to a string
+        console.log("s1的值为"+s1.toString()) // s1的值为Symbol(foo)
+
+        let s3 = Symbol();
+        let s4 = Symbol();
+        console.log(s3===s4);//false ,就算参数相同，symbol函数每次返回的值都是不相等的，这就可以用于对象属性命名上
+
+        let s5="hello";
+        let s6="hello";
+        console.log(s5===s6);//true
+        
+
+### 7.2 作为属性名
+1. 由于每一个 Symbol 值都是不相等的，这意味着 Symbol 值可以作为标识符，可以防止改写或者覆盖
+
+
+## axios和ajax区别
+
+### axios创建的对象
+
+![](https://i.imgur.com/zo2eKj5.jpg)
+
+### ajax创建的对象
+![](https://i.imgur.com/26Zihx0.jpg)
+
+## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 
 
