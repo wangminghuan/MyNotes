@@ -122,6 +122,9 @@ git是分布式，svn是集成式。链接更多区别点击 [Git和SVN之间的
 cd ..  &emsp;  返回上一级  
 ls &emsp;&emsp;查看文件夹结构  
 
+### git bash 中文乱码问题
+git config --global core.quotepath false
+
 更多教程访问 [廖雪峰的官方网站](http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000) && [Pro Git 中文版](http://git.oschina.net/progit/)
 ******
 
