@@ -91,6 +91,45 @@ js中所有字符都是16位的。js没有字符类型，要表示一个字符�
 		delete obj.name
 	    console.log(obj.name)//1
 
+## 4 转型函数
+### 1 String()
+可以将任意数据转化为字符串
+
+		String(null) //"null"
+		String(undefined) //"undefined"
+		String(function(){}) //"function (){}"
+得到的数据类型都是字符串类型，他与toString()方法的区别是，toString方法必须通过对象挂载来调用
+
+       var a=0;
+       a.toString();//"0"
+       var b=function(){};
+       b.toString();//"function (){}"
+       null.toString();//报错
+	   undefined.toString();//报错
+### 2 Number()
+可以将任意数据转化为数字类型
+
+		Number(true);//1
+		Number("-2");//-2
+		Number(new Date());//1528368787850
+		Number(new RegExp());//NaN
+我们也可以调用全局方法：`parseInt()`和`parseFloat()` 来得到类似的结果
+
+### 3 Boolean()
+可以将任意数据转化为布尔类型
+		
+		Boolean(new RegExp());//true
+		Boolean(0);//false
+		Boolean(null);//false
+		Boolean(undefined);//false
+		Boolean("");//false
+以上转型函数其实也可以作为构造函数，但是，作为构造函数他们生成的数据却不一样：
+
+
+![](https://i.imgur.com/sR66OAs.jpg)
+
+通过 typeof检测返回类型得到的都是 "object"
+
 ##  参考文献
 
 1. [文献1](http://codeguide.bootcss.com/)
