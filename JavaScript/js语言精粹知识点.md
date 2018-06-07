@@ -84,7 +84,7 @@ js中所有字符都是16位的。js没有字符类型，要表示一个字符�
 		console.log(obj.name);//1
 	    console.log(obj.hasOwnProperty('name'))//false
 5. 通过`for in`遍历对象时，顺序是不确定的。
-6. `delete`可以删除对象属性，可能会将来自原型链的属性暴露出来。
+6. `delete`可以删除对象属性，可能会将来自原型链的属性暴露出来（不会触及原型链中的任何属性）。
    
 		Object.prototype.name="1";
 	    var obj={name:2};
@@ -129,6 +129,47 @@ js中所有字符都是16位的。js没有字符类型，要表示一个字符�
 ![](https://i.imgur.com/sR66OAs.jpg)
 
 通过 typeof检测返回类型得到的都是 "object"
+
+## 5 其他构造函数
+通过构造函数创建对象，有时候也可以省略`new`操作符：
+
+	RegExp(); //  /(?:)/
+	new RegExp(); // 同上
+    typeof RegExp();// "object"
+	typeof new RegExp();// 同上
+
+	Array(); //  []
+	new Array(); //  同上
+    typeof Array();// "object"
+	typeof new Array();// 同上
+	
+	Function(); //  function anonymous() {} 匿名函数
+	new Function(); //  同上
+    typeof Function();// "function"
+	typeof new Function();// 同上
+
+	Object(); //  object对象
+	new Function(); //  同上
+    typeof Function();// "object"
+	typeof new Function();// 同上
+
+    Date("May 25, 2004"); // "Thu Jun 07 2018 22:00:39 GMT+0800 (中国标准时间)"
+    new Date("May 25, 2004");//Tue May 25 2004 00:00:00 GMT+0800 (中国标准时间)
+	typeof Date();//"string"
+	typeof new Date();//"object"
+
+可以发现，除了Date构造函数外，其他对象我们在创造对象的时候都可以省略new操作符。  
+Date对象通过直接调用Date()方法时（它不接受任何参数，始终返回当前时间）返回的是一个字符串类型的时间对象，通过new 则得到一个时间对象。（原因未知）
+
+同时，我们可以思考，以下代码的结果：
+
+	typeof String
+	typeof Function
+	typeof Function()
+	typeof Object
+
+结果都为 "function"
+
 
 ##  参考文献
 
