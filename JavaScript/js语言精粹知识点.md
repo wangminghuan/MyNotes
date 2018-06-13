@@ -175,6 +175,47 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 
 结果都为 "function"
 
+## 5 函数
+### 1 函数调用
+每个函数执行时，除了声明时定义的形参外，还接收两个附加参数，`this` 和 `arguments`。下面先介绍this的四种调用模式：
+
+#### 方法调用模式
+
+		var obj={
+			name:1,
+			increment:function() {
+				  this.name++;
+			     console.log(this.name)	// body... 
+			}
+		}
+		
+		obj.increment();//2 ，this指向obj
+		obj.increment();//3
+
+方法调用时this指向为调用对象。
+
+#### 函数调用模式
+
+		function Fn(){
+		   this.handler="wmh"
+		}
+		var obj=Fn();
+		console.log(window.handler)//wmh
+
+通过函数调用的方式，this指向的是函数运行的作用域，因为Fn作用域为全局，所以调用时等同于`window.Fn()`方式调用。
+
+#### 构造器调用模式
+
+		function Fn(){
+		   this.handler="wmh"
+		}
+		var obj=new Fn();
+		console.log(obj.handler)//wmh
+我们将上面例子进行改写，将函数作为构造函数进行调用，通过new关键字创建一个新的实例，this则指向对象的实例。
+
+#### apply/call/bind 调用模式
+
+
 
 ##  参考文献
 
