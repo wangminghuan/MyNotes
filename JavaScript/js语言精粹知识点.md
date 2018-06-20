@@ -214,10 +214,62 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 我们将上面例子进行改写，将函数作为构造函数进行调用，通过new关键字创建一个新的实例，this则指向对象的实例。
 
 #### apply/call/bind 调用模式
+1. apply:它是函数的一个方法，作用是改变函数的调用对象。它的第一个参数就表示改变后的调用这个函数的对象。因此，这时this指的就是这第一个参数。第二个参数是需要传递给函数的参数，并且必须为数组
 
+		var obj={
+			name:1,
+			increment:function(a,b) {
+				  this.name++;
+			     console.log(this.name)	// body... 
+                 console.log([a,b])
+			}
+		};
+        var _obj={
+            name:1000
+         };
+		obj.increment.apply(_obj);//1001  [undefined, undefined] ，this指向_obj
+		obj.increment.apply(_obj,[1,2]);//1002 [1, 2]，this指向_obj
+如果不传参数，则默认指向window对象:  
 
+		var obj={
+			name:1,
+			increment:function() {
+				  this.name++;
+			     console.log(this.name)	// body... 
+			}
+		};
+        window.name=2000
+		obj.increment.apply();//2001 ，this指向window全局对象
+2. call：与apply用法基本一致，唯一一点区别的是他接受的第二个参数不是数组，需要将传递的参数一个个罗列出来。
 
+		var obj={
+			name:1,
+			increment:function(a,b) {
+				  this.name++;
+			     console.log(this.name)	// body...
+                 console.log([a,b])
+			}
+		};
+        var _obj={
+            name:3000
+         };
+		obj.increment.call(_obj,1,2);//3001 [1, 2]，this指向_obj
+3. bind: 它是es5中的方法，也是用来实现上下文绑定，看它的函数名就知道。bind()和call与apply不同。bind是新创建一个函数，然后把它的上下文绑定到bind()括号中的参数上，然后将它返回。所以，bind后函数不会执行，而只是返回一个改变了上下文的函数副本，而call和apply是直接执行函数。
+
+		var obj={
+			name:1,
+			increment:function(a,b) {
+				  this.name++;
+			     console.log(this.name)	// body...
+                 console.log([a,b])
+			}
+		};
+        var _obj={
+            name:3000
+         };
+		obj.increment.bind(_obj,1,2)();//3001 [1, 2]，this指向_obj
+可以看到bind函数的参数传递与call有些类似。
 ##  参考文献
 
-1. [文献1](http://codeguide.bootcss.com/)
+1. [Javascript 的 this 用法](http://www.ruanyifeng.com/blog/2010/04/using_this_keyword_in_javascript.html)
 
