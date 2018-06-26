@@ -185,7 +185,7 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 			name:1,
 			increment:function() {
 				  this.name++;
-			     console.log(this.name)	// body... 
+			     console.log(this.name)	
 			}
 		}
 		
@@ -220,7 +220,7 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 			name:1,
 			increment:function(a,b) {
 				  this.name++;
-			     console.log(this.name)	// body... 
+			     console.log(this.name)	
                  console.log([a,b])
 			}
 		};
@@ -235,7 +235,7 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 			name:1,
 			increment:function() {
 				  this.name++;
-			     console.log(this.name)	// body... 
+			     console.log(this.name)	
 			}
 		};
         window.name=2000
@@ -246,7 +246,7 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 			name:1,
 			increment:function(a,b) {
 				  this.name++;
-			     console.log(this.name)	// body...
+			     console.log(this.name)
                  console.log([a,b])
 			}
 		};
@@ -260,7 +260,7 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 			name:1,
 			increment:function(a,b) {
 				  this.name++;
-			     console.log(this.name)	// body...
+			     console.log(this.name)
                  console.log([a,b])
 			}
 		};
@@ -269,6 +269,60 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
          };
 		obj.increment.bind(_obj,1,2)();//3001 [1, 2]，this指向_obj
 可以看到bind函数的参数传递与call有些类似。
+
+### 2 参数(arguments)
+函数被调用时会“免费”得到一个配送的参数`arguments`，因为设计错误，它不是一个真正的数组，除了有数组属性length外，它没有任何的数组方法。
+
+### 3 返回
+return语句可以将函数立即返回，不再执行余下的语句。一个函数总会返回一个值，当没有返回值时，默认返回undefined;  
+如果在函数调用时前面加了new，且返回值不是对象时，则返回this(该新对象)
+
+	function fn(){
+	    this.name='wmh';
+	    return 0;//有返回值，且不是对象
+	} 
+    function fo(){
+	    this.name='wmh';
+	    return {
+          sex:0 
+         };//有返回值，是对象
+	} 
+	function bo(){
+	    this.name='wmh';
+	    //没有有返回值
+	} 
+    console.log(fn());// 0
+    console.log(new fn()); // fn {name: "wmh"} 指向对象
+	console.log(fo());//    {sex: 0}
+    console.log(new fo()); //{sex: 0}
+	console.log(bo());// undefined
+    console.log(new bo()); //bo {name: "wmh"} 指向对象  
+### 异常
+js提供了一套异常处理机制，当出现事故时，程序会抛出一个异常，并中断函数的执行
+
+	var add=function(a,b){
+	   if(typeof a!=="number" || typeof b!=="number"){
+		    throw{
+		      name:"TypeError",
+		      message:'add need number'
+		 }
+	  }
+	  return a+b
+	}
+    add("1",2)
+此时控制台会抛出一个错误提示
+![](https://i.imgur.com/3Ovulvb.jpg)  
+我们也可以用try catch进行捕获
+
+	try{
+	  add("1",2)
+	}catch(err){
+	   console.log(err)
+	}
+此时catch会将抛出的错误信息打印出来：
+
+	{name: "TypeError", message: "add need number"}
+
 ##  参考文献
 
 1. [Javascript 的 this 用法](http://www.ruanyifeng.com/blog/2010/04/using_this_keyword_in_javascript.html)
