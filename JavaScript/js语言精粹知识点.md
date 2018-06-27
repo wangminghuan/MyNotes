@@ -297,7 +297,7 @@ return语句可以将函数立即返回，不再执行余下的语句。一个�
     console.log(new fo()); //{sex: 0}
 	console.log(bo());// undefined
     console.log(new bo()); //bo {name: "wmh"} 指向对象  
-### 异常
+### 4 异常
 js提供了一套异常处理机制，当出现事故时，程序会抛出一个异常，并中断函数的执行
 
 	var add=function(a,b){
@@ -322,6 +322,18 @@ js提供了一套异常处理机制，当出现事故时，程序会抛出一个
 此时catch会将抛出的错误信息打印出来：
 
 	{name: "TypeError", message: "add need number"}
+
+### 5 扩充类型的功能
+
+我们可以在Function构造函数的原型链上添加方法来给所有函数添加一个method方法，用来扩展方法
+
+Function.prototype.method=function(name,func){
+  if(!this.prototype[name]){
+   this.prototype[name]=func
+  }
+  return this
+}
+
 
 ##  参考文献
 
