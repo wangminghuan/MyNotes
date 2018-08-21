@@ -56,8 +56,13 @@
         }).catch((err) => {
             console.log(err)
         })
+除了通过promise下的catch方法获取reject对象外，也可以在then方法的第二个参数内获取。如下代码同上实现效果一样
 
-
+		loadImageAsync("http://crowdsource-test.oss-cn-hangzhou.aliyuncs.com/shop/apply/1524205868.png").then((res) => {
+            console.log("加载完毕", res)
+        }, (err) => {
+            console.log(err)
+        })
 2. promise写法实现ajax  
 
         function axios(_url, _data) {
@@ -149,6 +154,35 @@ axios在浏览器端创建的还是XMLHttpRequest对象，将返回数据打印�
 ![](https://i.imgur.com/26Zihx0.jpg)
 
 对比可以看出axios发出请求返回比原生的数据要“多”一些，其实就是axios的config配置，定义了更多的api,可以让我们做更多的事儿，`config.request`就和原生写法返回的是一样的内容。
+
+## 7 Generator
+1. Generator 函数是一个状态机，封装了多个内部状态。
+
+
+## 8 async/await
+1. async函数的返回值是 Promise 对象
+2. await命令后面是一个 Promise 对象。如果不是，会被转成一个立即resolve的 Promise 对象
+
+     	function loadImageAsync(url) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = function () {
+                    resolve(image);
+                };
+                image.onerror = function () {
+                    reject("加载失败");
+                };
+                image.src = url;
+            });
+        }
+		async function asyncPrint(url) {
+		  await loadImageAsync(url);
+		  console.log(url);
+		}
+        asyncPrint("http://crowdsource-test.oss-cn-hangzhou.aliyuncs.com/shop/apply/1524205867.png")
+
+
+
 ##  参考文献
 
 1. [什么是 Event Loop](http://www.ruanyifeng.com/blog/2013/10/event_loop.html)
