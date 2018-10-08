@@ -20,6 +20,7 @@
 
 	//订阅发布构造函数
 	 function PubSub(){
+        //定义构造函数内一个属性,存储所有事件函数
 		 this.handlers={}
 	 }
 	
@@ -37,6 +38,9 @@
 		 emit:function(eventType){
 			 //获取发布时的参数，除掉第一个参数（为通道名称），将剩余的所有参数都传递到绑定的函数中进行执行
 	        var args=Array.prototype.slice.call(arguments,1);
+			/**也可以写成
+	        var args = Array.prototype.slice.apply(arguments, [1]);
+	        **/
 			var lens=this.handlers[eventType]?this.handlers[eventType].length:0;
 			for(var i=0;i<lens;i++){
 				// 遍历，将该通道上绑定的所有函数都执行一遍
@@ -52,8 +56,8 @@
 	            var lens= currentEvent instanceof Array ?currentEvent.length:0;
 				for(var i=0;i<lens;i++){
 					//通道绑定的函数同要取消的函数为相同，则移除该函数
-					if(this.handlers[eventType][i]=== handler){
-						this.handlers[eventType].splice(i,1)
+					if(currentEvent[i]=== handler){
+						currentEvent.splice(i,1)
 					}
 				}
 			}
@@ -78,6 +82,17 @@
 		 }
 运算结果：  
 ![](https://i.imgur.com/n1FJGji.png)
+
+打印 `pubsub` 结果为：  
+![](https://i.imgur.com/3w47qfE.png)
+
+订阅发布模式的个人理解  
+
+1. 创建一个对象，该对象的有一个属性是存储所有订阅事件名称的，每个订阅事件为一个空数组。
+2. 订阅的过程就是在向对应订阅事件数组内添加函数
+3. 发布的过程就是循环触发订阅事件数组内的函数（触发一个，所有订阅函数都会执行一遍）
+
+
 ##  参考文献
 
 1. [让事件支持先发布后订阅](https://www.cnblogs.com/stoneniqiu/p/6814468.html)
