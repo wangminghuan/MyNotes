@@ -70,9 +70,10 @@
 	  get:  给属性提供getter的方法，如果没有 getter 则为undefined。当我们读取某个属性的时候，其实是在对象内部调用了该方法，此方法必须要有return语句。该方法返回值被用作属性值。默认为 undefined 。
 	  set：设置属性值的方法， 如果没有 setter 则为 undefined。该方法将接受唯一参数，并将该参数的新值分配给该属性。默认为undefined。也就是说，当我们设置某个属性的时候，实际上是在对象的内部调用了该方法。
 
-### 在 descriptor 中不能同时设置访问器（get 和 set）和 wriable 或 value，否则会错，就是说想用 get 和 set，就不能用 writable 或 value 中的任何一个。
+在 descriptor 中不能同时设置访问器（get 和 set）和 wriable 或 value，否则会错，就是说想用 get 和 set，就不能用 writable 或 value 中的任何一个。  
 
-### 一种简单双向绑定模式的demo
+下面简单介绍下vue实现双向绑定的思路：（利用Object.defineProperty 方法和订阅发布模式）
+## 一种简单双向绑定模式的demo
 
 ![](https://i.imgur.com/17AndIY.png)
 
@@ -177,7 +178,7 @@
 	         observe(this.data,this)//增加行，应用观察者
 	         ...
 	   }
-##### 第二步，增加watcher和pubsub，实现双向绑定
+##### 第二步，增加watcher和pubsub，实现双向绑定（完整代码）
 	//订阅发布模式
 	  function PubSub(){
 	    this.handlers=[];
@@ -305,6 +306,13 @@
 	       text2:"yyy"
 	     }
 	   })
+
+整个双向绑定的流程大致如下： 
+ 
+1. compile解析模板-占位符和指令解析，compile函数创建时对绑定变量进行监听（通过watcher函数）  
+2. watcher函数定义一个update方法，该方法会将数据变化反应在view层。  
+3. observe劫持属性，执行时做了以下几件事：a）通过observe将data内的数据进行劫持；b)监听input事件，change的同时改变data的值；  
+4. observe劫持时，通过订阅发布模式绑定数据，在get时订阅，在set时发布，触发watcher函数的update方法更新。
 ### 参考文档
 
 1. [Vue 数据绑定详细原理剖析](https://blog.csdn.net/itkingone/article/details/79152951)
