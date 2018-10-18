@@ -54,10 +54,26 @@
 	      }
         })(i)
 	    }
+//循环再执行时，会立即执行这个命名函数，每个自执行函数可以立即为一个代码块，其内部变量与外部是隔离的，所以每次传入的i在函数内部被转换为变量k,每个k都是一个新变量。
 ###  将变量 i 保存给在dom对象（li）上
 
-###  将变量 i 保存在匿名函数自身(闭包)
+    for(var i=0;i<arrWrap.length;i++){
+         arrWrap[i].i=i;
+            arrWrap[i].onclick =function(){
+              alert(this.i)
+            }
+          }
+事件处理程序执行时，会从该对象的属性i上取值，此时值已经被保存，每次点击可以弹出索引
+###  闭包解决（不推荐）
 
+     for(var i=0;i<arrWrap.length;i++){
+            arrWrap[i].onclick =(function(k){
+              return function(){
+                alert(k)
+              }
+            })(i);
+          }
+闭包引用外部变量后，暂时不会被系统回收，onclick后面的代码即为：立即执行一个函数，并且将i变量传递进去，执行函数的时候，内部返回了一个函数，同时，返回的函数内部会引用该参数，因而锁定了此变量。
 1. [文献1](http://codeguide.bootcss.com/)
 
 

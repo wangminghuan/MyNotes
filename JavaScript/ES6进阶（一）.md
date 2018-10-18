@@ -18,7 +18,7 @@
 		}
 		console.log(b);//1
 		console.log(a);//报错: a is not defined.
-特别对于for循环绑定事件获取索引问题可以很好的解决[点我了解更多]()
+特别对于for循环绑定事件获取索引问题可以很好的解决[点我了解更多](https://github.com/wangminghuan/MyNotes/blob/master/%E5%85%B6%E4%BB%96/for%E5%BE%AA%E7%8E%AF%E7%BB%91%E5%AE%9A%E4%BA%8B%E4%BB%B6%E8%8E%B7%E5%8F%96%E7%B4%A2%E5%BC%95%E9%97%AE%E9%A2%98.md)
 
 2. ES6明确规定，如果区块中存在let和const命令，这个区块对这些命令声明的变量，从一开始就形成了封闭作用域。凡是在声明之前就使用这些变量，就会报错。
 
