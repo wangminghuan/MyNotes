@@ -176,6 +176,9 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 结果都为 "function"
 
 ## 5 函数
+1. js中函数就是对象，每个对象在创建时会附加两个隐藏的属性，函数的上下文（this）和实现函数行为的代码（函数可以被调用）。
+2. 函数可以保存在变量，对象和数组中，函数可以当作参数传递给其他函数，函数也可以返回函数，因为函数也是对象，所以函数也可以拥有方法。  
+3. 函数最与众不同的地方在于：函数可以被调用。
 ### 1 函数调用
 每个函数执行时，除了声明时定义的形参外，还接收两个附加参数，`this` 和 `arguments`。下面先介绍this的四种调用模式：
 
@@ -214,21 +217,21 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 我们将上面例子进行改写，将函数作为构造函数进行调用，通过new关键字创建一个新的实例，this则指向对象的实例。
 
 #### apply/call/bind 调用模式
-1. apply:它是函数的一个方法，作用是改变函数的调用对象。它的第一个参数就表示改变后的调用这个函数的对象。因此，这时this指的就是这第一个参数。第二个参数是需要传递给函数的参数，并且必须为数组
+a) apply:它是函数的一个方法，作用是改变函数的调用对象。它的第一个参数就表示改变后的调用这个函数的对象。因此，这时this指的就是这第一个参数。第二个参数是需要传递给函数的参数，并且必须为数组
 
 		var obj={
 			name:1,
-			increment:function(a,b) {
+			increment:function() {
 				  this.name++;
 			     console.log(this.name)	
-                 console.log([a,b])
+                 console.log(arguments)
 			}
 		};
         var _obj={
             name:1000
          };
 		obj.increment.apply(_obj);//1001  [undefined, undefined] ，this指向_obj
-		obj.increment.apply(_obj,[1,2]);//1002 [1, 2]，this指向_obj
+		obj.increment.apply(_obj,[1,2,3,4,5]);//1002 [1,2,3,4,5]，this指向_obj
 如果不传参数，则默认指向window对象:  
 
 		var obj={
@@ -240,38 +243,40 @@ Date对象通过直接调用Date()方法时（它不接受任何参数，始终�
 		};
         window.name=2000
 		obj.increment.apply();//2001 ，this指向window全局对象
-2. call：与apply用法基本一致，唯一一点区别的是他接受的第二个参数不是数组，需要将传递的参数一个个罗列出来。
+b) call：与apply用法基本一致，唯一一点区别的是他接受的第二个参数不是数组，需要将传递的参数一个个罗列出来。
 
 		var obj={
 			name:1,
-			increment:function(a,b) {
+			increment:function() {
 				  this.name++;
 			     console.log(this.name)
-                 console.log([a,b])
+                 console.log(arguments)
 			}
 		};
         var _obj={
             name:3000
          };
-		obj.increment.call(_obj,1,2);//3001 [1, 2]，this指向_obj
-3. bind: 它是es5中的方法，也是用来实现上下文绑定，看它的函数名就知道。bind()和call与apply不同。bind是新创建一个函数，然后把它的上下文绑定到bind()括号中的参数上，然后将它返回。所以，bind后函数不会执行，而只是返回一个改变了上下文的函数副本，而call和apply是直接执行函数。
+		obj.increment.call(_obj,1,2,3,4,5);//3001 [1, 2, 3, 4, 5]，this指向_obj
+c) bind: 它是es5中的方法，也是用来实现上下文绑定，看它的函数名就知道。bind()和call与apply不同。bind是新创建一个函数，然后把它的上下文绑定到bind()括号中的参数上，然后将它返回。所以，bind后函数不会执行，而只是返回一个改变了上下文的函数副本，而call和apply是直接执行函数。
 
 		var obj={
 			name:1,
-			increment:function(a,b) {
+			increment:function() {
 				  this.name++;
 			     console.log(this.name)
-                 console.log([a,b])
+                 console.log(arguments)
 			}
 		};
         var _obj={
             name:3000
          };
-		obj.increment.bind(_obj,1,2)();//3001 [1, 2]，this指向_obj
+		obj.increment.bind(_obj,1,2,3,4,5)();//3001 [1, 2, 3, 4, 5]，this指向_obj
 可以看到bind函数的参数传递与call有些类似。
 
 ### 2 参数(arguments)
-函数被调用时会“免费”得到一个配送的参数`arguments`，因为设计错误，它不是一个真正的数组，除了有数组属性length外，它没有任何的数组方法。
+函数被调用时会“免费”得到一个配送的参数`arguments`，因为设计错误，它不是一个真正的数组，除了有数组属性length外，它没有任何的数组方法。    
+
+当实参与形参不匹配时，不会导致运行错误：实参>形参，超出的参数值会被忽略，实参<形参，缺失的值会被替换为undefined，且对参数值不会做类型检查：任何类型的值都可以被传递给任何参数。
 
 ### 3 返回
 return语句可以将函数立即返回，不再执行余下的语句。一个函数总会返回一个值，当没有返回值时，默认返回undefined;  
@@ -327,12 +332,12 @@ js提供了一套异常处理机制，当出现事故时，程序会抛出一个
 
 我们可以在Function构造函数的原型链上添加方法来给所有函数添加一个method方法，用来扩展方法
 
-Function.prototype.method=function(name,func){
-  if(!this.prototype[name]){
-   this.prototype[name]=func
-  }
-  return this
-}
+	Function.prototype.method=function(name,func){
+	  if(!this.prototype[name]){
+	   this.prototype[name]=func
+	  }
+	  return this
+	}
 
 
 ##  参考文献
