@@ -23,6 +23,188 @@
 
 ## 禁用浏览器后退
 
+## demo
+
+	<!DOCTYPE html>
+	<html lang="en">
+	
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	    <title>前端路由实现</title>
+	    <style>
+	        .warp {
+	            width: 400px;
+	            height: 400px;
+	            border: 1px solid grey;
+	            margin: 0 auto;
+	        }
+	
+	        .nav {
+	            border-bottom: 1px solid grey;
+	        }
+	
+	        .nav li {
+	            display: inline-block;
+	            list-style: none;
+	        }
+	
+	        .nav li a {
+	            display: inline-block;
+	            text-decoration: none;
+	            padding: 10px 15px;
+	        }
+	
+	        .router {
+	            padding: 20px;
+	        }
+	
+	        a {
+	            cursor: pointer;
+	        }
+	    </style>
+	
+	</head>
+	
+	<body>
+	    <section class="warp">
+	        <div class="nav">
+	            <ul class="nav-btn">
+	                <li><a href="javascript:void(0)" data-path="index">首页</a></li>
+	                <li><a href="javascript:void(0)" data-path="news">新闻</a></li>
+	                <li><a href="javascript:void(0)" data-path="about">关于</a></li>
+	            </ul>
+	        </div>
+	        <div id="app" class="router">
+	            <!-- 内容加载区域 -->
+	        </div>
+	    </section>
+	    <script>
+			//hash 模式
+	        (function () {
+	            var router = [{
+	                    'path': 'index',
+	                    'url': '我是首页'
+	                },
+	                {
+	                    'path': 'news',
+	                    'url': '我是新闻页面'
+	                },
+	                {
+	                    'path': 'about',
+	                    'url': '我是关于页面'
+	                }
+	            ];
+	
+	            //改变页面
+	            function renderPage(url) {
+	                document.getElementById("app").innerHTML = (url)
+	            }
+	            document.querySelector(".nav-btn").addEventListener("click", function (e) {
+	                var path = (e.target.getAttribute("data-path"));
+	                if (path) {
+	                    for (var i in router) {
+	                        if (router[i].path == path) {
+	                            renderPage(router[i].url);
+	                            location.hash="#/"+router[i].path ;
+	                        }
+	                    }
+	                }
+	            })
+	            
+	            window.addEventListener('hashchange', function (e) {
+	                var hash=e.newURL.slice(e.newURL.lastIndexOf('#'));
+	                var start = hash.lastIndexOf('/');
+	                var path = hash.slice(start + 1) || 'index';
+	                for (var i in router) { //刷新 加载
+	                    if (router[i].path == path) {
+	                        renderPage(router[i].url);
+	                        break;
+	                    }
+	                    if (i == router.length - 1) { //重定向
+	                        renderPage(router[0].url);
+	                    }
+	                }
+	            });
+	            window.addEventListener('load', function () {
+	                var start = location.hash.lastIndexOf('/');
+	                var path = location.hash.slice(start + 1) || 'index';
+	     
+	                for (var i in router) { //刷新 加载
+	                    if (router[i].path == path) {
+	                        renderPage(router[i].url);
+	                        location.hash="#/"+path ;
+	                        break;
+	                    }
+	                    if (i == router.length - 1) { //重定向
+	                        renderPage(router[0].url);
+	                        location.hash="#/"+router[0].path;
+	                    }
+	                }
+	            });
+	
+	        })();
+	        //history 模式
+	        (function () {
+	            var router = [{
+	                    'path': 'index',
+	                    'url': '我是首页'
+	                },
+	                {
+	                    'path': 'news',
+	                    'url': '我是新闻页面'
+	                },
+	                {
+	                    'path': 'about',
+	                    'url': '我是关于页面'
+	                }
+	            ];
+	
+	            //改变页面
+	            function renderPage(url) {
+	                document.getElementById("app").innerHTML = (url)
+	            }
+	            document.querySelector(".nav-btn").addEventListener("click", function (e) {
+	                var path = (e.target.getAttribute("data-path"));
+	                if (path) {
+	                    for (var i in router) {
+	                        if (router[i].path == path) {
+	                            renderPage(router[i].url);
+	                            history.pushState(router[i].url, null, router[i].path);
+	                        }
+	                    }
+	                }
+	            })
+	            window.addEventListener('popstate', function (e) {
+	                var url = e.state;
+	                renderPage(url);
+	
+	            });
+	            window.addEventListener('load', function () {
+	                var start = location.href.lastIndexOf('/');
+	                var path = location.href.slice(start + 1) || 'index';
+	                console.log(path)
+	
+	                for (var i in router) { //刷新 加载
+	                    if (router[i].path == path) {
+	                        renderPage(router[i].url);
+	                        history.replaceState(router[i].url, null, path);
+	                        break;
+	                    }
+	                    if (i == router.length - 1) { //重定向
+	                        renderPage(router[0].url);
+	                        history.replaceState(router[i].url, null, router[0].path);
+	                    }
+	                }
+	            });
+	
+	        })()
+	    </script>
+	
+	</body>
+	
+	</html>
 ## 其他
 vue下的router-link默认会渲染成a标签，hash模式为`<a href="#/somePath"></a>`;history模式为`<a href="/somePath"></a>`，不同的是在 HTML5 history 模式下，router-link 会守卫点击事件，让浏览器不再重新加载页面。
 ##  参考文献
@@ -32,5 +214,7 @@ vue下的router-link默认会渲染成a标签，hash模式为`<a href="#/somePat
 3. [利用JS实现前端路由](https://www.cnblogs.com/wozien/p/6597306.html)
 4. [利用js实现 禁用浏览器后退](https://blog.csdn.net/zc474235918/article/details/53138553)
 5. [vue-router之router-link](https://router.vuejs.org/zh/api/#router-link)
+6. [从history api看主流框架的路由机制](https://segmentfault.com/a/1190000013126134)
+7. [前端路由实现](https://segmentfault.com/a/1190000015347460)
 
 
