@@ -68,8 +68,6 @@ ES5中顶层对象的属性与全局变量挂钩，这也被认为是js语言设
 3. Node 里面，顶层对象是global，但其他环境都不支持。
 ### 1.4 变量声明的六种方式
 
-
-
 ### 1.5 块级作用域
 1. es6 支持通过 `{}`（花括号）创建块级作用域
 2. es6 允许块级作用域的任意嵌套，外层作用域无法读取内层作用域的变量。
@@ -121,67 +119,11 @@ ES6 允许这样赋值
 	//console.log(foo) // 报错
 	console.log(bar) // "aaa"
 将foo映射为bar，然后去等号后面取名称为bar的变量的值。但foo始终是未声明的，所以就会报错。
-## 5 Promise  
-promise的英语意思就是“承诺”,Promise是一个对象，异步编程的一种解决方案。
 
-ES6规定，Promise对象是一个构造函数，用来生成Promise实例。
-### 起步例子  
 
-	var promise=new Promise(function(resolve, reject){
-		// some code
-		if(/*异步请求成功*/){
-	     resolve(val)
-		}else{
-	     reject(error)
-		}
-	})
-then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved时调用，第二个回调函数是Promise对象的状态变为Reject时调用（可选）。
+## 第三章  Symbol
 
-	function timeout(ms) {
-	  return new Promise((resolve, reject) => {
-	    setTimeout(resolve, ms, 'done');
-	  });
-	}
-	
-	timeout(2000).then((value) => {
-	  console.log(value);
-	});
-Promise不是新的语法功能，而是一种新的写法，允许将回调函数的嵌套，改成链式调用。
-
-## 6 Generator 
-generator的英语意思就是“发动机”, Generator函数是ES6提供的一种异步编程解决方案。  
-形式上，Generator函数是一个普通函数，但是有两个特征：  
-1. function关键字与函数名之间有一个星号；  
-2. 函数体内部使用yield语句，定义不同的内部状态（yield语句在英语里的意思就是“产出”）
-
-	function* helloWorldGenerator() {
-      console.log("start");
-	  yield 'hello';
-	  yield 'world';
-	  return 'ending';
-	}
-	
-	var hw = helloWorldGenerator();
-    //必须先调用一下这个函数,但此时函数并不会执行。
-    //只有通过next方法才会执行。
-
-	hw.next()
-	// "start"；此时才会执行函数体，遇到yield停止
-    //{ value: 'hello', done: false }
-	
-	hw.next()
-	// { value: 'world', done: false }
-	
-	hw.next()
-	// { value: 'ending', done: true }
-	
-	hw.next()
-	// { value: undefined, done: true }
-每次调用next方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个yield语句（或return语句）为止。
-
-## 7 Symbol
-
-### 7.1 基本属性
+### 3.1 基本属性
 1. ES5 的对象属性名都是字符串，这容易造成属性名的冲突。所以ES6新引入了一种全新的原始数据类型Symbol。
 2. Symbol不是对象，所以不同通过创建对象的方式来创建（譬如 new），它的值通过Symbol函数生成。基本上，它是一种类似于字符串的数据类型。
 3. 举个例子
@@ -202,7 +144,7 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
         console.log(s5===s6);//true
         
 
-### 7.2 作为属性名
+### 3.2 作为属性名
 1. 由于每一个 Symbol 值都是不相等的，这意味着 Symbol 值可以作为标识符，可以防止改写或者覆盖
 
 		let symbol1=Symbol(),symbol2=Symbol(),symbol3=Symbol();
@@ -222,54 +164,112 @@ generator的英语意思就是“发动机”, Generator函数是ES6提供的一
 		[Symbol(), Symbol(), Symbol()]
 5. Symbol.for()，Symbol.keyFor()（略）
 
-## 8 Class （类）
+## 第四章 对象新增方法
 
-### 概述
-ES6 引入了 Class（类）这个概念，作为对象的模板。通过class关键字，可以定义类，这样更优雅，易于理解。
+### 4.1 Object.is
+ES5 比较两个值是否相等，只有两个运算符：相等运算符（==）和严格相等运算符（===）。它们都有缺点，前者会自动转换数据类型，后者的NaN不等于自身，且+0等于-0，因此需要一个新算法来解决这个问题，`Object.is`接收两个参数，除了刚才提到的两个异常，其他均与`===`运算符结果一致：
 
-	class Person{
-	  constructor(x) {
-	    this.name = x;
-	  }
+		+0 === -0 //true
+		NaN === NaN // false
+		
+		Object.is(+0, -0) // false
+		Object.is(NaN, NaN) // true
+
+### 4.2 Object.assign
+
+`Object.assign`方法用于对象的合并，第一个参数是目标对象，后面的参数都是源对象
+
+	const target = { a: 1, b: 1 };
+    const source1 = { b: 2, c: 2 };
+    const source2 = { c: 3 };
+    Object.assign(target,source1,source2);//{a: 1, b: 2, c: 3}
+如果目标对象与源对象有同名属性，或多个源对象有同名属性，则后面的属性会覆盖前面的属性。 
+ 
+1. 如果只有一个参数，如果该参数不是对象，则会先转成对象，然后返回（无法转换null 和 undefined）：
+
 	
-	  toSayHi() {
-	    return 'Hello '+this.name;
-	  }
-	}
-	const p1=new Person("jack");
-	p1.name; //"jack"
-	p1.toSayHi();//"Hello jack"
+		Object.assign(2)
+		Object.assign("2")
+		Object.assign(false)
+		Object.assign(undefined) // 报错
+		Object.assign(null) // 报错
 
-等同于：
+2. 如果非对象参数出现在源对象的位置（即非首参数）,无法转成对象的参数，就会跳过（null 和 undefined不会报错）
 
-	function Person(x){
-	  this.name = x;
-	}
-	Person.prototype.toSayHi=function(){
-	  return 'Hello '+this.name;
-	}
-	
-	const p1=new Person("jack");
-	p1.name; //"jack"
-	p1.toSayHi();//"Hello jack"
+		let obj = {a: 1};
+		Object.assign(obj, undefined) === obj // true
+		Object.assign(obj, null) === obj // true
+3. 拷贝的属性是有限制的，只拷贝源对象的自身属性（不拷贝继承属性），也不拷贝不可枚举的属性（enumerable: false）
 
-以上两种模式都满足：
+		const v1 = 'abc';
+		const v2 = true;
+		const v3 = 10;
+		
+		const obj = Object.assign({}, v1, v2, v3);
+		console.log(obj); // { "0": "a", "1": "b", "2": "c" }，只有字符串的包装对象，会产生可枚举属性。
+4. 属性名为 Symbol 值的属性，也会被Object.assign拷贝。
 
-	p1.constructor===Person;//true,等式一
-	Person===Person.prototype.constructor;//true,等式二
-	p1.constructor===Person.prototype.constructor;//true,等式三
+#### 其他注意事项：
+1. `Object.assign`方法实行的是浅拷贝，而不是深拷贝。
+2. 对于嵌套的对象，一旦遇到同名属性，Object.assign的处理方法是替换，而不是添加：
 
-说明：
+		const target = { a: { b: 'c', d: 'e' } }
+		const source = { a: { b: 'hello' } }
+		Object.assign(target, source)// { a: { b: 'hello' } }
+3. 可以用来处理数组，但是会把数组视为对象
 
-1. 每个实例对象都有一个 constructor（构造函数）属性，该属性指向创建它的构造函数，即有等式一成立；
-2. 无论什么时候，只要创建了一个新函数，就会根据一组特定的规则为该函数创建一个 prototype属性，这个属性指向函数的原型对象。在默认情况下，所有原型对象都会自动获得一个 constructor（构造函数）属性，这个属性包含一个指向 prototype 属性所在函数的指针。即有等式二成立；
+	 	Object.assign([1, 2, 3], [4, 5])// [4, 5, 3]
+4. 取值函数的处理：`Object.assig`n只能进行值的复制，如果要复制的值是一个取值函数，那么将求值后再复制。
 
-## 9 新的数据结构：set和map
+### 用途：
+1. 为对象添加属性/方法
+1. 克隆对象
+
+	 	const copy1=source;
+	    const copy2=Object.assign({},source);
+	    source.name="lilei";
+	    console.log(copy1);//{name: "lilei", sex: "man"}
+	    console.log(copy2);//{name: "jack", sex: "man"}
+原始对象拷贝到一个空对象，就得到了原始对象的克隆；不过只能克隆原始对象自身的值，不能克隆它继承的值。如果想要保持继承链，可以采用下面的代码。
+
+		function clone(origin) {
+		  let originProto = Object.getPrototypeOf(origin);
+		  return Object.assign(Object.create(originProto), origin);
+		}
+2. 合并多个对象
+3. 为属性指定默认值
+
+		const DEFAULTS = {
+		  logLevel: 0,
+		  outputFormat: 'html'
+		};
+		
+		function processContent(options) {
+		  options = Object.assign({}, DEFAULTS, options);
+		}
+### 4.3 Object.keys
+ES5 引入了`Object.keys`方法，返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键名。  
+ES2017 引入了跟`Object.keys`配套的`Object.values和Object.entries`，作为遍历一个对象的补充手段，供for...of循环使用；
+
+		const source={
+		      name:"jack",
+		      sex:"man"
+		    }
+		console.log(Object.keys(source));//["name", "sex"]
+### 4.4 Object.values
+方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值：
+
+### 4.5 Object.entries()
+
+### 4.6 Object.getOwnPropertyDescriptor()
+
+
+## 第五章 新的数据结构：set和map
 
 ES6新增了两种数据结构，set结构和map结构
 
-### 9.1 Set
-#### 9.1.1概述
+### 5.1 Set
+#### 5.1.1概述
 ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值。`Set`本身是一个构造函数，用来生成 Set 数据结构。  
 Set函数可以接受一个数组（或者具有 iterable 接口的其他数据结构）作为参数，用来初始化。
 
@@ -278,7 +278,7 @@ Set函数可以接受一个数组（或者具有 iterable 接口的其他数据�
 
 	[...new Set([1,2,3,5,6,7,2,3]).add("5")] //[1, 2, 3, 5, 6, 7, "5"]
 
-#### 9.1.2实例的属性和方法
+#### 5.1.2实例的属性和方法
 1. Set 结构的实例有以下属性。
 
 		Set.prototype.constructor：构造函数，默认就是Set函数。
@@ -298,6 +298,7 @@ Set函数可以接受一个数组（或者具有 iterable 接口的其他数据�
 		entries()：返回键值对的遍历器
 		forEach()：使用回调函数遍历每个成员
 		需要特别指出的是，Set的遍历顺序就是插入顺序。
+   
 举个例子：
 
 ## 参考文章
