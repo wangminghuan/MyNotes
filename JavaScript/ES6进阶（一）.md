@@ -162,7 +162,8 @@ ES6 允许这样赋值
 4. 可以通过`Object.getOwnPropertySymbols`来进行读取symbol属性，他返回一个数据
 
 		[Symbol(), Symbol(), Symbol()]
-5. Symbol.for()，Symbol.keyFor()（略）
+5. 在对象的内部，使用 Symbol 值定义属性时，Symbol 值必须放在方括号之中。
+6. Symbol.for()，Symbol.keyFor()（略）
 
 ## 第四章 对象新增方法
 
@@ -259,11 +260,60 @@ ES2017 引入了跟`Object.keys`配套的`Object.values和Object.entries`，作�
 ### 4.4 Object.values
 方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值：
 
+		const source={
+		      name:"jack",
+		      sex:"man"
+		    }
+		console.log(Object.values(source));//["jack", "man"]
 ### 4.5 Object.entries()
+返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值对数组。
 
-### 4.6 Object.getOwnPropertyDescriptor()
+			const source={
+		      name:"jack",
+		      sex:"man",
+              age:20
+		    }
+		console.log(Object.entries(source));//[["name", "jack"],["sex", "man"],["age", 20]]
+返回值只输出属性名非 Symbol 值的属性：
 
+          const source1={
+              name:"jack",
+              [Symbol()]:"12"
+		    }
+         const source2={
+              [Symbol()]:"12"
+		    }
+		console.log(Object.entries(source1));//["name", "jack"]
+		console.log(Object.entries(source2));//[]
+### 4.6 Object.fromEntries()
+`Object.fromEntries()`方法是Object.entries()的逆操作，用于将一个键值对数组转为对象。
 
+		Object.fromEntries([
+			["name", "jack"],
+			["sex", "man"]
+		]);//{name:"jack",sex:"man"}
+
+该方法的主要作用是将键值对的数据结构还原为对象，因此特别适合将 Map 结构转为对象
+
+	const entries = new Map([
+	  ['foo', 'bar'],
+	  ['baz', 42]
+	]);
+
+	Object.fromEntries(entries)
+	// { foo: "bar", baz: 42 }
+ps:截止目前（2019.1.23 chrome和火狐均未实现该方法）
+
+### 4.7 Object.getOwnPropertyDescriptor()
+
+ES5 的Object.getOwnPropertyDescriptor()方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了Object.getOwnPropertyDescriptors()方法，返回指定对象所有自身属性（非继承属性）的描述对象。
+
+			const source={
+              name:"jack",
+		      sex:"man"
+		    };
+
+         console.log(Object.getOwnPropertyDescriptor(source, 'name'));
 ## 第五章 新的数据结构：set和map
 
 ES6新增了两种数据结构，set结构和map结构
