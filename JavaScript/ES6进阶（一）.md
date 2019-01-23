@@ -306,14 +306,122 @@ ps:截止目前（2019.1.23 chrome和火狐均未实现该方法）
 
 ### 4.7 Object.getOwnPropertyDescriptor()
 
-ES5 的Object.getOwnPropertyDescriptor()方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了Object.getOwnPropertyDescriptors()方法，返回指定对象所有自身属性（非继承属性）的描述对象。
+ES5 的`Object.getOwnPropertyDescriptor()`方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了`Object.getOwnPropertyDescriptors()`方法，返回指定对象所有自身属性（非继承属性）的描述对象。
 
-			const source={
-              name:"jack",
-		      sex:"man"
-		    };
+	   const source={
+	    name:"jack",
+	    sex:"man",
+	    _age:18,
+	    get age(){
+	        return this._age
+	    },
+	    set age(val){
+	        this._age=val>10?10:val;
+	    }
+	  };
+	console.log(Object.getOwnPropertyDescriptor(source, 'sex'));
+	console.log(Object.getOwnPropertyDescriptors(source))
+![](https://i.imgur.com/jSEns0n.png)
+#### 作用:
+1. 解决Object.assign()无法正确拷贝get属性和set属性的问题(主要目的)：
+	
+		const source={
+		    name:"jack",
+		    sex:"man",
+		    _age:18,
+		    get age(){
+		        return this._age
+		    },
+		    set age(val){
+		        this._age=val>10?10:val;
+		    }
+		  };
+		const target=Object.assign({},source);
+		console.log(target)
+		console.log(Object.getOwnPropertyDescriptor(source, 'age'))
+		console.log(Object.getOwnPropertyDescriptor(target, 'age'))
+![](https://i.imgur.com/QjUJljy.png)  
+我们可以这样解决：
 
-         console.log(Object.getOwnPropertyDescriptor(source, 'name'));
+		const source={
+		    name:"jack",
+		    sex:"man",
+		    _age:18,
+		    get age(){
+		        return this._age
+		    },
+		    set age(val){
+		        this._age=val>10?10:val;
+		    }
+		  };
+		const target = {};
+		Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+2. 是配合Object.create()方法，将对象属性克隆到一个新对象。这属于浅拷贝:
+ 
+		const source={
+		    name:"jack",
+		    sex:"man",
+		    _age:18,
+		    get age(){
+		        return this._age
+		    },
+		    set age(val){
+		        this._age=val>10?10:val;
+		    }
+		  };
+		const clone=(obj)=>Object.create(
+		 Object.getPrototypeOf(obj),
+		 Object.getOwnPropertyDescriptors(obj))
+		 source.sex="women";
+		 console.log(clone(source));
+          //{name: "jack", sex: "women", _age: 18}
+3. 可以实现一个对象继承另一个对象:
+
+		const prot={
+		    x:1
+		}
+		const obj = Object.create(
+		    prot,
+		    Object.getOwnPropertyDescriptors({
+		      foo: 123,
+		    })
+		  );
+		  console.log(obj.x);//1
+		  console.log(obj.foo);//123
+### 4.8 __proto__属性
+`__proto__`属性（前后各两个下划线），用来读取或设置当前对象的prototype对象。该属性没有写入 ES6 的正文，而是写入了附录，原因是`__proto__`前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的 API，只是由于浏览器广泛支持，才被加入了 ES6（`__proto__`调用的是`Object.prototype.__proto__`）。简易使用使用下面的`Object.setPrototypeOf()`（写操作）、`Object.getPrototypeOf()`（读操作）、`Object.create()`（生成操作）代替。
+
+### 4.9 Object.setPrototypeOf()
+Object.setPrototypeOf方法的作用与`__proto__`相同，用来设置一个对象的prototype对象，返回参数对象本身。它是 ES6 正式推荐的设置原型对象的方法：
+
+	let proto = {};
+	let obj = { x: 10 };
+	Object.setPrototypeOf(obj, proto);
+	
+	proto.y = 20;
+	proto.z = 40;
+	
+	obj.x // 10
+	obj.y // 20
+	obj.z // 40
+如果第一个参数不是对象，会自动转为对象。但是由于返回的还是第一个参数，所以这个操作不会产生任何效果,但是第一个参数如果是undefined或null，就会报错。
+
+		Object.setPrototypeOf(1, {}) === 1 // true
+		Object.setPrototypeOf('foo', {}) === 'foo' // true
+		Object.setPrototypeOf(true, {}) === true // true
+
+### 4.10 Object.getPrototypeOf()
+与`Object.setPrototypeOf`方法配套，用于读取一个对象的原型对象。
+
+		function Obj(){};
+		const newObj=new Obj();
+		console.log(Object.getPrototypeOf(newObj)===Obj.prototype);//true
+		const prop={};
+		Object.setPrototypeOf(newObj,prop)
+		prop.x=1;
+		console.log(newObj.x);//1
+		console.log(Object.getPrototypeOf(newObj));//{x: 1}
+如果参数不是对象，会被自动转为对象。如果是undefined或null，就会报错。
 ## 第五章 新的数据结构：set和map
 
 ES6新增了两种数据结构，set结构和map结构
