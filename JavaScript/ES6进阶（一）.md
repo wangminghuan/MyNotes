@@ -75,50 +75,113 @@ ES5中顶层对象的属性与全局变量挂钩，这也被认为是js语言设
 4. ES5 规定，函数只能在顶层作用域和函数作用域之中声明，不能在块级作用域声明。ES6进行了修正，允许块级作用域内声明函数，但该函数只能在当前作用域内生效。外部无法访问（具体不同的浏览器实现会不一样）
 
 
-## 3 箭头函数  
-
-	var add= (arg1,arg2)=>arg1+arg2;
-	console.log(add(5,4));//9
-	
-等同于
-	
-	var add= (arg1,arg2)=>{
-	  return arg1+arg2
-	}
-	console.log(add(5,4));//9
 
 ## 第二章 变量的解构赋值
-
+ES6 允许按照一定模式，从数组和对象中提取值，对变量进行赋值，这被称为解构（Destructuring）。
 ### 2.1 数组的解构赋值
+将等号右边的数组，按照一定的匹配模式赋值给左边的变量。
+####  基本用法
 
+我们通常给变量赋值，采用下面写法：
+
+	let a = 1;
+	let b = 2;
+	let c = 3;
 ES6 允许这样赋值
 
 	let [a, b, c] = [1, 2, 3];
+
 上面代码表示，可以从数组中提取值，按照对应位置，对变量赋值。
 
-也可以指定默认值：
+#### 注意
+1. 如果解构不成功，变量的值就等于undefined。  
+2. 不完全解构，即等号左边的模式，只匹配一部分的等号右边的数组。这种情况下，解构依然可以成功。  
+3. 如果等号的右边不是数组，（或者严格地说，不是可遍历的结构），那么将会报错。
+ 
+		// 报错
+		let [foo] = 1;
+		let [foo] = false;
+		let [foo] = NaN;
+		let [foo] = undefined;
+		let [foo] = null;
+		let [foo] = {};
 
-	let [a, b, c="0"] = [1, 2];
-	console.log(c);//0
+### 2.2 默认值
+解构赋值允许指定默认值。
 
-### 4.2 对象的解构赋值
+	let [foo = true] = [];
+	foo // true
+	
+	let [x, y = 'b'] = ['a']; // x='a', y='b'
+	let [x, y = 'b'] = ['a', undefined]; // x='a', y='b'
+ES6 内部使用严格相等运算符（===），判断一个位置是否有值。所以，只有当一个数组成员严格等于undefined，默认值才会生效。
 
-	let { foo, bar } = { foo: "aaa", bar: "bbb" };
-	foo // "aaa"
-	bar // "bbb"
-可以这样理解：前面的部分只是变量声明，声明了变量foo和bar, 等号后面是对这两个变量进行赋值，foo的值为'aaa'，bar的为'bbb'。  
-
-因为不是数组，不是通过索引对应起来，所以等号后面必须写上声明的变量名，
+### 2.3 对象的解构赋值
+解构不仅可以用于数组，还可以用于对象。    
+对象的解构与数组有一个重要的不同。数组的元素是按次序排列的，变量的取值由它的位置决定；而对象的属性没有次序，变量必须与属性同名，才能取到正确的值（也可以将数组的索引认为是唯一的key，这样与对象的属性其实也是相通的）
 
 	let { bar, foo } = { foo: "aaa", bar: "bbb" };
 	foo // "aaa"
 	bar // "bbb"
-也可以将变量名做映射
+	
+	let { baz } = { foo: "aaa", bar: "bbb" };
+	baz // undefined
+	//可以这样理解：前面的部分只是变量声明，声明了变量foo和bar, 等号后面是对这两个变量进行赋值，foo的值为'aaa'，bar的为'bbb'。  
 
-	let { foo:bar  } = { foo: "aaa", bar: "bbb" };
-	//console.log(foo) // 报错
-	console.log(bar) // "aaa"
-将foo映射为bar，然后去等号后面取名称为bar的变量的值。但foo始终是未声明的，所以就会报错。
+如果变量名与属性名不一致，必须写成下面这样(可以理解为变量名映射）
+
+	let { foo: baz } = { foo: "aaa", bar: "bbb" };
+	console.log(baz);//foo是匹配的模式，baz才是变量。真正被赋值的是变量baz
+
+与数组一样，解构也可以用于嵌套结构的对象:
+
+	let obj = {
+	  p: [
+	    'Hello',
+	    { y: 'World' }
+	  ]
+	};
+	
+	let { p: [x, { y }] } = obj;
+	
+	console.log(x,y);// Hello World
+	console.log(p);// 报错
+这时p是模式，不是变量，因此不会被赋值。如果p也要作为变量赋值，可以这样写：
+
+	let obj = {
+	  p: [
+	    'Hello',
+	    { y: 'World' }
+	  ]
+	};
+	
+	let { p, p: [x, { y }] } = obj;
+	
+	console.log(x,y);// Hello World
+	console.log(p);// ["Hello", {y: "World"}]
+如果层级比较多，需要每一级都赋值的话，需要多次匹配
+
+		const node = {
+		  loc: {
+		    start: {
+		      line: 1,
+		      column: 5
+		    }
+		  }
+		};
+		
+		let { loc, loc: { start }, loc: { start: { line }} } = node;
+		line // 1
+		loc  // Object {start: Object}
+		start // Object {line: 1, column: 5}
+### 2.4 字符串的解构赋值
+### 2.5 数值和布尔值的解构赋值
+### 2.6 函数参数的解构赋值
+### 2.7 圆括号问题
+
+### 2.8 解构赋值的用途
+
+
 
 
 ## 第三章  Symbol

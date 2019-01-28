@@ -282,41 +282,168 @@ Generator 函数的调用方法与普通函数一样，也是在函数名后面�
 ES2017 标准引入了 async 函数，使得异步操作变得更加方便。`async` 函数就是 `Generator` 函数的语法糖。
 
 ### 3.2 基本用法
-async函数返回一个 Promise 对象，可以使用then方法添加回调函数。当函数执行的时候，一旦遇到await就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
+async函数返回一个 Promise 对象，可以使用then方法添加回调函数。**当函数执行的时候，一旦遇到await就会先返回，等到异步操作完成，再接着执行函数体内后面的语句**。
 
+例子：
 
-	function loadImageAsync(url) {
-	  return new Promise(function(resolve, reject) {
-	    const image = new Image();
-	    image.onload = function() {
-	      resolve(url);
-	    };
-	
-	    image.onerror = function(err) {
-	      reject(err);
-	    };
-	
-	    image.src = url;
-	  });
+	const timeout=()=>{
+	  return new Promise((resolve,reject)=>{
+	    setTimeout(()=>{
+	      resolve(new Date().getTime())
+	    },1000)
+	  })
 	}
-	
-	async function loadMultiImage() {
-	    let first = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg");
-	    let second = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_202.jpg");
-	    let third = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_201.jpg");
-	    console.log([first ,second ,third]);
+	async function getTime(){
+	  let result= await timeout();
+	  return result+","+new Date().getTime()
 	}
-	loadMultiImage().catch((err)=>{
-	  console.log(err)
+	getTime().then((res)=>{
+	   console.log(res)
 	})
 
+由于async函数返回的是 Promise 对象，可以作为await命令的参数。所以，上面的例子也可以写成下面的形式。
+
+		const timeout= async ()=>{
+		  return await new Promise((resolve,reject)=>{
+		    setTimeout(()=>{
+		      resolve(new Date().getTime())
+		    },1000)
+		  })
+		}
+		async function getTime(){
+		  let result= await timeout();
+		  return result+","+new Date().getTime()
+		}
+		getTime().then((res)=>{
+		   console.log(res)
+		})
+
+### 3.3 语法
+
+#### 3.3.1 返回 Promise 对象
+async函数返回一个 Promise 对象，async函数内部return语句返回的值，会成为then方法回调函数的参数。async函数内部抛出错误，会导致返回的 Promise 对象变为reject状态。抛出的错误对象会被catch方法回调函数接收到。   
+
+#### 3.3.2 Promise 对象的状态变化、
+async函数返回的 Promise 对象，必须等到内部所有await命令后面的 Promise 对象执行完，才会发生状态改变，除非遇到return语句或者抛出错误。也就是说，只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数。  
+仍以异步加载图片为例：
+
+	async function loadMultiImage() {
+	    let first = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg");
+	    let second = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_400_400.jpg");
+	    let third = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg");
+	    console.log("load over")
+	    return [first,second,third]
+	}
+	loadMultiImage().then((res)=>{
+	 console.log("resolve 回调")
+	 console.log(res)
+	}).catch((err)=>{
+	  console.log("reject 回调")
+	  console.log(err)
+	})
+都加载成功的情况下，会执行then方法，同时将`loadMultiImage`函数的返回值作为参数传入；只要有一个失败，那么将会执行`loadMultiImage`函数的catch方法。
+
+#### 3.3.3 await 命令
+正常情况下，await命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。
+
+	async function fn() {
+	  // 等同于
+	  // return 123;
+	  return await 123;
+	}
+	
+	fn().then(v => console.log(v))
+await命令后面是一个thenable对象（即定义then方法的对象），那么await会将其等同于 Promise 对象。  
+
+await命令后面的 Promise 对象如果变为reject状态，则reject的参数会被catch方法的回调函数接收到。
+
+	async function fn() {
+       // 等同于  await Promise.reject('出错了');
+	  return await Promise.reject('出错了');
+	}
+	
+	fn()
+	.then(v => console.log(v))
+	.catch(e => console.log(e))
+对于Promise对象的reject方法，无论await语句前面是否有return，reject方法的参数都会传入了catch方法的回调函数。但对于Promise对象的resolve方法则不是这样，有无return会影响回调的参数
+
+		async function fn() {
+            // 如果没有return 那么将会打印 "undefined"
+			return await Promise.resolve('成功了');
+		}
+		fn()
+		.then(v => console.log(v))
+		.catch(e => console.log(e))
+
+我们仍以上面的加载图片为例：任何一个await语句后面的 Promise 对象变为reject状态，那么整个async函数都会中断执行：
+
+		async function loadMultiImage() {
+			    let first = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg");
+			    let second = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_400_401.jpg");
+			    let third = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg");
+			    console.log("load over")
+			    return [first,second,third]
+			}
+从控制台也可以看出，图片只加载到了第二张，第三张图片并没有加载
+![](https://i.imgur.com/orwURie.png)
+
+#### 3.3.4 错误处理
+如果我们希望前一个异步操作失败，也不要中断后面的异步操作，那么可以这样写：  
+
+1. 利用 `try catch`
+
+		async function loadMultiImage() {
+		  let first = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg");
+		  let second ="";
+		  try{
+		    second = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_400_401.jpg");
+		  }catch(err){
+		    console.log("加载出错")
+		  }
+		    let third = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg");
+		    console.log("load over");//(3) ["http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg", "", "http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg"]
+		    return [first,second,third]
+		}
+2. await后面的 Promise 对象再跟一个catch方法，处理前面可能出现的错误。
+
+		async function loadMultiImage() {
+		  let first = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg");
+		  let second = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_400_401.jpg").catch(()=>{
+		    console.log("加载出错")
+		  });
+		  let third = await loadImageAsync("http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg");
+		  console.log("load over");//(3) ["http://s29.9956.cn/static/common/img/crowdsource_logo_200_200.jpg", undefined, "http://s29.9956.cn/static/common/img/crowdsource_logo_600_600.jpg"]
+		  return [first,second,third]
+		}
 
 
+#### 3.3.5 注意事项 
 
+1. await命令后面的Promise对象，运行结果可能是rejected，所以最好把await命令放在try...catch代码块中,防止前面的异步结果中断后面的操作
+2. 多个await命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
+		
+		// 写法一
+		let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+		
+		// 写法二
+		let fooPromise = getFoo();
+		let barPromise = getBar();
+		let foo = await fooPromise;
+		let bar = await barPromise;
 
+3. await命令只能用在async函数之中，如果用在普通函数，就会报错（esm模块加载器支持顶层await，即await命令可以不放在 async 函数里面，直接使用）
+4. async 函数可以保留运行堆栈
 
-
-
+		 const a = () => {
+		  b().then(() => c());
+		};
+        //如果b()或c()报错，错误堆栈将不包括a()。b()执行完的时候，a()或许早就执行完了
+       
+		const A = async () => {
+		  await B();
+  		  C();
+		};
+        //一旦B()或C()，错误堆栈将包括A()。因为B()运行的时候，A()是暂停执行，上下文环境都保存着。
 </font>
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
