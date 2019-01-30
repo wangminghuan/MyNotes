@@ -665,13 +665,13 @@ Set函数可以接受一个数组（或者具有 iterable 接口的其他数据�
 
 ### 6.1 字符串扩展
 
-#### 1） 字符串的遍历器接口
+#### 6.1.1 字符串的遍历器接口
 ES6 为字符串添加了遍历器接口，使得字符串可以被for...of循环遍历。
 
 	for (let codePoint of 'foo') {
 	  console.log(codePoint)
 	}
-#### 2） normalize方法  
+#### 6.1.2 normalize方法  
 ES6 提供字符串实例的normalize()方法，用来将字符的不同表示方法统一为同样的形式，这称为 Unicode 正规化。
 
 	'\u01D1'.normalize() === '\u004F\u030C'.normalize()
@@ -696,13 +696,13 @@ ES6 又提供了三种新方法，来确定一个字符串是否包含在另一�
 		s.endsWith('Hello', 5) // true   针对前n个
 		s.includes('Hello', 6) // false  针对第n个位置直到字符串结束
 
-#### 3） repeat方法  
+#### 6.1.3 repeat方法  
 repeat方法返回一个新字符串，表示将原字符串重复n次。
 
 	'x'.repeat(3) // "xxx"
 	'hello'.repeat(2) // "hellohello"
 	'na'.repeat(0) // ""
-#### 4） padStart()，padEnd()
+#### 6.1.4 padStart()，padEnd()
 ES2017 引入了字符串补全长度的功能。如果某个字符串不够指定长度，会在头部或尾部补全。padStart()用于头部补全，padEnd()用于尾部补全。
 
 	'x'.padStart(5, 'ab') // 'ababx'
@@ -715,7 +715,7 @@ padStart()的常见用途是为数值补全指定位数和提示字符串格式�
 	'123456'.padStart(10, '0') // "0000123456"
 	'09-12'.padStart(10, 'YYYY-MM-DD') // "YYYY-09-12"
 
-#### 5）模板字符串
+#### 6.1.5 模板字符串
 模板字符串（template string）是增强版的字符串，用反引号 <code>`</code> 标识。
 
 	// 普通字符串
@@ -753,13 +753,13 @@ padStart()的常见用途是为数值补全指定位数和提示字符串格式�
 
 ### 6.2 数值的扩展
 
-#### 1） 二进制和八进制表示法
+#### 6.2.1 二进制和八进制表示法
 ES6 提供了二进制和八进制数值的新的写法，分别用前缀0b（或0B）和0o（或0O）表示。从 ES5 开始，在严格模式之中，八进制就不再允许使用前缀0表示，ES6 进一步明确，要使用前缀0o表示。
 
 	0b111110111 === 503 // true
 	0o767 === 503 // true
 
-#### 2） Number.isFinite()，Number.isNaN()
+#### 6.2.2 Number.isFinite()，Number.isNaN()
 ES6 在Number对象上，新提供了Number.isFinite()和Number.isNaN()两个方法。它们与传统的全局方法isFinite()和isNaN()的区别在于，传统方法先调用Number()将非数值的值转为数值，再进行判断，而这两个新方法只对数值有效：
 
 Number.isFinite()对于非数值一律返回false。  
@@ -781,21 +781,21 @@ Number.isNaN()只有对于NaN才返回true，非NaN一律返回false
 	isFinite(Infinity); // false
 	isFinite(-Infinity); // false
 
-#### 3）Number.parseInt(), Number.parseFloat()
+#### 6.2.3 Number.parseInt(), Number.parseFloat()
 
 ES6 将全局方法parseInt()和parseFloat()，移植到Number对象上面，行为完全保持不变。（这样做的目的，是逐步减少全局性方法，使得语言逐步模块化。）
 
-#### 4）Number.isInteger()
+#### 6.2.4 Number.isInteger()
 用来判断一个数值是否为整数。
 
 	Number.isInteger(25) // true
 	Number.isInteger(25.1) // false
 	Number.isInteger(25.0) // true
-#### 5）Number.isSafeInteger()和安全整数
+#### 6.2.5 Number.isSafeInteger()和安全整数
 
 ES6 引入了 `Number.MAX_SAFE_INTEGER` 和 `Number.MIN_SAFE_INTEGER` 这两个常量（2^53 和 -2^53），超出这两个常量js就无法精确表示了。Number.isSafeInteger()则是用来判断一个整数是否落在这个范围之内。
 
-#### 6）MATH 对象的扩展
+#### 6.2.6 MATH 对象的扩展
 ES6 在 Math 对象上新增了 **17** 个与数学相关的方法。所有这些方法都是静态方法，只能在 Math 对象上调用。
 
 1. Math.trunc 方法用于去除一个数的小数部分，返回整数部分。
@@ -862,18 +862,133 @@ ES6 在 Math 对象上新增了 **17** 个与数学相关的方法。所有这�
 16. Math.acosh(x) 返回x的反双曲余弦（inverse hyperbolic cosine）
 17. Math.atanh(x) 返回x的反双曲正切（inverse hyperbolic tangent）
 
-#### 7）指数运算符
+#### 6.2.7 指数运算符
 ES2016 新增了一个指数运算符（**）,这个运算符的一个特点是右结合，而不是常见的左结合。多个指数运算符连用时，是从最右边开始计算的。
 
 	2 ** 3 ** 2;// 512   相当于 2 ** (3 ** 2)
 ### 6.3 数组的扩展
+#### 6.3.1 扩展运算符（...）
+
+#### 简介
+
+1. 将一个数组转为用逗号分隔的参数序列。
+
+		console.log(...[1, 2, 3])// 1 2 3
+		console.log([...[], 1]) //[1]
+
+2. 主要用于函数调用, 该运算符将一个数组，变为参数序列
+
+		function add(x, y) {
+		  return x + y;
+		}
+		
+		const numbers = [4, 38];
+		add(...[4, 38]);//42
+3. 由于扩展运算符可以展开数组，所以不再需要apply方法，将数组转为函数的参数了。
+
+		// 在函数后面加上apply就等同于调用执行了函数,apply接受的第一个参数仍是运行函数的作用域，第二个是参数数组
+		Math.max.apply(null, [14, 3, 77]);//77
+		
+		// ES6 的写法
+		Math.max(...[14, 3, 77]);//77
+		
+		// 等同于
+		Math.max(14, 3, 77);//77
+#### 扩展运算符的用途：
+
+1. 复制数组(浅拷贝)
+
+		const a1 = [1, {x:2}];
+		// 写法一
+		const a2 = [...a1];
+		// 写法二
+		const [...a2] = a1;
+		a1[1].y=3;
+		console.log(a1);//[1,{x: 2, y: 3}]
+		console.log(a2);//[1,{x: 2, y: 3}] //注意是浅拷贝
+
+2. 合并数组(浅拷贝，同上)
+
+		const arr1 = ['a', 'b'];
+		const arr2 = ['c'];
+		const arr3 = ['d', 'e'];
+		// ES5 的合并数组
+		arr1.concat(arr2, arr3);
+		// [ 'a', 'b', 'c', 'd', 'e' ]
+		
+		// ES6 的合并数组
+		[...arr1, ...arr2, ...arr3]
+3. 与解构赋值结合：
+
+		const [first, ...rest] = [1, 2, 3, 4, 5];
+	    //如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错。
+		const [...butLast, last] = [1, 2, 3, 4, 5]; //报错
+4. 字符串
+
+		//扩展运算符还可以将字符串转为真正的数组。
+		[...'hello']
+		// [ "h", "e", "l", "l", "o" ]
+
+
+5. 实现了 Iterator 接口的对象  
+任何定义了遍历器（Iterator）接口的对象，都可以用扩展运算符转为真正的数组。
+
+		let nodeList = document.querySelectorAll('div');//得到类数组
+		let array = [...nodeList]; //转化成真正数组
+6. Map 和 Set 结构，Generator 函数  
+只要具有 Iterator 接口的对象，都可以使用扩展运算符：
+
+		let map = new Map([
+		  [1, 'one'],
+		  [2, 'two'],
+		  [3, 'three'],
+		]);
+		
+		let arr = [...map.keys()]; // [1, 2, 3]
+
+		const go = function*(){
+		  yield 1;
+		  yield 2;
+		  yield 3;
+		};
+		
+		[...go()] // [1, 2, 3]
+
+#### 6.3.2 Array.from
+Array.from方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）
+
+#### 6.3.3 Array.of
+用于将一组值，转换为数组
+
+	Array.of(3, 11, 8) // [3,11,8]
+	Array.of(3) // [3]
+	Array.of(3).length // 1
+#### 6.3.4 数组实例的 copyWithin()
+在当前数组内部，将指定位置的成员复制到其他位置（会覆盖原有成员），然后返回当前数组。也就是说，使用这个方法，会修改当前数组。
+
+
+    //Array.prototype.copyWithin(target(必选), start = 0（可选）, end = this.length（可选）)
+
+	[1, 2, 3, 4, 5].copyWithin(0, 3);
+    //[4, 5, 3, 4, 5]
+	//上面代码表示将从 3 号位直到数组结束的成员（4 和 5），复制到从 0 号位开始的位置，结果覆盖了原来的 1 和 2。
+#### 6.3.5 数组实例的 find() 和 findIndex()
+
+
+#### 6.3.6 数组实例的fill()
+fill方法使用给定值，填充一个数组。用于空数组的初始化非常方便,数组中已有的元素，会被全部抹去。fill方法还可以接受第二个和第三个参数，用于指定填充的起始位置和结束位置。
+
+
+#### 6.3.7 Array.from
+
+
 
 ### 6.4 函数的扩展
 
 #### 1） 
 
 ### 6.5 对象的扩展
-
+1.
 #### 1） 
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
