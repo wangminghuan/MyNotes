@@ -4,11 +4,6 @@
 
 ## 第一章 let和const
 
->[语法参考](http://en.wikipedia.org/wiki/Cascading_Style_Sheets#Syntax)
-
-- 要点1
-- 要点2
-
 ### 1.1  let
 1. ES6新增了let命令，用来声明变量。它的用法类似于var，但是所声明的变量，只在let命令所在的**代码块内有效**。也就是其声明的变量就绑定在这个区域中，不会再受到外界影响。
 
@@ -50,7 +45,7 @@
 	      const obj={};
 	      obj.name="123";//可以修改指针指向对象的数据
 	      obj=null；//报错！，不可修改指针的指向
-
+ 
 ### 1.3 顶层对象属性
 ES5中顶层对象的属性与全局变量挂钩，这也被认为是js语言设计最大的败笔之一，各种命名冲突，很多只有在运行过程中才被暴露出来。
 
@@ -408,7 +403,7 @@ Set函数可以接受一个数组（或者具有 iterable 接口的其他数据�
 		console.log(s.has(0));// false
 		s.delete(2);
 		console.log(s.has(2))// false
-2. 四个遍历方法（用于遍历成员）。
+2. 四个遍历方法（三个遍历器生成函数和一个遍历方法）。
 		
 		keys()：返回键名的遍历器
 		values()：返回键值的遍历器
@@ -471,8 +466,244 @@ WeakSet 结构与 Set 类似，也是不重复的值的集合。但是，它与 
 
 ### 5.1 基本用法
 JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。这给它的使用带来了很大的限制。ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。
-### 5.2 实例的属性和方法
 
+1. Map是一个构造函数，创建map对象通过关键字new即可。
+2. Map构造函数参数可以为空，数组或Set,Map等，任何具有 Iterator 接口、且每个成员都是一个双元素的数组的数据结构都可以当作Map构造函数的参数。
+
+		const m=new Map();
+		const s={p:"hello world"}
+		
+		m.set(s,'jack')
+		console.log(m.get(s));//"jack"
+		console.log(m.has(s));// true
+		m.delete(s)
+		console.log(m.has(s));// false
+		
+		//传入一个set结构
+        const set = new Set([
+		  ['foo', 1],
+		  ['bar', 2]
+		]);
+		const m1 = new Map(set);
+		console.log(m1.get('foo')) // 1
+		
+		//传入一个map结构
+		const m2 = new Map([['baz', 3]]);
+		const m3 = new Map(m2);
+		console.log(m3.get('baz')) // 3
+
+        //传入一个数组，数组内的元素是键-值对组合的方式（多余的会被忽略，就像例子中的 other），
+		const n=new Map([
+			  ['name',"lilei"],
+			  ['age',24],
+			  ['sex',"man",'other']
+			]);
+		console.log(n.get('sex')); //man
+		console.log(n);
+![](https://i.imgur.com/tQCpem2.png)
+3. 如果对同一个键多次赋值，后面的值将覆盖前面的值。
+4. 如果读取一个未知的键，则返回undefined。
+5. 对于引用类型，只有对同一个对象的引用，Map 结构才将其视为同一个键。
+6. 如果 Map 的键是一个简单类型的值（数字、字符串、布尔值），则只要两个值严格相等，Map 将其视为一个键：
+
+    	//0和-0就是一个键，布尔值true和字符串true则是两个不同的键。
+        //另外，undefined和null也是两个不同的键。虽然NaN不严格相等于自身，但 Map 将其视为同一个键。
+		let map = new Map();
+		
+		map.set(-0, 123);
+		map.get(+0) // 123
+		
+		map.set(true, 1);
+		map.set('true', 2);
+		map.get(true) // 1
+		
+		map.set(undefined, 3);
+		map.set(null, 4);
+		map.get(undefined) // 3
+		
+		map.set(NaN, 123);
+		map.get(NaN) // 123
+### 5.2 实例的属性和方法
+#### 属性
+1. size 属性: 返回 Map 结构的成员总数
+
+#### 方法
+1. 四个操作方法（用于操作数据）
+
+		set(key, value)：设置键名key对应的键值为value,返回是当前的Map对象，因此可以采用链式写法。
+		get(key)：读取key对应的键值，如果找不到key，返回undefined。
+		delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+		has(value)：返回一个布尔值，表示某个键是否在当前 Map 对象之中。
+		clear()：清除所有成员，没有返回值。
+举个例子：
+
+		const map=new Map();
+		const s={p:"hello world"}
+		const o=()=>{console.log("my function")}
+		map.set(s,'jack').set(o,"fun");
+		console.log(map.get(o));//fun
+		console.log(map.has(s));// true
+		map.delete(s);
+		console.log(map.size);//1
+		map.clear();
+		console.log(map.size);//0
+    
+2. 四个遍历方法（三个遍历器生成函数和一个遍历方法）。
+
+		keys()：返回键名的遍历器。
+		values()：返回键值的遍历器。
+		entries()：返回所有成员的遍历器。
+		forEach()：遍历 Map 的所有成员。
+举个例子：
+
+		const map = new Map([
+		  ['F', 'no'],
+		  ['T',  'yes'],
+		]);
+		
+		for (let key of map.keys()) {
+		  console.log(key);
+		}
+		// "F"
+		// "T"
+		
+		for (let value of map.values()) {
+		  console.log(value);
+		}
+		// "no"
+		// "yes"
+		
+		for (let item of map.entries()) {
+		  console.log(item[0], item[1]);
+		}
+		// "F" "no"
+		// "T" "yes"
+		
+		// 或者
+		for (let [key, value] of map.entries()) {
+		  console.log(key, value);
+		}
+		// "F" "no"
+		// "T" "yes"
+		
+		// 等同于使用map.entries() ,也可以省略entries
+		for (let [key, value] of map) {
+		  console.log(key, value);
+		}
+		// "F" "no"
+		// "T" "yes"
+		
+		//forEach方法
+		map.forEach((value, key, map)=> {
+		  console.log("Key: %s, Value: %s", key, value, map);
+		});
+### 5.3 与其他数据结构的互相转换
+1. Map <=> 数组
+        
+		1. Map => 数组
+		//（...)运算符将map转换为数组，转换成数组
+        //结合数组的map方法、filter方法，可以实现 Map 的遍历和过滤（Map 本身没有map和filter方法）
+		const myMap = new Map()
+		  .set(true, 7)
+		  .set({foo: 3}, ['abc']);
+		[...myMap]
+		// [ [ true, 7 ], [ { foo: 3 }, [ 'abc' ] ] ]
+
+        2. 数组 => Map，
+		//将数组作为构造函数参数即可
+
+		new Map([
+		  [true, 7],
+		  [{foo: 3}, ['abc']]
+		])
+		// Map {
+		//   true => 7,
+		//   Object {foo: 3} => ['abc']
+		// }
+2. Map <=> 对象
+
+		1. Map => 对象
+		//如果所有 Map 的键都是字符串，它可以无损地转为对象。
+        //如果有非字符串的键名，那么这个键名会被转成字符串，再作为对象的键名。
+		
+		function strMapToObj(strMap) {
+		  let obj = Object.create(null);
+		  for (let [k,v] of strMap) {
+		    obj[k] = v;
+		  }
+		  return obj;
+		}
+		
+		const myMap = new Map()
+		  .set('yes', true)
+		  .set('no', false);
+		strMapToObj(myMap) // { yes: true, no: false }
+
+		2. 对象 => Map
+		function objToStrMap(obj) {
+		  let strMap = new Map();
+		  for (let k of Object.keys(obj)) {
+		    strMap.set(k, obj[k]);
+		  }
+		  return strMap;
+		}
+		
+		objToStrMap({yes: true, no: false})
+		// Map {"yes" => true, "no" => false}
+3. Map <=> JSON  
+Map 转为 JSON 要区分两种情况。一种情况是，Map 的键名都是字符串，这时可以选择转为对象 JSON。
+
+		//Map 的键名都是字符串
+		function strMapToJson(strMap) {
+		  return JSON.stringify(strMapToObj(strMap));
+		}
+		
+		let myMap = new Map().set('yes', true).set('no', false);
+		strMapToJson(myMap)
+		// '{"yes":true,"no":false}'
+
+		//Map 的键名有非字符串，这时可以选择转为数组 JSON
+		function mapToArrayJson(map) {
+		  return JSON.stringify([...map]);
+		}
+		
+		let myMap = new Map().set(true, 7).set({foo: 3}, ['abc']);
+		const result=mapToArrayJson(myMap)// '[[true,7],[{"foo":3},["abc"]]]'
+		console.log(typeof result);// string
+JSON 转为 Map，正常情况下，所有键名都是字符串。
+
+		function jsonToStrMap(jsonStr) {
+		  return objToStrMap(JSON.parse(jsonStr));
+		}
+		
+		jsonToStrMap('{"yes": true, "no": false}')
+		// Map {'yes' => true, 'no' => false}
+还有一种特殊情况，整个 JSON 就是一个数组，且每个数组成员本身，又是一个有两个成员的数组。这时，它可以一一对应地转为 Map。这往往是 Map 转为数组 JSON 的逆操作。
+
+		function jsonToMap(jsonStr) {
+		  return new Map(JSON.parse(jsonStr));
+		}
+		
+		jsonToMap('[[true,7],[{"foo":3},["abc"]]]')
+		// Map {true => 7, Object {foo: 3} => ['abc']}
+
+### 5.4 weekMap结构
+WeakMap结构与Map结构类似，也是用于生成键值对的集合。但是，它与 Set 有两个区别：
+
+1. WeakMap只接受对象作为键名（null除外），不接受其他类型的值作为键名。
+2. WeakMap的键名所指向的对象，不计入垃圾回收机制。
+
+####  WeakMap结构的用途
+WeakMap 的键名所引用的对象都是弱引用，即垃圾回收机制不将该引用考虑在内。因此，只要所引用的对象的其他引用都被清除，垃圾回收机制就会释放该对象所占用的内存。也就是说，一旦不再需要，WeakMap 里面的键名对象和所对应的键值对会自动消失，不用手动删除引用。  
+
+因此，一个典型应用场景是，在网页的 DOM 元素上添加数据，就可以使用WeakMap结构。当该 DOM 元素被清除，其所对应的WeakMap记录就会自动被移除。
+
+		const wm = new WeakMap();
+		
+		const element = document.getElementById('example');
+		
+		wm.set(element, 'some information');
+		wm.get(element) // "some information"
 
 ## 第六章 数据类型的扩展方法
 
