@@ -272,9 +272,138 @@ Generator 函数的调用方法与普通函数一样，也是在函数名后面�
 		},1000)
 5. yield表达式只能用在 Generator 函数里面，用在其他地方都会报错。
 
+### 2.3 与 Iterator 接口的关系
+
+我们知道，任意一个对象的`Symbol.iterator`方法，等于该对象的遍历器生成函数，调用该函数就会返回该对象的一个遍历器对象。由于Generator函数就是遍历器生成函数，因此可以把Generator赋值给对象的`Symbol.iterator`属性，从而使得该对象具有Iterator接口。
 
 
+	const obj={}
+	obj[Symbol.iterator]= function* (){
+	   yield '1';
+	   yield '2';
+	   yield '3';
+	}
+	
+	for (let x of obj) {
+	  console.log(x); 
+      //1
+      //2
+	  //3
+	}
+	console.log([...obj]);// ["1", "2", "3"] ,只有具有Iterator接口才可以通过扩展运算符转化成数组
+Generator 函数执行后，返回一个遍历器对象。该对象本身也具有Symbol.iterator属性，执行后返回自身。
 
+	function* gen(){
+	
+	}
+	const g=gen();
+	console.log(g[Symbol.iterator]() === g); //true
+
+
+### 2.4 next方法的参数
+yield表达式本身没有返回值，或者说总是返回undefined。next方法可以带一个参数，该参数就会被当作上一个yield表达式的返回值
+
+	function* f() {
+	  for(var i = 0; true; i++) {
+	    console.log("i value is: " + i)
+	    var reset = yield i;
+        //每次next方法，遇到yield就结束了，下次再执行next时，从此处开始
+	    if(reset) {
+	       i = -1; 
+	      }
+	  }
+	}
+	
+	var g = f();
+	
+	g.next() // i value is: 0    { value: 0, done: false }
+	g.next() // i value is: 1 { value: 1, done: false }
+	g.next(true) // i value is: 0 { value: 0, done: false }
+    // 传入参数true，执行next方法时，从上一个yield表达式开始，此时reset的返回值将为true，那么i被重置为-1
+    // 再执行一次+1操作变为0,于是就输出了 i value is: 0， 返回值为{ value: 0, done: false }
+
+这个功能有很重要的语法意义。Generator 函数从暂停状态到恢复运行，它的上下文状态（context）是不变的。通过next方法的参数，就有办法在 Generator 函数开始运行之后，继续向函数体内部注入值。也就是说，可以在 Generator 函数运行的不同阶段，从外部向内部注入不同的值，从而调整函数行为。
+
+### 2.5 for...of循环
+
+1. for...of循环可以自动遍历 Generator 函数时生成的Iterator对象，且此时不再需要调用next方法。
+2. 除了for...of循环以外，扩展运算符（...）、解构赋值和Array.from方法内部调用的，都是遍历器接口。它们都可以将 Generator 函数返回的 Iterator 对象，作为参数。
+
+		function* numbers () {
+		  yield 1
+		  yield 2
+		  return 3
+		  yield 4
+		}
+		
+		// 扩展运算符
+		[...numbers()] // [1, 2]
+		
+		// Array.from 方法
+		Array.from(numbers()) // [1, 2]
+		
+		// 解构赋值
+		let [x, y] = numbers();
+		x // 1
+		y // 2
+		
+		// for...of 循环
+		for (let n of numbers()) {
+		  console.log(n)
+		}
+		// 1
+		// 2
+
+### 2.6 Generator.prototype.throw() 
+Generator 函数返回的遍历器对象，都有一个throw方法，可以在**函数体外抛出错误**，然后在 Generator **函数体内捕获**
+
+	var g = function* () {
+	  try {
+	    yield;
+	  } catch (e) {
+	    console.log('内部捕获', e);
+	  }
+	};
+	
+	var i = g();
+	i.next();
+	
+	try {
+	  i.throw('第一次抛出错误！');
+	  i.throw('第二次抛出错误！');
+	} catch (e) {
+	  console.log('外部捕获', e);
+	}
+	//内部捕获 第一次抛出错误！
+	//外部捕获 第二次抛出错误！
+
+遍历器对象i连续抛出两个错误。第一个错误被 Generator 函数体内的catch语句捕获。第二次抛出错误，由于 Generator 函数内部的catch语句已经执行过了，不会再捕捉到这个错误了，所以这个错误就被抛出了 Generator 函数体，被函数体外的catch语句捕获。。throw方法可以接受一个参数，该参数会被catch语句接收，建议抛出Error对象的实例。  
+
+如果 Generator 函数内部没有部署try...catch代码块，抛出的错误将直接被外部catch代码块捕获。
+
+	var g = function* () {
+	    yield;
+	};
+	
+	var i = g();
+	i.next();
+	
+	try {
+	  i.throw('第一次抛出错误！');
+	  i.throw('第二次抛出错误！');
+	} catch (e) {
+	  console.log('外部捕获', e);
+	}
+    //外部捕获 第一次抛出错误！ (不会运行第二次i.throw，被外部catch捕获后，直接跳出了try)
+### 2.7 Generator.prototype.return() 
+
+
+### 2.8 next()、throw()、return() 的共同点 
+
+
+### 2.9 yield* 表达式
+
+### 2.10 其他
 
 ## 第三章 async 和 await
 ### 3.1 概述

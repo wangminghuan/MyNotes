@@ -58,7 +58,7 @@ ES5中遍历集合通常都是 for循环，数组还有 forEach 方法，对象�
 	TypedArray
 	函数的 arguments 对象
 	NodeList 对象
-下面的例子是Mapj结构的Symbol.iterator属性:
+下面的例子是Map结构的Symbol.iterator属性:
 
 	const map=new Map([
 	  ['name','jack'],
