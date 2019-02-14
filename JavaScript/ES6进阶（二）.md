@@ -395,15 +395,191 @@ Generator 函数返回的遍历器对象，都有一个throw方法，可以在**
 	  console.log('外部捕获', e);
 	}
     //外部捕获 第一次抛出错误！ (不会运行第二次i.throw，被外部catch捕获后，直接跳出了try)
+
+throw方法抛出的错误要被内部捕获，前提是必须至少执行过一次next方法(只执行Generator函数返回的只是一个Iterator接口)。  
+
+throw方法被捕获以后，会附带执行下一条yield表达式。也就是说，会附带执行一次next方法。
+
+
+	var gen = function* gen(){
+	  try {
+	    yield console.log('a');
+	  } catch (e) {
+	    console.log("内部捕获！")
+	  }
+	  yield console.log('b');
+	  yield console.log('c');
+	}
+	
+	var g = gen();
+	g.next() // a
+	
+	g.throw() 
+	// 内部捕获！ 
+	//b
+	
+	g.next() // c
+`g.throw`方法被捕获以后，自动执行了一次next方法，所以会打印b。只要 Generator 函数内部部署了try...catch代码块，那么遍历器的throw方法抛出的错误，不影响下一次遍历。
 ### 2.7 Generator.prototype.return() 
+Generator 函数返回的遍历器对象，还有一个return方法，可以返回给定的值，并且终结遍历 Generator 函数。
+
+	function* gen() {
+	  yield 1;
+	  yield 2;
+	  yield 3;
+	}
+	
+	var g = gen();
+	
+	g.next()        // { value: 1, done: false }
+	g.return('foo') // { value: "foo", done: true }
+	g.next()        // { value: undefined, done: true }
 
 
+遍历器对象g调用return方法后，返回值的value属性就是return方法的参数foo（没有传参，则返回undefined）。并且，Generator 函数的遍历就终止了，返回值的done属性为true，以后再调用next方法，done属性总是返回true。  
+
+如果 Generator 函数内部有try...finally代码块，且正在执行try代码块，那么return方法会推迟到finally代码块执行完再执行。
+
+	function* numbers () {
+	  yield 1;
+	  try {
+	    yield 2;
+	    yield 3;
+	  } finally {
+	    yield 4;
+	    yield 5;
+	  }
+	  yield 6;
+	}
+	var g = numbers();
+	g.next() // { value: 1, done: false }
+	g.next() // { value: 2, done: false }
+	g.return(7) // { value: 4, done: false }
+	g.next() // { value: 5, done: false }
+	g.next() // { value: 7, done: true }
 ### 2.8 next()、throw()、return() 的共同点 
 
+`next()、throw()、return()`这三个方法本质上是同一件事，它们的作用都是让 Generator 函数恢复执行，并且使用不同的语句替换yield表达式：
 
-### 2.9 yield* 表达式
+1. `next()`是将yield表达式替换成一个值。
+2. `throw()`是将yield表达式替换成一个throw语句。
+3. `return()`是将yield表达式替换成一个return语句。
+### 2.9 yield* 表达式  
 
+从语法角度看，如果yield表达式后面跟的是一个遍历器对象，需要在yield表达式后面加上星号，表明它返回的是一个遍历器对象。这被称为yield*表达式。  
+
+如果想在一个 Generator 函数里面执行另一个 Generator 函数，这时就需要用到`yield*`表达式
+
+	function* foo(){
+	  yield "a";
+	  yield "b";
+	}
+	
+	function* bar() {
+	  yield 'x';
+	  yield* foo();
+	  yield 'y';
+	}
+	for(let key of bar()){
+	  console.log(key)
+	}
+	//x
+	//a
+	//b
+	//y
+任何数据结构只要有 Iterator 接口，就可以被yield*遍历  
+
+	function* concat(iter1, iter2) {
+	  yield* iter1;
+	  yield* iter2;
+	}
+	const p=concat([1,2,3],new Map([
+	  ["name","jack"],
+	  ["age","28"]
+	]))
+	for(let key of p){
+	  console.log(key)
+	}
+	// 1
+	// 2
+	// 3
+	// ["name", "jack"]
+	// ["age", "28"]
 ### 2.10 其他
+#### 作为对象属性的 Generator 函数
+如果一个对象的属性是 Generator 函数，可以简写成下面的形式。
+
+	let obj = {
+	  * myGeneratorMethod() {
+	    ···
+	  }
+	};
+等同于：
+
+	let obj = {
+	  myGeneratorMethod: function* () {
+	    // ···
+	  }
+	};
+
+#### Generator 函数的this
+
+
+	function* Gen(){
+	   this.attr="1"
+	}
+	Gen.prototype.hello=()=>{
+	  return "hello world"
+	}
+	const gen=Gen();
+	console.log(gen.hello())  // hello world
+	console.log(gen instanceof Gen) // true
+	console.log(gen.attr)    // undefined
+	
+上面代码表明，Generator 函数Gen返回的遍历器gen，是Gen的实例，而且继承了Gen.prototype。这与构造函数很类似：
+
+	function Animal(){
+	    this.attr="1"
+	}
+	Animal.prototype.hello=()=>{
+	  return "hello world"
+	}
+	const ani=new Animal();
+	console.log(ani.hello())      // hello world
+	console.log(ani instanceof Animal)// true
+    console.log(ani.attr)         // 1
+但是，也可以看到如果把Gen当作普通的构造函数，并不会生效，因为Gen返回的总是遍历器对象，而不是this对象;所以通过`gen.attr`拿不到内部的属性。同时也不可以对Gen进行new操作，会报错：
+
+    new Gen(); //Uncaught TypeError: Gen is not a constructor
+
+也可以使 Generator 函数返回一个正常的对象实例，既可以用next方法，又可以获得正常的this，具体参见[阮一峰ECMAScript 6 入门之17章：Generator 函数的语法](http://es6.ruanyifeng.com/#docs/generator)，此处不再赘述。
+#### 状态机
+譬如实现一个开关状态，我们之前需要这么写：
+
+	let flag = true;
+	const switchs =()=> {
+	  flag?console.log("turn on"):console.log("turn off")
+	  flag = !flag;
+	}
+	switchs(); //turn on
+	switchs(); //turn off
+	switchs(); //turn on
+	switchs(); //turn off
+通过Generate函数可以很方便的创建状态机，不再需要一个外部变量进行记录了：
+
+	const switchg = function* (){
+	  while (true) {
+	    console.log("turn on")
+	    yield;
+	    console.log("turn off")
+	    yield;
+	  }
+	}
+	const gen=switchg();
+	gen.next();//turn on
+	gen.next();//turn off
+	gen.next();//turn on
+	gen.next();//turn off
 
 ## 第三章 async 和 await
 ### 3.1 概述
