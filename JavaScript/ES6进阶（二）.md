@@ -581,9 +581,154 @@ Generator 函数返回的遍历器对象，还有一个return方法，可以返�
 	gen.next();//turn on
 	gen.next();//turn off
 
+### 2.11 Generate函数的应用
+#### 异步操作的同步化表达
+以ajax请求为例：
+
+	//XMLHttpRequest对象封装
+	function myAjax(url,callback){
+	  const config={
+	    method:"GET",
+	    url: url,
+	    data: '',
+	    async: true,
+	    cache: true,
+	    contentType: 'application/x-www-form-urlencoded'
+	  }
+	  //1. 创建xml对象
+	  var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+	  //2.  同服务器建立联系，open方法
+	  xhr.open(config.method, url, config.async)
+	
+	  //3. 向服务器发送请求 send方法
+	  if(config.method==="GET"){
+	    xhr.send()
+	  }else{
+	    xhr.setRequestHeader('content-Type',config.contentType)
+	    xhr.send(config.data)
+	  }
+	  //4. 接收服务器返回请求内容，onreadystatechange
+	  xhr.onreadystatechange=function(){
+	      if(xhr.readyState == 4){
+	        if(xhr.status===200){
+	          callback((xhr.responseText))
+	        }else{
+	          callback(JSON.stringify({
+	              data:"请求出错",
+	              code:xhr.status
+	            }))
+	        }
+	      }
+	  }
+	
+	}
+	//请求操作
+	function request(url) {
+	  myAjax(url, function(response){
+	    it.next(response);
+	  });
+	}
+
+	//generate函数， 异步操作的同步化写法：
+	function* main() {
+	  var result = yield request("http://oa.bxd365.com/api/questionnaire/gets?appid=a&qid=4");
+	  var resp = JSON.parse(result);
+	  console.log(1,resp);
+	}
+	
+	var it = main();
+	it.next();
+#### 部署 Iterator 接口
+
+	let obj = {
+	  * [Symbol.iterator]() {
+	    yield 'hello';
+	    yield 'world';
+	  }
+	};
+	
+	for (let x of obj) {
+	  console.log(x);
+	}
+	// "hello"
+	// "world"
+#### 控制流管理（略）
+#### 作为数据结构（略）
+
+### 2.12 Generator 函数的异步应用
+ES6 诞生以前，异步编程的方法，大概有下面四种：
+
+1. 回调函数
+2. 事件监听
+3. 发布/订阅
+4. Promise 对象
+
+回调函数本身并没有问题，它的问题出现在多个回调函数嵌套。这种情况就称为"回调函数地狱"（callback hell）。Promise 对象就是为了解决这个问题而提出的。它不是新的语法功能，而是一种新的写法，允许将回调函数的嵌套，改成链式调用。  
+
+Promise 的最大问题是代码冗余，原来的任务被 Promise 包装了一下，不管什么操作，一眼看去都是一堆then，原来的语义变得很不清楚。Generator函数应运而生。
+
+#### 协程
+众多异步编程的解决方案中，有一种叫做"协程"（coroutine），意思是多个线程互相协作，完成异步任务。协程有点像函数，又有点像线程。它的运行流程大致如下：
+
+	第一步，协程A开始执行。
+	第二步，协程A执行到一半，进入暂停，执行权转移到协程B。
+	第三步，（一段时间后）协程B交还执行权。
+	第四步，协程A恢复执行。
+Generator 函数是协程在 ES6 的实现，最大特点就是可以交出函数的执行权（即暂停执行）。Generator 函数是协程在 ES6 的实现，最大特点就是可以交出函数的执行权（即暂停执行）。  
+
+整个 Generator 函数就是一个封装的异步任务，或者说是异步任务的容器。异步操作需要暂停的地方，都用yield语句注明。Generator 函数的执行方法如下。
+
+	function* gen(x) {
+	  var y = yield x + 2;
+	  return y;
+	}
+	
+	var g = gen(1);
+	g.next() // { value: 3, done: false }
+	g.next() // { value: undefined, done: true }
+
+#### Generator 函数的数据交换和错误处理
+Generator 函数可以暂停执行和恢复执行，这是它能封装异步任务的根本原因。除此之外，它还有两个特性，使它可以作为异步编程的完整解决方案：函数体内外的数据交换和错误处理机制。
+
+next返回值的 value 属性，是 Generator 函数向外输出数据；next方法还可以接受参数，向 Generator 函数体内输入数据。
+
+#### Thunk 函数
+Thunk 函数是自动执行 Generator 函数的一种方法，执行后所有异步操作可以自动完成，这样异步操作不仅可以写得像同步操作，而且一行代码就可以执行。
+
+#### co模块
+co模块也是自动执行 Generator 函数的一种方法。
 ## 第三章 async 和 await
 ### 3.1 概述
-ES2017 标准引入了 async 函数，使得异步操作变得更加方便。`async` 函数就是 `Generator` 函数的语法糖。
+ES2017 标准引入了 async 函数，使得异步操作变得更加方便。`async` 函数就是 `Generator` 函数的语法糖。  
+我们将Generate章节的ajax请求进行改进：
+	
+	//XMLHttpRequest对象封装
+	function myAjax(url,callback){
+       ... //省略 同上
+    }
+	//请求操作(封装为promise对象)
+	function request(url) {
+	  return new Promise(function(resolve){
+	    myAjax(url, resolve);
+	  })
+	 
+	}
+	
+	//async函数， 同样是异步操作的同步化写法：
+	async function main() {
+	  var result = await request("http://oa.bxd365.com/api/questionnaire/gets?appid=a&qid=4");
+	  var resp = JSON.parse(result);
+	  console.log(1,resp);
+	}
+	main();
+一比较就会发现，async函数就是将 Generator 函数的星号（*）替换成async，将yield替换成await，仅此而已  
+
+async函数对 Generator 函数的改进，体现在以下四点：
+
+1. **内置执行器**：无需调用next方法，或者用co模块，async函数的执行，与普通函数一模一样，只要一行。
+2. **更好的语义**：async和await，比起星号和yield，语义更清楚了。async表示函数里有异步操作，await表示紧跟在后面的表达式需要等待结果。
+3. **更广的适用性**：async函数的await命令后面，可以是 Promise 对象和原始类型的值，而yield命令后面只能是 Thunk 函数或 Promise 对象
+4. **返回值是 Promise**：具体参见**3.3 语法** 部分的描述
 
 ### 3.2 基本用法
 async函数返回一个 Promise 对象，可以使用then方法添加回调函数。**当函数执行的时候，一旦遇到await就会先返回，等到异步操作完成，再接着执行函数体内后面的语句**。
@@ -622,12 +767,13 @@ async函数返回一个 Promise 对象，可以使用then方法添加回调函�
 		   console.log(res)
 		})
 
+
 ### 3.3 语法
 
 #### 3.3.1 返回 Promise 对象
 async函数返回一个 Promise 对象，async函数内部return语句返回的值，会成为then方法回调函数的参数。async函数内部抛出错误，会导致返回的 Promise 对象变为reject状态。抛出的错误对象会被catch方法回调函数接收到。   
 
-#### 3.3.2 Promise 对象的状态变化、
+#### 3.3.2 Promise 对象的状态变化
 async函数返回的 Promise 对象，必须等到内部所有await命令后面的 Promise 对象执行完，才会发生状态改变，除非遇到return语句或者抛出错误。也就是说，只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数。  
 仍以异步加载图片为例：
 
@@ -643,7 +789,7 @@ async函数返回的 Promise 对象，必须等到内部所有await命令后面�
 	 console.log(res)
 	}).catch((err)=>{
 	  console.log("reject 回调")
-	  console.log(err)
+	  console.log(err)console.log("存储历史记录");
 	})
 都加载成功的情况下，会执行then方法，同时将`loadMultiImage`函数的返回值作为参数传入；只要有一个失败，那么将会执行`loadMultiImage`函数的catch方法。
 
