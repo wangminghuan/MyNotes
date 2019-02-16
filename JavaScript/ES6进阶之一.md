@@ -1,5 +1,5 @@
 <font face="微软雅黑" size="4" >
-<font size="6">ES6语法学习（一）</font>
+<font size="6">ES6语法学习之命名和数据类型</font>
 
 
 ## 第一章 let和const
@@ -1781,6 +1781,9 @@ Object.setPrototypeOf方法的作用与`__proto__`相同，用来设置一个对
 		console.log(newObj.x);//1
 		console.log(Object.getPrototypeOf(newObj));//{x: 1}
 如果参数不是对象，会被自动转为对象。如果是undefined或null，就会报错。
+
+
+## 
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 2. [ES6 的 Symbol 类型及使用案例](https://my.oschina.net/u/2903254/blog/818796)

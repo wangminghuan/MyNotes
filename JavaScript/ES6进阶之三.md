@@ -894,6 +894,9 @@ await命令后面的 Promise 对象如果变为reject状态，则reject的参数
   		  C();
 		};
         //一旦B()或C()，错误堆栈将包括A()。因为B()运行的时候，A()是暂停执行，上下文环境都保存着。
+
+### 3.4 异步遍历器”（Async Iterator）
+ES2018 引入了“异步遍历器”（Async Iterator）,为异步操作提供原生的遍历器接口，即value和done这两个属性都是异步产生。更多介绍请参见[async函数之异步遍历器](http://es6.ruanyifeng.com/#docs/async#%E5%BC%82%E6%AD%A5%E9%81%8D%E5%8E%86%E5%99%A8)
 </font>
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
