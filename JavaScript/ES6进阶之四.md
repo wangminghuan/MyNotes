@@ -57,7 +57,7 @@ JavaScript 语言中，生成实例对象的传统方法是通过构造函数实
 ![](https://i.imgur.com/TfZEe48.png)
 3. 将等式1和等式2合并即可得到等式3成立。
 
-
+另外：类的内部所有定义的方法，都是不可枚举的（demo代码中已经标明）。  
 
 **可以看到：**ES6 的class可以看作只是一个语法糖，它的绝大部分功能，ES5 都可以做到，新的class写法只是让对象原型的写法更加清晰、更像面向对象编程的语法而已。
 
@@ -80,9 +80,24 @@ JavaScript 语言中，生成实例对象的传统方法是通过构造函数实
 	console.log(p1.toSayHi()); //"Hello jack"
 	console.log(p1.toValue()); //"value jack"
 
-### 1.2 constructor 方法
 
-### 1.3 
+### 1.2 constructor 方法
+constructor方法是类的默认方法，通过new命令生成对象实例时，自动调用该方法。一个类必须有constructor方法，如果没有显式定义，一个空的constructor方法会被默认添加:
+
+	function Person(x){
+	  this.name = x;
+	}
+	console.log(Person.prototype)
+	class Person2{
+	 
+	}
+	console.log(Person2.prototype)
+![](https://i.imgur.com/TevaPJa.png)
+### 1.3 类的实例
+同ES5一致，
+### 1.4 取值函数（getter）和存值函数（setter）
+
+### 1.5 类的实例
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 2. [ES6 的 Symbol 类型及使用案例](https://my.oschina.net/u/2903254/blog/818796)
