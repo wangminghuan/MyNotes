@@ -473,9 +473,39 @@ ES6 规定，在子类普通方法中通过super调用父类的方法时，方�
 	RegExp()
 	Error()
 	Object()
-ES6之前这些原生构造函数是无法继承的，比如，不能自己定义一个Array的子类。
+ES6之前这些原生构造函数是无法继承的，比如，不能自己定义一个Array的子类。  
+	function MyArray() {
+	    Array.apply(this, arguments);
+	  }
+	  
+	  MyArray.prototype = Object.create(Array.prototype, {
+	    constructor: {
+	      value: MyArray,
+	      writable: true,
+	      configurable: true,
+	      enumerable: true
+	    }
+	  });
+	
+	  var colors = new MyArray();
+	  colors[0] = "red";
+	  colors.length  // 0
+但是，在ES6中，通过class关键字可以实现原生构造函数的继承：
 
-### 补充章节  实例，构造函数和原型链
+	class MyArray extends Array {
+	  constructor(...args) {
+	    super(...args);
+	  }
+	}
+	
+	var arr = new MyArray();
+	arr[0] = 12;
+	arr.length // 1
+	
+	arr.length = 0;
+	arr[0] // undefined
+extends关键字不仅可以用来继承类，还可以用来继承原生的构造函数。
+### 补充 —— 实例，构造函数和原型链
 简单回顾一下构造函数、原型和实例的关系：**每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针**
 
 	class Person{
@@ -490,7 +520,7 @@ ES6之前这些原生构造函数是无法继承的，比如，不能自己定�
 	const p1=new Person("jack");
 	
 	//每个构造函数都有一个原型对象(prototype)
-	console.log(0,Person.prototype)；  
+	console.log(0,Person.prototype);
 		//0,{
         //  constructor: class Person
 		//	toSayHi: ƒ toSayHi()
@@ -502,18 +532,119 @@ ES6之前这些原生构造函数是无法继承的，比如，不能自己定�
 	
 	//实例都包含一个指向原型对象的内部指针(这个连接存在于实例与构造函数的原型对象之间，而不是存在于实例与构造函数之间)
 	console.log(2,p1.__proto__===Person.prototype);//true
+	 
+    
 
+![](https://i.imgur.com/cm7ZlKj.jpg)
 
 同时以上代码还满足
 
+ 
 	//实例会自动含有一个constructor属性，指向它们的构造函数,
 	console.log(3,p1.constructor===Person);//true
 	
 	// instanceof运算符，验证原型对象与实例对象之间的关系。
 	console.log(4,p1 instanceof Person); //true
 	console.log(5,p1 instanceof Object); //true
-#### 原型链
-每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。
+
+## 第三章 Module 的语法
+### 3.1 概述
+ES6 模块的设计思想是尽量的静态化，而commonJS则是使用“运行时加载”，因为只有运行时才能得到这个对象。
+
+	// CommonJS模块
+	let { stat, exists, readFile } = require('fs');
+	
+	// 等同于
+	let _fs = require('fs');
+	let stat = _fs.stat;
+	let exists = _fs.exists;
+	let readfile = _fs.readfile;
+上面代码的实质是整体加载fs模块（即加载fs的所有方法），生成一个对象（_fs），然后再从这个对象上面读取 3 个方法。这种加载称为“运行时加载”。
+
+**ES6 模块不是对象**，而是通过export命令显式指定输出的代码，再通过import命令输入。
+
+	// ES6模块
+	import { stat, exists, readFile } from 'fs';
+上面代码的实质是从fs模块加载 3 个方法，其他方法不加载。这种加载称为“编译时加载”或者静态加载，效率要比 CommonJS 模块的加载方式高。当然，这也导致了没法引用 ES6 模块本身，因为它不是对象。同时这也使得静态分析成为可能（如引入宏或类型检验）。
+
+ES6 的模块自动采用严格模式，不管你有没有在模块头部加上"use strict"。
+
+### 3.2 export 命令
+一个模块就是一个独立的文件。该文件内部的所有变量，外部无法获取。如果你希望外部能够读取模块内部的某个变量，就必须使用export关键字输出该变量。
+
+	//写法一
+	// profile.js
+	export var firstName = 'Michael';
+	export var lastName = 'Jackson';
+	export var multiply = function (x, y) {
+		  return x * y;
+	};
+
+    //写法二
+	var firstName = 'Michael';
+	var lastName = 'Jackson';
+	var multiply = function (x, y) {
+		  return x * y;
+	};
+	
+	export {firstName, lastName, multiply};
+通常情况下，export输出的变量就是本来的名字，但是可以使用as关键字重命名。
+
+	function v1() { ... }
+	function v2() { ... }
+	
+	export {
+	  v1 as streamV1,
+	  v2 as streamV2,
+	  v2 as streamLatestVersion
+	};
+上面代码使用as关键字，重命名了函数v1和v2的对外接口。重命名后，v2可以用不同的名字输出两次。
+
+export语句输出的接口，与其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。(这一点与 CommonJS 规范完全不同。CommonJS 模块输出的是值的缓存，不存在动态更新)。  
+
+export命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错。
+### 3.3 import 命令
+使用export命令定义了模块的对外接口以后，其他 JS 文件就可以通过import命令加载这个模块。
+
+	// main.js
+	import {firstName, lastName, year} from './profile.js';
+
+如果想为输入的变量重新取一个名字，import命令要使用as关键字，将输入的变量重命名。
+
+	import { lastName as surname } from './profile.js';
+import命令输入的变量都是只读的，不允许在加载模块的脚本里面，改写接口。
+	
+	import {a} from './xxx.js'
+	a = {}; // Syntax Error : 'a' is read-only;不允许重新赋值
+    a.foo = 'hello'; // 合法操作，改写属性是允许的
+import命令具有提升效果，会提升到整个模块的头部，会首先执行。
+
+	foo();
+	
+	import { foo } from 'my_module';
+由于import是静态执行，所以不能使用表达式和变量
+
+	// 报错
+	import { 'f' + 'oo' } from 'my_module';
+import语句会执行所加载的模块：
+
+	import 'lodash';
+如果多次重复执行同一句import语句，那么只会执行一次，而不会执行多次。
+
+	import 'lodash';
+	import 'lodash';
+模块加载时会自动判断：
+
+	import { foo } from 'my_module';
+	import { bar } from 'my_module';
+	
+	// 等同于
+	import { foo, bar } from 'my_module';
+## 第四章 Module 的加载实现
+
+
+
+
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 2. [一句话总结JS构造函数、原型和实例的关系](https://blog.csdn.net/u012443286/article/details/78823955)
