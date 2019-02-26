@@ -20,7 +20,7 @@ JavaScript 语言中，生成实例对象的传统方法是通过构造函数实
 	const p1=new Person("jack");
 	p1.name; //"jack"
 	p1.toSayHi();//"Hello jack"
-	console.log(Object.keys(Person.prototype))；//[] toSayHi方法是Person类内部定义的方法，它是不可枚举的
+	console.log(Object.keys(Person.prototype));//[] toSayHi方法是Person类内部定义的方法，它是不可枚举的
 
 上面代码定义了一个“类”，可以看到里面有一个constructor方法，这就是构造方法，this关键字则代表实例对象。**注意：**定义“类”的方法不需要function这个关键字，直接把函数定义放进去了就可以了。另外，方法之间不需要逗号分隔，加了会报错。  
 上述代码等同于：
@@ -35,7 +35,7 @@ JavaScript 语言中，生成实例对象的传统方法是通过构造函数实
 	const p1=new Person("jack");
 	p1.name; //"jack"
 	p1.toSayHi();//"Hello jack"
-	console.log(Object.keys(Person.prototype))；//["toSayHi"] ES5写法下，toSayHi方法是可以枚举的，
+	console.log(Object.keys(Person.prototype));//["toSayHi"] ES5写法下，toSayHi方法是可以枚举的，
 	//注意ES6和ES5下此处的行为不一致
 
 以上两种模式都满足：
@@ -287,8 +287,235 @@ new是从构造函数生成实例对象的命令。ES6 为new命令引入了一�
 	
 	var person = new Person('张三'); // 正确
 	var notAPerson = Person.call(person, '张三');  // 报错
+## 第二章 类的继承
+### 2.1 extends
+Class 可以通过extends关键字实现继承，这比 ES5 的通过修改原型链实现继承，要清晰和方便很多：
 
+	class Animal{
+	  constructor(){
+	    this.food="meat"
+	  }
+	  sayHi(){
+	    console.log("I am animal, I eat "+ this.food)
+	  }
+	  food(){
+	    return this.food
+	  }
+	}
+	
+	class Cat extends Animal{
+	  constructor(){
+	    super(); //子类必须在constructor方法中调用super方法，否则新建实例时会报错
+	    this.color="black";
+	  }
+	  sayHi(){
+	    console.log("I am cat, I eat "+ super.food() + ", my color is "+this.color )
+        console.log("I am cat, I eat "+ this.food + ", my color is "+this.color );
+        //继承了父级的food属性
+        // 子类方法中调用父类方法，必须通过super关键字，super.food()
+	  }
+	}
+	const cat=new Cat();
+	const ani= new Animal();
+	ani.sayHi(); //I am animal, I eat meat
+	cat.sayHi(); 
+    //I am cat, I eat meat, my color is black
+    //I am cat, I eat meat, my color is black
+注意：  
+
+1. 子类方法中super关键字的调用：子类必须在constructor方法中调用super方法，否则新建实例时会报错。子类方法中如果需要调用父级的方法，需通过super关键字。  
+2. ES6继承机制同ES5完全不同：先将父类实例对象的属性和方法，加到this上面（所以必须先调用super方法），然后再用子类的构造函数修改this。而ES5 的继承，实质是先创造子类的实例对象this，然后再将父类的方法添加到this上面（`Parent.apply(this)`）
+3. 不管有没有显式定义，任何一个子类都有constructor方法（会被默认添加）。
+
+		class ColorPoint extends Point {
+		}
+		
+		// 等同于
+		class ColorPoint extends Point {
+		  constructor(...args) {
+		    super(...args);
+		  }
+		}
+4. 通过子类创建的实例，同时是Cat和Animal两个类的实例，这与 ES5 的行为完全一致。
+
+		const cat=new Cat();
+		cat instanceof Cat;//true
+		cat instanceof Animal; //true
+5. 父类的静态方法，也会被子类继承。
+
+		class A {
+		  static hello() {
+		    console.log('hello world');
+		  }
+		}
+		
+		class B extends A {
+		}
+		
+		B.hello()  // hello world
+### 2.2 Object.getPrototypeOf()
+
+Object.getPrototypeOf方法可以用来从子类上获取父类，可以使用这个方法判断，一个类是否继承了另一个类：
+
+	Object.getPrototypeOf(Cat) === Animal
+
+### 2.3 super 关键字
+super这个关键字，既可以当作函数使用，也可以当作对象使用： 
+ 
+1. super作为函数调用时，代表父类的构造函数。并且`super()`只能用在子类的构造函数之中，用在其他地方就会报错。
+2. super作为对象时（在普通方法中）：指向父类的原型对象（`A.prototype`）；
+
+		class A {
+		  p() {
+		    return 2;
+		  }
+		}
+		
+		class B extends A {
+		  constructor() {
+		    super();
+		    console.log(super.p()); // 2  相当于A.prototype.p()。
+		  }
+		}
+		
+		let b = new B();
+		b.m // undefined  super指向父类的原型对象，所以定义在父类实例上的方法或属性，是无法通过super调用的。
+ES6 规定，在子类普通方法中通过super调用父类的方法时，方法内部的this指向当前的子类实例。
+
+		class A {
+		  constructor() {
+		    this.x = 1;
+		  }
+		  print() {
+		    console.log(this.x);
+		  }
+		}
+		
+		class B extends A {
+		  constructor() {
+		    super();
+		    this.x = 2;
+		    super.x = 3;
+		    console.log(super.x); // undefined 
+		    console.log(this.x); // 3
+		  }
+		  m() {
+		    super.print();
+		  }
+		}
+		
+		let b = new B();
+		b.m() // 3  A.prototype.print()内部的this指向子类B的实例，而不是A.prototype
+上面代码中可以看到：如果通过super对某个属性赋值，这时super就是this，赋值的属性会变成子类实例的属性：`super.x`赋值为3，这时等同于对`this.x`赋值为3。而当读取`super.x`的时候，读的是`A.prototype.x`，所以返回undefined。  
+
+3. super作为对象时（在静态方法中）：指向父类。而不是父类的原型对象。
+
+		class Parent {
+		  static myMethod(msg) {
+		    console.log('static', msg);
+            //静态方法中的this指向Parent而不是Parent的实例
+		  }
+		
+		  myMethod(msg) {
+		    console.log('instance', msg);
+		  }
+		}
+		
+		class Child extends Parent {
+		  static myMethod(msg) {
+		    super.myMethod(msg);
+		  }
+		
+		  myMethod(msg) {
+		    super.myMethod(msg);
+		  }
+		}
+		
+		Child.myMethod(1); // static 1  父类直接调用，会返回静态方法
+		
+		var child = new Child();
+		child.myMethod(2); // instance 2 实例调用，会返回父类的原型对象方法
+在子类的静态方法中通过super调用父类的方法时，方法内部的this指向当前的子类，而不是子类的实例。
+
+		class A {
+		  constructor() {
+		    this.x = 1;
+		  }
+		  static print() {
+		    console.log(this.x);
+		  }
+		}
+		
+		class B extends A {
+		  constructor() {
+		    super();
+		    this.x = 2;
+		  }
+		  static m() {
+		    super.print();
+		  }
+		}
+		
+		B.x = 3;
+		B.m() // 3  B.m里面，super.print指向父类的静态方法。这个方法里面的this指向的是B，而不是B的实例。
+4. 使用super的时候，必须显式指定是作为函数、还是作为对象使用，否则会报错。
+5. 由于对象总是继承其他对象的，所以可以在任意一个对象中，使用super关键字。
+
+### 2.4 原生构造函数的继承
+原生构造函数是指语言内置的构造函数，通常用来生成数据结构。ECMAScript 的原生构造函数大致有下面这些。
+
+	Boolean()
+	Number()
+	String()
+	Array()
+	Date()
+	Function()
+	RegExp()
+	Error()
+	Object()
+ES6之前这些原生构造函数是无法继承的，比如，不能自己定义一个Array的子类。
+
+### 补充章节  实例，构造函数和原型链
+简单回顾一下构造函数、原型和实例的关系：**每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针**
+
+	class Person{
+	  constructor(x) {
+	    this.name = x;
+	  }
+	
+	  toSayHi() {
+	    return 'Hello '+this.name;
+	  }
+	}
+	const p1=new Person("jack");
+	
+	//每个构造函数都有一个原型对象(prototype)
+	console.log(0,Person.prototype)；  
+		//0,{
+        //  constructor: class Person
+		//	toSayHi: ƒ toSayHi()
+		//	__proto__: Object
+		//	}
+	
+	//原型对象都包含一个指向构造函数的指针(constructor)
+	console.log(1,Person===Person.prototype.constructor);
+	
+	//实例都包含一个指向原型对象的内部指针(这个连接存在于实例与构造函数的原型对象之间，而不是存在于实例与构造函数之间)
+	console.log(2,p1.__proto__===Person.prototype);//true
+
+
+同时以上代码还满足
+
+	//实例会自动含有一个constructor属性，指向它们的构造函数,
+	console.log(3,p1.constructor===Person);//true
+	
+	// instanceof运算符，验证原型对象与实例对象之间的关系。
+	console.log(4,p1 instanceof Person); //true
+	console.log(5,p1 instanceof Object); //true
+#### 原型链
+每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
-2. [ES6 的 Symbol 类型及使用案例](https://my.oschina.net/u/2903254/blog/818796)
+2. [一句话总结JS构造函数、原型和实例的关系](https://blog.csdn.net/u012443286/article/details/78823955)
+3. [构造函数，原型对象，实例对象三者之间的关系](http://www.cnblogs.com/liyusmile/p/8820443.html)
 
