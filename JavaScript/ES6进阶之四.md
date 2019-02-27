@@ -569,80 +569,222 @@ ES6 模块的设计思想是尽量的静态化，而commonJS则是使用“运�
 
 ES6 的模块自动采用严格模式，不管你有没有在模块头部加上"use strict"。
 
+
+import和export命令只能在模块的顶层，不能在代码块之中。
+
 ### 3.2 export 命令
-一个模块就是一个独立的文件。该文件内部的所有变量，外部无法获取。如果你希望外部能够读取模块内部的某个变量，就必须使用export关键字输出该变量。
+1. 一个模块就是一个独立的文件。该文件内部的所有变量，外部无法获取。如果你希望外部能够读取模块内部的某个变量，就必须使用export关键字输出该变量。
 
-	//写法一
-	// profile.js
-	export var firstName = 'Michael';
-	export var lastName = 'Jackson';
-	export var multiply = function (x, y) {
-		  return x * y;
-	};
-
-    //写法二
-	var firstName = 'Michael';
-	var lastName = 'Jackson';
-	var multiply = function (x, y) {
-		  return x * y;
-	};
+		//写法一
+		// profile.js
+		export var firstName = 'Michael';
+		export var lastName = 'Jackson';
+		export var multiply = function (x, y) {
+			  return x * y;
+		};
 	
-	export {firstName, lastName, multiply};
-通常情况下，export输出的变量就是本来的名字，但是可以使用as关键字重命名。
+	    //写法二
+		var firstName = 'Michael';
+		var lastName = 'Jackson';
+		var multiply = function (x, y) {
+			  return x * y;
+		};
+		
+		export {firstName, lastName, multiply};
+2. as关键字重命名:通常情况下，export输出的变量就是本来的名字，但是可以使用as关键字重命名。
 
-	function v1() { ... }
-	function v2() { ... }
-	
-	export {
-	  v1 as streamV1,
-	  v2 as streamV2,
-	  v2 as streamLatestVersion
-	};
+		function v1() { ... }
+		function v2() { ... }
+		
+		export {
+		  v1 as streamV1,
+		  v2 as streamV2,
+		  v2 as streamLatestVersion
+		};
 上面代码使用as关键字，重命名了函数v1和v2的对外接口。重命名后，v2可以用不同的名字输出两次。
 
-export语句输出的接口，与其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。(这一点与 CommonJS 规范完全不同。CommonJS 模块输出的是值的缓存，不存在动态更新)。  
+3. export语句输出的接口，与其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。(这一点与 CommonJS 规范完全不同。CommonJS 模块输出的是值的缓存，不存在动态更新)。  
 
-export命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错。
+4. export命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错。
+
 ### 3.3 import 命令
 使用export命令定义了模块的对外接口以后，其他 JS 文件就可以通过import命令加载这个模块。
 
 	// main.js
 	import {firstName, lastName, year} from './profile.js';
 
-如果想为输入的变量重新取一个名字，import命令要使用as关键字，将输入的变量重命名。
+1. 如果想为输入的变量重新取一个名字，import命令要使用as关键字，将输入的变量重命名。
 
-	import { lastName as surname } from './profile.js';
-import命令输入的变量都是只读的，不允许在加载模块的脚本里面，改写接口。
+		import { lastName as surname } from './profile.js';
+2. import命令输入的变量都是只读的，不允许在加载模块的脚本里面，改写接口。
 	
-	import {a} from './xxx.js'
-	a = {}; // Syntax Error : 'a' is read-only;不允许重新赋值
-    a.foo = 'hello'; // 合法操作，改写属性是允许的
-import命令具有提升效果，会提升到整个模块的头部，会首先执行。
+		import {a} from './xxx.js'
+		a = {}; // Syntax Error : 'a' is read-only;不允许重新赋值
+	    a.foo = 'hello'; // 合法操作，改写属性是允许的
+3. import命令具有提升效果，会提升到整个模块的头部，会首先执行。
 
-	foo();
+		foo();
+		
+		import { foo } from 'my_module';
+4. 由于import是静态执行，所以不能使用表达式和变量
+
+		// 报错
+		import { 'f' + 'oo' } from 'my_module';
+5. import语句会执行所加载的模块：
+
+		import 'lodash';
+6. 如果多次重复执行同一句import语句，那么只会执行一次，而不会执行多次。
+
+		import 'lodash';
+		import 'lodash';
+7. 模块加载时会自动判断：
+
+		import { foo } from 'my_module';
+		import { bar } from 'my_module';
+		
+		// 等同于
+		import { foo, bar } from 'my_module';
+8. 模块的整体加载
 	
-	import { foo } from 'my_module';
-由于import是静态执行，所以不能使用表达式和变量
+		import * as circle from './circle';
+		console.log('圆面积：' + circle.area(4));
+		console.log('圆周长：' + circle.circumference(14));
+		
 
+		// 下面两行都是不允许的！！！！，因为是静态执行，所以不允许运行时改变
+		circle.foo = 'hello';
+		circle.area = function () {};
+
+### 3.4 export default
+该命令可以为模块指定默认输出：
+
+	// export-default.js
+	export default function () {
+	  console.log('foo');
+	}
+其他模块加载该模块时，import命令可以为该匿名函数指定任意名字。
+
+	// import-default.js
+	import customName from './export-default'; //需要注意的是，这时import命令后面，不使用大括号。!!!!!!
+	customName(); // 'foo'
+一个模块只能有一个默认输出，因此export default命令只能使用一次。所以，import命令后面才不用加大括号，因为只可能唯一对应export default命令。  
+
+export default命令的本质是将后面的值，赋给default变量，所以可以直接将一个值写在export default之后：
+
+	// 正确
+	export var a = 1;
+	
+	// 正确
+	var a = 1;
+	export default a;
+	
+	// 正确
+	export default 42;
+	
+	// 错误
+	export default var a = 1;
+	
+	
 	// 报错
-	import { 'f' + 'oo' } from 'my_module';
-import语句会执行所加载的模块：
+	export 42;
+也可以在一条import语句中，同时输入默认方法和其他接口：
 
-	import 'lodash';
-如果多次重复执行同一句import语句，那么只会执行一次，而不会执行多次。
+	import _, { each, forEach } from 'lodash';
 
-	import 'lodash';
-	import 'lodash';
-模块加载时会自动判断：
+### 3.5 export 与 import 的复合写法
+如果在一个模块之中，先输入后输出同一个模块，import语句可以与export语句写在一起。
 
-	import { foo } from 'my_module';
-	import { bar } from 'my_module';
+	export { foo, bar } from 'my_module';
+	
+	// 可以简单理解为
+	import { foo, bar } from 'my_module';
+	export { foo, bar };
+写成一行以后，foo和bar实际上并没有被导入当前模块，只是相当于对外转发了这两个接口，导致**当前模块不能直接使用foo和bar**。  
+
+模块的接口改名和整体输出，也可以采用这种写法:
+	
+	// 接口改名
+	export { foo as myFoo } from 'my_module';
+	
+	// 整体输出
+	export * from 'my_module';
+默认接口、具名接口改为默认接口、默认接口改名为具名接口的写法如下：
+
+	//默认接口
+	export { default } from 'foo';
+	
+	//具名接口改默认
+	export { es6 as default } from './someModule';
 	
 	// 等同于
-	import { foo, bar } from 'my_module';
+	import { es6 } from './someModule';
+	export default es6;
+
+	//默认接口改为具名接口
+	export { default as es6 } from './someModule';
+
+### 3.6 模块的继承
+模块之间也可以继承。  
+假设有一个circleplus模块，继承了circle模块:
+
+	// circleplus.js
+	
+	export * from 'circle';
+	export var e = 2.71828182846;
+	export default function(x) {
+	  return Math.exp(x);
+	}
+上面代码中的`export *`，表示再输出circle模块的所有属性和方法。注意，`export *`命令会忽略circle模块的default方法。然后，上面代码又输出了自定义的e变量和默认方法。
+### 3.7 跨模块常量
+
+如果一个值要被多个模块共享，可以采用下面的写法：
+
+	// constants/db.js
+	export const db = {
+	  url: 'http://my.couchdbserver.local:5984',
+	  admin_username: 'admin',
+	  admin_password: 'admin password'
+	};
+	
+	// constants/user.js
+	export const users = ['root', 'admin', 'staff', 'ceo', 'chief', 'moderator'];
+将这些文件输出的常量，合并在index.js里面:
+
+	// constants/index.js
+	export {db} from './db';
+	export {users} from './users';
+最后使用的使用直接加载index.js就可以了：
+	
+	// script.js
+	import {db, users} from './constants/index';
+### 3.8 import()
+因为import和export命令只能在模块的顶层，不能在代码块之中。所以，如果ES6要取代Node的require方法（require是运行时加载模块），是无法实现的：
+
+	const path = './' + fileName;
+	const myModual = require(path);
+因此，有一个提案，建议引入`import()`函数，完成动态加载：
+
+	//import()返回一个 Promise 对象：
+	
+	const main = document.querySelector('main');
+	
+	import(`./section-modules/${someVariable}.js`)
+	  .then(module => {
+	    module.loadPageInto(main);
+	  })
+	  .catch(err => {
+	    main.textContent = err.message;
+	  });
+
+
 ## 第四章 Module 的加载实现
 
+浏览器是同步加载 JavaScript 脚本，即渲染引擎遇到`<script>`标签就会停下来，等到执行完脚本，再继续向下渲染。如果是外部脚本，还必须加入脚本下载的时间，所以会造成浏览器堵塞。所以浏览器很早就已经支持脚本的异步加载了：
 
+	<script src="path/to/myModule.js" defer></script>
+	<script src="path/to/myModule.js" async></script>
+
+defer是“渲染完再执行”，async是“下载完就执行”。另外，如果有多个defer脚本，会按照它们在页面出现的顺序加载，而多个async脚本是不能保证加载顺序的。
 
 
 ## 参考文章
