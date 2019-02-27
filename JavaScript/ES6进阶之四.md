@@ -785,8 +785,35 @@ export default命令的本质是将后面的值，赋给default变量，所以�
 	<script src="path/to/myModule.js" async></script>
 
 defer是“渲染完再执行”，async是“下载完就执行”。另外，如果有多个defer脚本，会按照它们在页面出现的顺序加载，而多个async脚本是不能保证加载顺序的。
+### 4.1 加载规则
+浏览器加载 ES6 模块，也使用`<script>`标签，但是要加入type="module"属性。  
 
+浏览器对于带有type="module"的`<script>`，都是异步加载，不会造成堵塞浏览器，即等到整个页面渲染完，再执行模块脚本，等同于打开了`<script>`标签的defer属性。
 
+	<script type="module" src="./foo.js"></script>
+    <!--chrome下必须写相对引用地址，否则会有跨域提示警告，无法加载 -->
+	
+	<!-- 等同于 -->
+	<script type="module" src="./foo.js" defer></script>
+`<script>`标签的async属性也可以打开，这时只要加载完成，渲染引擎就会中断渲染立即执行。执行完成后，再恢复渲染。
+
+	<script type="module" src="./foo.js" async></script>
+
+一旦使用了async属性，`<script type="module">`就不会按照在页面出现的顺序执行，而是只要该模块加载完成，就执行该模块。
+
+ES6 模块也允许内嵌在网页中，语法行为与加载外部脚本完全一致。
+
+	<script type="module">
+	  import utils from "./utils.js";
+	
+	  // other code
+	</script>
+此时需要几点：
+
+1. 通过type="module"加载的代码是在模块作用域之中运行，而不是在全局作用域运行。模块内部的顶层变量，外部不可见。
+2. 模块之中，顶层的this关键字返回undefined，而不是指向window。
+3. 模块脚本自动采用严格模式，不管有没有声明use strict。
+4. 模块之中，可以使用import命令加载其他模块（.js后缀不可省略），也可以使用export命令输出对外接口。
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 2. [一句话总结JS构造函数、原型和实例的关系](https://blog.csdn.net/u012443286/article/details/78823955)
