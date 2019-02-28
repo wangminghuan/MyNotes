@@ -814,8 +814,150 @@ ES6 模块也允许内嵌在网页中，语法行为与加载外部脚本完全�
 2. 模块之中，顶层的this关键字返回undefined，而不是指向window。
 3. 模块脚本自动采用严格模式，不管有没有声明use strict。
 4. 模块之中，可以使用import命令加载其他模块（.js后缀不可省略），也可以使用export命令输出对外接口。
+
+### 4.2 与commonJS模块差异
+它们有两个重大差异：
+
+1. CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。
+2. CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。
+
+首先解释第一个差异：有如下两个js文件
+
+	//lib.js
+	var counter = 3;
+	function incCounter() {
+	  counter++;
+	}
+	module.exports = {
+	  counter: counter,
+	  incCounter: incCounter,
+	};
+
+	// main.js
+	var mod = require('./lib');
+	
+	console.log(mod.counter);  // 3
+	mod.incCounter();
+	console.log(mod.counter); // 3
+我们通过node运行后得到结果：
+
+	$ node main.js
+    3
+    3
+这说明CommonJS 模块输出的是值的拷贝，也就是说，一旦输出一个值，模块内部的变化就影响不到这个值。mod.counter是一个原始类型的值，会被缓存。除非写成一个函数，才能得到内部变动后的值。
+
+	//lib.js
+	//同上，省略
+	module.exports = {
+	  get counter() {
+	    return counter
+	  },
+	  incCounter: incCounter,
+	};
+我们再次通过node运行后得到结果：
+
+	$ node main.js
+    3
+    4
+而ES6 模块是动态引用，并且不会缓存值
+	
+	//lib.js
+	var counter = 3;
+		function incCounter() {
+		  counter++;
+		}
+	export{counter,incCounter}
+   
+    //main.js
+	import { counter, incCounter } from './lib.js';
+	console.log(counter); // 3
+	incCounter();
+	console.log(counter); // 4
+第二个差异是因为 CommonJS 加载的是一个对象（即module.exports属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
+
+
+### 4.3 Node加载
+1. Node 要求 ES6 模块采用.mjs后缀文件名。
+2. require命令不能加载.mjs文件，会报错，只有import命令才可以加载.mjs文件。  
+3. 如果模块名不含路径，那么import命令会去node_modules目录寻找这个模块
+4. Node 的import命令只支持加载本地模块（file:协议），不支持加载远程模块。
+
+		如果脚本文件省略了后缀名，比如import './foo'，Node 会依次尝试四个后缀名：./foo.mjs、./foo.js、./foo.json、./foo.node。
+		如果这些脚本文件都不存在，Node 就会去加载./foo/package.json的main字段指定的脚本。
+		如果./foo/package.json不存在或者没有main字段，那么就会依次加载./foo/index.mjs、./foo/index.js、./foo/index.json、./foo/index.node。
+		如果以上四个文件还是都不存在，就会抛出错误。
+
+### 4.4 内部变量
+为了实现ES6 模块的通用性（浏览器环境和服务器环境通用）。Node 规定 ES6 模块之中不能使用 CommonJS 模块的特有的一些内部变量：
+1. this关键字：ES6 模块之中，顶层的this指向undefined；而CommonJS 模块的顶层this指向当前模块
+2. 以下顶层变量，在ES6的模块中也是不存在的
+
+	arguments
+	require
+	module
+	exports
+	__filename
+	__dirname
+### 4.5 ES6 模块 与 CommonJS 模块 互相加载
+1. ES6 模块加载 CommonJS 模块
+
+		// a.js -- commonJS模块
+		module.exports = {
+		  foo: 'hello',
+		  bar: 'world'
+		};
+		
+		// 等同于
+		export default {
+		  foo: 'hello',
+		  bar: 'world'
+		};
+故：一共有三种写法，可以拿到 CommonJS 模块的module.exports
+	
+		// 写法一
+		import baz from './a';
+		// baz = {foo: 'hello', bar: 'world'};
+		
+		// 写法二
+		import {default as baz} from './a';
+		// baz = {foo: 'hello', bar: 'world'};
+		
+		// 写法三
+		import * as baz from './a';
+		// baz = {
+		//   get default() {return module.exports;},
+		//   get foo() {return this.default.foo}.bind(baz),
+		//   get bar() {return this.default.bar}.bind(baz)
+		// }
+2. CommonJS 模块加载 ES6 模块
+
+		// es.mjs
+		let foo = { bar: 'my-default' };
+		export default foo;
+
+		// cjs.js
+		const es_namespace = await import('./es.mjs');
+		console.log(es_namespace.default);
+不能使用require命令，而要使用import()函数。ES6 模块的所有输出接口，会成为输入对象的属性。
+
+### 4.7 循环加载的处理机制
+所谓“循环加载”（circular dependency）指的是，a脚本的执行依赖b脚本，而b脚本的执行又依赖a脚本。
+
+1. commonJS处理机制：  
+
+		首页，执行a.js，遇到加载b.js的代码就去执行b.js。此时a.js就挂起在那里，处于等待状态。
+        接着，执行b.js的过程中，遇到加载a.js的部分系统会去a.js模块对应对象的exports属性取值，可是因为a.js还没有执行完，从exports属性只能取回已经执行的部分，而不是最后的值。
+        然后，b.js接着往下执行，等到全部执行完毕，再把执行权交还给a.js。
+		最后，a.js接着往下执行，直到执行完毕。
+
+2. ES6处理机制：
+
+		首先，执行a.mjs以后，引擎发现它加载了b.mjs，因此会优先执行b.mjs，然后再执行a.mjs。
+		接着，执行b.mjs的时候，已知它从a.mjs输入了foo接口，这时不会去执行a.mjs，而是认为这个接口已经存在了，继续往下执行。
+		然后到跟a.mjs相关逻辑时，才发现这个接口根本没定义，因此报错
 ## 参考文章
 1. [阮一峰ES6入门](http://es6.ruanyifeng.com/)
 2. [一句话总结JS构造函数、原型和实例的关系](https://blog.csdn.net/u012443286/article/details/78823955)
 3. [构造函数，原型对象，实例对象三者之间的关系](http://www.cnblogs.com/liyusmile/p/8820443.html)
+4. [循环加载](http://es6.ruanyifeng.com/#docs/module-loader#%E5%BE%AA%E7%8E%AF%E5%8A%A0%E8%BD%BD)
 
