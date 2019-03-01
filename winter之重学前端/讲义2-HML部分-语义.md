@@ -1,35 +1,14 @@
 <font face="微软雅黑" size="4" >
-<font size="6">标题</font>
+<font size="6">HTML之语义标签</font>
 
 
-## 1 代码风格 
->[语法参考](http://en.wikipedia.org/wiki/Cascading_Style_Sheets#Syntax)
+## 1 语义标签 
+html属于标记形语言，标签语义化更接近我们平常说话的自然语言，并没有唯一的标准措辞，语义标签的使用也是一样。  
 
-- 要点1
-- 要点2
+语义化的三个明确的场景：
+1. 自然语言表达能力的补充； 
+2. 文章标题摘要； 
+3. 适合机器阅读的整体结构
 
-### 1.1 选择器  
-
-#### [强制] 当一个 `rule` 包含多个 `selector` 时，每个选择器声明必须独占一行。
-
-示例：
-
-
-	/* good */
-	.post,
-	.page,
-	.comment {
-	    line-height: 1.5;
-	}
-	
-	/* bad */
-	.post, .page, .comment {
-	    line-height: 1.5;
-	}
-
-
-##  参考文献
-
-1. [文献1](http://codeguide.bootcss.com/)
 
 
