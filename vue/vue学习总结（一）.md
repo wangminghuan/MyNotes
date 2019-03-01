@@ -9,7 +9,7 @@
 
 ## 2 基础
 
-vue的设计受到 MVVM的启发，它其实只是一个view层，关于设计模式的区别，请点击：[MVC,MVP和MVVM区别](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
+关于设计模式的区别，请点击：[MVC,MVP和MVVM区别](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
 
 ### 2.1 属性和方法  
 1. **代理属性和方法**：  

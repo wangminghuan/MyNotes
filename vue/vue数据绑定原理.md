@@ -9,13 +9,21 @@
 2. model:数据层,就是业务逻辑相关的数据对象(js对象等)
 3. viewModel:连接数据和视图的中间件
 
-如果映射到一个vue组件中，那么可以这样理解
-![](https://i.imgur.com/hnQwQbN.png)
 
-### 设计原理
-1. 在MVM架构下View和model是不能直接通讯的,需要ViewModel来做通讯。
+## 设计原理
+1. 在MVVM架构下View和model是不能直接通讯的,需要ViewModel来做通讯。
 2. ViewModel通常要实现一个observer（观察者），当model变化时，通知view层自动更新；当用户操作view层时，通知model层数据变化，这就是实现了数据跟视图的双向绑定。
 
+### Vue.js与MVVM模型的联系
+可以这样理解vue框架对应MVVM模型关系：
+
+![](https://i.imgur.com/3nfaFyg.png)
+
+	Observer相当于Model层：观察vue实例中的data数据，当数据发生变化时，通知Watcher订阅者。
+	
+	Compile指令解析器位于View层，初始化View的视图，将数据变化与更新函数绑定，传给Watcher订阅者。
+	
+	Watcher是整个模型的核心，对应ViewModel层，连接Observer和Compile。所有的Watchers存于Dep订阅器中，Watcher将Observer监听到的数据变化对应相应的回调函数，处理数据，反馈给View层更新界面视图。
 
 ## 几种实现双向绑定的做法
 
@@ -316,3 +324,4 @@
 ### 参考文档
 
 1. [Vue 数据绑定详细原理剖析](https://blog.csdn.net/itkingone/article/details/79152951)
+2. [Vue.js入门（一）--MVVM框架理解](https://segmentfault.com/a/1190000009397476)
