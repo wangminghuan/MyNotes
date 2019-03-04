@@ -187,7 +187,34 @@ JavaScript 并非第一个使用原型的语言，在它之前，self、kevo 等
 	console.log([o, n, s, b, d, arg, r, f, arr, e].map(v => Object.prototype.toString.call(v))); 
 	//运行结果：
 	//["[object Object]", "[object Number]", "[object String]", "[object Boolean]", "[object Date]", "[object Arguments]", "[object RegExp]", "[object Function]", "[object Array]", "[object Error]"]
+
+在 ES3 和之前的版本，JS 中类的概念是相当弱的，它仅仅是运行时的一个字符串属性。在 ES5 开始，[[class]] 私有属性被 Symbol.toStringTag 代替，Object.prototype.toString 的意义从命名上不再跟 class 相关。我们甚至可以自定义 Object.prototype.toString 的行为:
+
+	var o = { [Symbol.toStringTag]: "MyObject" };
+	console.log(Object.prototype.toString.call(o));//[object MyObject]
+    console.log(o + "");//[object MyObject] 对于Object类型,如果toString方法没有被改写过（如Number类型），通过加法也可以触发；
+
+对于new运算符：它接受一个构造器和一组调用参数，实际上做了几件事：
+
+1. 以构造器的 prototype 属性（注意与私有字段 [[prototype]] 的区分）为原型，创建新对象；
+2. 将 this 和调用参数传给构造器，执行；
+3. 如果构造器返回的是对象，则返回，否则返回第一步创建的对象。
+
+没有 Object.create、Object.setPrototypeOf 的早期版本中，new 运算是唯一一个可以指定 [[prototype]] 的方法，我们甚至可以用它来实现一个 Object.create 的不完整的 pollyfill，见以下代码（同上面object方法）：
+
+	function object(o){
+		function F(){}
+		F.prototype = o;
+		return new F();
+	}
+但是这个函数无法做到与原生的 Object.create 一致，一个是不支持第二个参数，另一个是不支持 null 作为原型，所以意义已经不大了。
+
+
 ### 4. ES6中的类与原型
 
+ES6 中加入了新特性 class，new 跟 function 搭配的怪异行为终于可以退休了。在任何场景，推荐使用 ES6 的语法来定义类，而令 function 回归原本的函数语义。
 
+同时，ES6 中引入了 class 关键字，并且在标准中删除了所有 [[class]] 相关的私有属性描述，类的概念正式从属性升级成语言的基础设施，从此，基于类的编程方式成为了 JavaScript 的官方编程范式。
+
+此外，最重要的是，类提供了继承能力（extends）
 </font>
