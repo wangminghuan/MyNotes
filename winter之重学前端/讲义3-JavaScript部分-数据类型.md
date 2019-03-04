@@ -1,8 +1,6 @@
 <font face="微软雅黑" size="4" >
-<font size="6">HTML之语义标签</font>
+<font size="6">数据类型</font>
 
-
-## 第一部分 数据类型
 根据最新的语言标准，js共有七种语言类型：
 
 1. Undefined
