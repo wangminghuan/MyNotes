@@ -110,6 +110,60 @@ support 检查环境的特性，它与 media 比较类似。
 
 ![](https://i.imgur.com/ySJwxQ3.png)
 
+##### 知识点补充：css组合器
+
+1. 空格，后代选择器，选中它的子节点和所有子节点的后代节点。
+    
+	    div p{
+	      color: red;
+	    }
+	    <div>
+	    <p>我是红色</p>
+	    <p>我是红色</p>
+	    <section><p>我也是红色</p></section>
+	    </div>
+2. \> ,子代选择器，选中它的子节点，只选中符合条件的子节点，不包含后代节点
+		
+		div > p{
+	      color: red;
+	    }
+	    <div>
+	    <p>我是红色</p>
+	    <p>我是红色</p>
+	    <section><p>我不是</p></section>
+	    </div>
+
+3. \+ ,直接后继选择器，选中它的下一个相邻节点。
+
+		div + p{
+	      color: red;
+	    }
+
+		  div>
+		    <p>我不是</p>
+		    <p>我不是</p>
+		    <section><p>我不是</p></section>
+		  </div>
+		  <p>我是红色</p>
+		  <p>我不是</p>
+		  <section><p>我不是</p></section>
+
+4. ~ ,后继选择器，选中它之后所有的相邻节点。
+
+
+		div ~ p{
+	      color: red;
+	    }
+		  <div>
+		    <p>我不是</p>
+		    <p>我不是</p>
+		    <section><p>我不是</p></section>
+		  </div>
+		  <p>我是红色</p>
+		  <p>我是红色</p>
+		  <section><p>我不是</p></section>
+5. ||：列，选中表格中的一列。不太重要，可以忽略
+
 #### 声明：属性和值
 声明部分是一个由“属性: 值”组成的序列：  
 
