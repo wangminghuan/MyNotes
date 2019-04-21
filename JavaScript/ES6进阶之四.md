@@ -859,14 +859,14 @@ ES6 模块也允许内嵌在网页中，语法行为与加载外部脚本完全�
 	$ node main.js
     3
     4
-而ES6 模块是动态引用，并且不会缓存值
+而ES6 模块是动态引用，并且不会缓存值（通过chrome执行以下代码）
 	
 	//lib.js
-	var counter = 3;
-		function incCounter() {
-		  counter++;
-		}
-	export{counter,incCounter}
+	let counter = 3;
+	let incCounter=function() {
+	  counter++;
+	}
+	export {counter,incCounter}
    
     //main.js
 	import { counter, incCounter } from './lib.js';
@@ -875,6 +875,8 @@ ES6 模块也允许内嵌在网页中，语法行为与加载外部脚本完全�
 	console.log(counter); // 4
 第二个差异是因为 CommonJS 加载的是一个对象（即module.exports属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
 
+#### 总结：
+ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析的时候，遇到模块加载命令import，就会生成一个只读引用。等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值。换句话说，ES6 的import有点像 Unix 系统的“符号连接”，原始值变了，import加载的值也会跟着变。因此，ES6 模块是动态引用，并且不会缓存值，模块里面的变量绑定其所在的模块。
 
 ### 4.3 Node加载
 1. Node 要求 ES6 模块采用.mjs后缀文件名。
