@@ -1,6 +1,4 @@
 <font face="微软雅黑" size="4" >
-<font size="6">Event Loop</font>
-
 
 ## js的单线程
 JavaScript语言的一大特点就是单线程，也就是，一个时间只能做一件事。  
