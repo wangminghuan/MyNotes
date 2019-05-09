@@ -803,7 +803,22 @@ async函数返回的 Promise 对象，必须等到内部所有await命令后面�
 	}
 	
 	fn().then(v => console.log(v))
-await命令后面是一个thenable对象（即定义then方法的对象），那么await会将其等同于 Promise 对象。  
+await命令后面是一个thenable对象（即定义then方法的对象），那么await会将其等同于 Promise 对象，返回该Promise的resolve传入的值。  
+
+    const foo = new Promise(function (resolve, reject) {
+      setTimeout(() => {
+        resolve("我是foo的reject值")
+      }, 100)
+    });
+    async function fn () {
+      const result = await foo;
+      console.log(result) //我是foo的reject值
+      return "我是fn返回值"
+    }
+
+    fn().then(v => {
+		console.log(v)//我是fn返回值
+	}) 
 
 await命令后面的 Promise 对象如果变为reject状态，则reject的参数会被catch方法的回调函数接收到。
 
