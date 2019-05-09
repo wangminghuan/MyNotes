@@ -1,6 +1,74 @@
 ## 正常流的行为
 我们可以用一句话来描述正常流的排版行为，那就是：依次排列，排不下了换行。
 
+当我们要把正常流中的一个盒或者文字排版，需要分成三种情况处理:
+
+- 当遇到块级盒：排入块级格式化上下文。
+- 当遇到行内级盒或者文字：首先尝试排入行内级格式化上下文，如果排不下，那么创建一个行盒，先将行盒排版（行盒是块级，所以到第一种情况），行盒会创建一个行内级格式化上下文。
+- 遇到 float 盒：把盒的顶部跟当前行内级上下文上边缘对齐，然后根据 float 的方向把盒的对应边缘对到块级格式化上下文的边缘，之后重排当前行盒。
+
+
+## 正常流实现的两种布局
+
+### 等分布局
+    
+	//css样式
+    .outer {
+      width: 101px;
+      /* 在某些浏览器中，因为像素计算精度问题，还是会出现换行，我们给 outer 添加一个特定宽度： */
+      font-size: 0;
+      /* 解决换行和空格被 HTML 当作空格文本，跟 inline 盒混排了的问题。 */
+    }
+
+    .inner {
+      width: 33.33%;
+      height: 300px;
+      display: inline-block;
+      outline: solid 1px blue;
+    }
+
+    .inner:last-child {
+      margin-right: -5px;
+      /* 解决某些旧版本浏览器中会出现换行的问题 */
+    }
+     
+    //html
+    <div class="outer">
+	    <div class="inner"></div>
+	    <div class="inner"></div>
+	    <div class="inner"></div>
+    </div>
+
+### 自适应宽
+自适应宽（一个元素固定宽度，另一个元素填满父容器剩余宽度）是个经典的布局问题，我们现在就看一下如何使用正常流来解决：
+
+    .outer {
+      font-size: 0;
+    }
+
+    .fixed,
+    .auto {
+      outline: solid 1px red;
+      display: inline-block;
+      vertical-align: top;
+      height: 300px;
+    }
+
+    .fixed {
+      width: 200px;
+    }
+    .auto {
+      width: 100%;
+      margin-left: -200px;
+      padding-left: 200px;
+      box-sizing: border-box;
+    }
+
+    //html文件
+	 <div class="outer">
+	    <div class="fixed"></div>
+	    <div class="auto"></div>
+	 </div>
 ## BFC
 ### 特点
 
