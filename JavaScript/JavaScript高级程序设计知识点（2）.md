@@ -158,18 +158,18 @@ person1 和 person2 分别保存着 Person 的一个不同的实例。这两个�
  
 对原型对象所做的任何修改都能够立即从实例上反映出来——即使是先创建了实例后修改原型也照样如此，但是，如果我们通过字面量方式重写实例的原型：
 
-		function Person(){
-		}
+        function Person(){
+        }
         var person1=new Person();
-		Person.prototype = {
-			constructor : Person,
-			name : "Nicholas",
-			age : 29
-		};  
+        Person.prototype = {
+          constructor : Person,
+          name : "Nicholas",
+          age : 29
+        };  
         //Person.prototype.name="Nicholas";这种写法不会存在任何问题
         var person2=new Person(); 
         console.log(person1.name);//undefined
-		console.log(person2.name);//Nicholas
+        console.log(person2.name);//Nicholas
 **！！！重写原型对象会切断现有原型与任何之前已经存在的对象实例之间的联系。即：只要对原型进行了赋值操作`Person.prototype = xx`,实例对象与原有原型之前的联系都会被断开！！！**
 
 #### 原型模式存在的问题  
@@ -352,10 +352,8 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 		cat1.color.push("black");//修改引用类型
 		cat1.morecolor.push("tabby");
 		
-		console.log(cat1.color,cat1.morecolor);
-		//["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
-		console.log(cat2.color,cat2.morecolor);
-		//["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+		console.log(cat1.color,cat1.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+		console.log(cat2.color,cat2.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
 
 可以看到修改实例`cat1`的`color`和`morecolor`属性会直接影响实例`cat2`的`color`和`morecolor`属性（重写则不存在这个问题）。这是因为继承情况下，重写子类的实例改写的是父类构造函数同一处引用。而创建实例的时候，每次创建出来的构造函数都是一个副本。所以，实践中很少会单独使用原型链来实现继承。
 
@@ -363,35 +361,33 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 
 这种技术的基本思想相当简单，即在子类型构造函数的内部调用超类型构造函数；  
 
-		function Animal(){
-        　 this.species = "mammals";
-           this.color = ["white","grey"];        
-        }            
-        function Cat(name){
-        	Animal.apply(this);//
-    　　　　 this.name = name;
-        } 
-        //Cat.prototype=new Animal();
-		var cat1 = new Cat("Tom");
-		var cat2 = new Cat("Jack");
-		cat1.color.push("tobby");
-		console.log(cat1.color);
-		//["white", "grey", "tobby"]
-		console.log(cat2.color);
-		//["white", "grey"]  
+      function Animal(){
+        this.species = "mammals";
+        this.color = ["white","grey"];        
+      }            
+      function Cat(name){
+        Animal.apply(this);
+        this.name = name;
+      } 
+      Cat.prototype=new Animal();
+      var cat1 = new Cat("Tom");
+      var cat2 = new Cat("Jack");
+      cat1.color.push("tobby");
+      console.log(cat1.color); //["white", "grey", "tobby"]
+      console.log(cat2.color); //["white", "grey"]  
 可以看到通过使用 apply()和 call()方法也可以在（将来）新创建的对象上执行构造函数，这样每个实例就都会具有自己的 `color` 属性的副本。同时，我们还以通过子类的构造函数向父类传递构造函数。  
 
-		function Animal(species){
-        　 this.species = species;
-           this.color = ["white","grey"];        
-        }            
-        function Cat(name){
-        	Animal.call(this,"mammals");
-    　　　　 this.name = name;
-        } 
-        //Cat.prototype=new Animal();
-		var cat1 = new Cat("Tom");
-		console.log(cat1.species);//mammals
+      function Animal(species){
+        this.species = species;
+        this.color = ["white","grey"];        
+      }            
+      function Cat(name){
+        Animal.call(this,"mammals");
+        this.name = name;
+      } 
+      Cat.prototype=new Animal();
+      var cat1 = new Cat("Tom");
+      console.log(cat1.species);//mammals
 
 但其仍存在问题：所有的属性和方法都在父类构造函数中定义，因此函数复用就无从谈起了。并且在父类的原型中定义的方法，对子类型而言也是不可见的。考虑到这些问题，借用构造函数的技术也是很少单独使用的。
 
