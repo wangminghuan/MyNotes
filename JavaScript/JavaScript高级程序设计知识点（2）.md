@@ -272,20 +272,21 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
   
 通过原型链实现的简单继承。cat继承animal的所有属性和方法。
 
-		function Animal(){
-        　 this.species = "动物";
-        }
-        Animal.prototype.eat=function(){
-        	console.log("吃肉！");
-        }           
-        function Cat(name,color){
-    　　　　this.name = name;
-    		this.color = color;
-        }  
-        Cat.prototype = new Animal();//Cat 继承 Animal
-        var cat1 = new Cat("咪咪","黄色");
-        console.log(cat1.species);  
-        console.log(cat1.eat());
+      function Animal(){
+        this.species = "动物";
+      }
+      Animal.prototype.eat=function(){
+        console.log("吃肉！");
+      }           
+      function Cat(name,color){
+        this.name = name;
+        this.color = color;
+      }  
+      Cat.prototype = new Animal();//Cat 继承 Animal
+      var cat1 = new Cat("咪咪","黄色");
+      console.log(cat1.species);  
+      console.log(cat1.eat());
+      
 1. 构造函数、原型和实例的关系：
 
 	- 每个构造函数都有一个原型对象（prototype）。
@@ -308,31 +309,31 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 5. 添加/重写方法要注意顺序：  
 给原型添加方法的代码一定要放在替换原型的语句之后，因为原型被一旦被重新赋值，就会断开与之前原型（还有实例）的所有关系：  
 
-			function Animal(){
-		    　 this.species = "动物";
-		    }
-		    Animal.prototype.eat=function(){
-		    	console.log("吃肉！");
-		    }           
-		    function Cat(name,color){
-		　　　   this.name = name;
-				 this.color = color;
-		    } 
+        function Animal(){
+          this.species = "动物";
+        }
+        Animal.prototype.eat=function(){
+          console.log("吃肉！");
+        }           
+        function Cat(name,color){
+          this.name = name;
+          this.color = color;
+        } 
 
-			Cat.prototype = new Animal();//在此语句执行后再为原型添加方法
-			
-			Cat.prototype.drink=function(){ //添加方法
-				console.log("喝牛奶！")
-			}
-			Cat.prototype.eat=function(){ //重写方法
-				console.log("吃鱼！")
-			}
-			
-			var cat1 = new Cat("咪咪","黄色");
-			//此语句要放在Cat.prototype = new Animal()后面
-			//因为给Cat.prototype赋值后会断开与之前实例的关系
-			cat1.drink();
-			cat1.eat();  
+        Cat.prototype = new Animal();//在此语句执行后再为原型添加方法
+
+        Cat.prototype.drink=function(){ //添加方法
+        console.log("喝牛奶！")
+        }
+        Cat.prototype.eat=function(){ //重写方法
+        console.log("吃鱼！")
+        }
+
+        var cat1 = new Cat("咪咪","黄色");
+        //此语句要放在Cat.prototype = new Animal()后面
+        //因为给Cat.prototype赋值后会断开与之前实例的关系
+        cat1.drink();
+        cat1.eat();  
 同样在`Cat.prototype = new Animal()` 执行后，不能再通过字面量方式为原型增加方法和属性，那样会再次重写原型。  
 6. 原型链引发的问题：  
 同创建对象一样，对于引用类型值的修改，会通过原型链反映到所继承类型上（子类修改影响父类），而且与创建对象时的构造函数模式不同的是：不管是位于父类构造函数内还有父类原型上的引用属性，只要子类被修改，父类就会被修改。
@@ -395,32 +396,32 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 
 组合继承，有时候也叫做伪经典继承，指的是将原型链和借用构造函数的技术组合到一块。从而发挥二者之长的一种继承模式。其背后的思路是使用原型链实现对原型属性和方法的继承，而通过借用构造函数来实现对实例属性的继承。即：将公共的方法和属性放在原型链上，其他的属性和方法都放在构造函数中：  
 
-		function Animal(){
-        　 this.species = "mammals";
-           this.color = ["white","grey"];        
-        }
-        Animal.prototype.sayHi = function(){
-          console.log("Hi!")
-		}           
-        function Cat(name){
-        	Animal.apply(this);//第二次调用 父类Animal()
-    　　　　this.name = name;
-        } 
-        Cat.prototype=new Animal();//第一次调用 父类Animal()
-        Cat.prototype.constructor=Cat;//将构造函数指回来
-		
-        var cat1 = new Cat("Tom");
-        var cat2 = new Cat("Jack");
+    function Animal(){
+      this.species = "mammals";
+      this.color = ["white","grey"];        
+    }
+    Animal.prototype.sayHi = function(){
+      console.log("Hi!")
+    }           
+    function Cat(name){
+      Animal.apply(this);//第二次调用 父类Animal()
+      this.name = name;
+    } 
+    Cat.prototype=new Animal();//第一次调用 父类Animal()
+    Cat.prototype.constructor=Cat;//将构造函数指回来
 
-        cat1.color.push("black");
-        
-		console.log(cat1.color);//["white", "grey", "black"]
-        console.log(cat2.color);//["white", "grey"]
-        cat1.sayHi();//Hi!
-        console.log(cat1 instanceof Cat);//true
-        console.log(cat1 instanceof Animal);//true
-        console.log(Cat.prototype.isPrototypeOf(cat1));//true
-        console.log(Animal.prototype.isPrototypeOf(cat1));//true
+    var cat1 = new Cat("Tom");
+    var cat2 = new Cat("Jack");
+
+    cat1.color.push("black");
+
+    console.log(cat1.color);//["white", "grey", "black"]
+    console.log(cat2.color);//["white", "grey"]
+    cat1.sayHi();//Hi!
+    console.log(cat1 instanceof Cat);//true
+    console.log(cat1 instanceof Animal);//true
+    console.log(Cat.prototype.isPrototypeOf(cat1));//true
+    console.log(Animal.prototype.isPrototypeOf(cat1));//true
 
 #### 原型式继承
 
@@ -469,20 +470,21 @@ ECMAScript 5 通过新增方法： `Object.create(参数1，参数2可选)`，�
  
 寄生式继承的思路与寄生构造函数和工厂模式类似，即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象，最后再像真地是它做了所有工作一样返回对象。
 
-	function createAnother(original){
-        var clone = object(original); //通过调用函数创建一个新对象
-        clone.sayHi = function(){ //以某种方式来增强这个对象
-            console.log("hi");
-        };
-        return clone; //返回这个对象
+    function createAnother(original){
+      var clone = object(original); //通过调用函数创建一个新对象
+      clone.sayHi = function(){ //以某种方式来增强这个对象
+        console.log("hi");
+      };
+      return clone; //返回这个对象
     }
-	var person = {
-        name: "Nicholas",
-        friends: ["Shelby", "Court", "Van"]
+    var person = {
+      name: "Nicholas",
+      friends: ["Shelby", "Court", "Van"]
     };
     var person4=createAnother(person);
     console.log(person4.friends);//"Shelby", "Court", "Van"
     person4.sayHi();//"hi"
+
 object()函数不是必需的；任何能够返回新对象的函数都适用于此模式。
 
 #### 寄生组合式继承
@@ -498,26 +500,26 @@ object()函数不是必需的；任何能够返回新对象的函数都适用于
 
 我们重写一下组合模式继承：
 		
-    	function Animal(){
-        　 this.species = "mammals";
-           this.color = ["white","grey"];        
-        }
-        Animal.prototype.sayHi=function(){
-            console.log("Hi!");
-        }          
-        function Cat(name){
-        	Animal.apply(this);
-    　　　　this.name = name;
-        } 
-        inheritPrototype(Cat, Animal);//通过寄生函数来为父类创建出一个子类（唯一区别）
-		
-        var cat1 = new Cat("Tom");
-        var cat2 = new Cat("Jack");
+      function Animal(){
+        this.species = "mammals";
+        this.color = ["white","grey"];        
+      }
+      Animal.prototype.sayHi=function(){
+        console.log("Hi!");
+      }          
+      function Cat(name){
+        Animal.apply(this);
+        this.name = name;
+      } 
+      inheritPrototype(Cat, Animal);//通过寄生函数来为父类创建出一个子类（唯一区别）
 
-        cat1.color.push("black");
-        console.log(cat1.color);//["white", "grey", "black"]
-        console.log(cat2.color);//["white", "grey"]
-        cat1.sayHi();//"Hi!"
+      var cat1 = new Cat("Tom");
+      var cat2 = new Cat("Jack");
+
+      cat1.color.push("black");
+      console.log(cat1.color);//["white", "grey", "black"]
+      console.log(cat2.color);//["white", "grey"]
+      cat1.sayHi();//"Hi!"
 这样就只调用了一次父类构造函数，效率会比较高。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。  
 
 ### 1.4 多态
