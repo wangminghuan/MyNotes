@@ -286,7 +286,7 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
       var cat1 = new Cat("咪咪","黄色");
       console.log(cat1.species);  
       console.log(cat1.eat());
-      
+
 1. 构造函数、原型和实例的关系：
 
 	- 每个构造函数都有一个原型对象（prototype）。
@@ -338,23 +338,23 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 6. 原型链引发的问题：  
 同创建对象一样，对于引用类型值的修改，会通过原型链反映到所继承类型上（子类修改影响父类），而且与创建对象时的构造函数模式不同的是：不管是位于父类构造函数内还有父类原型上的引用属性，只要子类被修改，父类就会被修改。
 
-		function Animal(){
-			this.species = "mammals";
-			this.color = ["white","grey"];
-		}
-		Animal.prototype.morecolor = ["yellow","blue","pink"];            
-		function Cat(name){
-		    this.name = name;
-		} 
-		Cat.prototype=new Animal();
-		var cat1 = new Cat("Tom"); 
-		var cat2 = new Cat("Jack");
-		
-		cat1.color.push("black");//修改引用类型
-		cat1.morecolor.push("tabby");
-		
-		console.log(cat1.color,cat1.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
-		console.log(cat2.color,cat2.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+    function Animal(){
+      this.species = "mammals";
+      this.color = ["white","grey"];
+    }
+    Animal.prototype.morecolor = ["yellow","blue","pink"];            
+    function Cat(name){
+        this.name = name;
+    } 
+    Cat.prototype=new Animal();
+    var cat1 = new Cat("Tom"); 
+    var cat2 = new Cat("Jack");
+    
+    cat1.color.push("black");//修改引用类型
+    cat1.morecolor.push("tabby");
+    
+    console.log(cat1.color,cat1.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
+    console.log(cat2.color,cat2.morecolor); //["white", "grey", "black"] ["yellow", "blue", "pink", "tabby"]
 
 可以看到修改实例`cat1`的`color`和`morecolor`属性会直接影响实例`cat2`的`color`和`morecolor`属性（重写则不存在这个问题）。这是因为继承情况下，重写子类的实例改写的是父类构造函数同一处引用。而创建实例的时候，每次创建出来的构造函数都是一个副本。所以，实践中很少会单独使用原型链来实现继承。
 
@@ -362,33 +362,33 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 
 这种技术的基本思想相当简单，即在子类型构造函数的内部调用超类型构造函数；  
 
-      function Animal(){
-        this.species = "mammals";
-        this.color = ["white","grey"];        
-      }            
-      function Cat(name){
-        Animal.apply(this);
-        this.name = name;
-      } 
-      Cat.prototype=new Animal();
-      var cat1 = new Cat("Tom");
-      var cat2 = new Cat("Jack");
-      cat1.color.push("tobby");
-      console.log(cat1.color); //["white", "grey", "tobby"]
-      console.log(cat2.color); //["white", "grey"]  
+    function Animal(){
+      this.species = "mammals";
+      this.color = ["white","grey"];        
+    }            
+    function Cat(name){
+      Animal.apply(this);
+      this.name = name;
+    } 
+    Cat.prototype=new Animal();
+    var cat1 = new Cat("Tom");
+    var cat2 = new Cat("Jack");
+    cat1.color.push("tobby");
+    console.log(cat1.color); //["white", "grey", "tobby"]
+    console.log(cat2.color); //["white", "grey"]  
 可以看到通过使用 apply()和 call()方法也可以在（将来）新创建的对象上执行构造函数，这样每个实例就都会具有自己的 `color` 属性的副本。同时，我们还以通过子类的构造函数向父类传递构造函数。  
 
-      function Animal(species){
-        this.species = species;
-        this.color = ["white","grey"];        
-      }            
-      function Cat(name){
-        Animal.call(this,"mammals");
-        this.name = name;
-      } 
-      Cat.prototype=new Animal();
-      var cat1 = new Cat("Tom");
-      console.log(cat1.species);//mammals
+    function Animal(species){
+      this.species = species;
+      this.color = ["white","grey"];        
+    }            
+    function Cat(name){
+      Animal.call(this,"mammals");
+      this.name = name;
+    } 
+    Cat.prototype=new Animal();
+    var cat1 = new Cat("Tom");
+    console.log(cat1.species);//mammals
 
 但其仍存在问题：所有的属性和方法都在父类构造函数中定义，因此函数复用就无从谈起了。并且在父类的原型中定义的方法，对子类型而言也是不可见的。考虑到这些问题，借用构造函数的技术也是很少单独使用的。
 
@@ -427,21 +427,21 @@ ECMAScript 只支持实现继承，没有实现接口继承，而且其实现继
 
 比如，现在有一个对象，叫做"中国人"：
 
-        var Chinese = {
-    　 　　　nation:'中国'
-    　　 };
+    var Chinese = {
+　 　　　nation:'中国'
+　　 };
 还有一个对象，叫做"医生"：
 
-        var Doctor ={
-        　　　career:'医生'
-        　}
+    var Doctor ={
+    　　　career:'医生'
+    　}
 请问怎样才能让"医生"去继承"中国人"，这两个对象都是普通对象，不是构造函数，所以我们无法使用构造函数方法实现"继承"。这时候我们可以通过object()方法实现一个非构造函数的继承：  
 
-    	function object(father){
-            var son=function(){}
-            son.prototype=father;
-            return new son();
-         }
+    function object(father){
+          var son=function(){}
+          son.prototype=father;
+          return new son();
+        }
 现在利用object函数实现person对象的继承：  
 
 	var person = {
